@@ -14,7 +14,7 @@ func genDsn(readonly bool) string {
 	if readonly {
 		host = readRds
 	}
-	return "access:^yunti9df3b01c$@tcp(" + host + ":3306)/yunxing?charset=utf8"
+	return "access:^yunti9df3b01c$@tcp(" + host + ":3306)/laughing?charset=utf8"
 }
 
 //InitDB connect to rds

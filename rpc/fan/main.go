@@ -22,8 +22,9 @@ var kv *redis.Client
 var w *nsq.Producer
 
 func (s *server) Follow(ctx context.Context, in *fan.FanRequest) (*common.CommReply, error) {
+	log.Printf("Follow request:%v", in)
 	util.PubRPCRequest(w, "fan", "Follow")
-	follow(db, in.Head.Uid, in.Type, in.Tuid)
+	follow(db, in.Type, in.Head.Uid, in.Tuid)
 	util.PubRPCSuccRsp(w, "fan", "Follow")
 	return &common.CommReply{
 		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil

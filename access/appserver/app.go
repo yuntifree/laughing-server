@@ -5,6 +5,7 @@ import (
 	"laughing-server/proto/common"
 	"laughing-server/proto/fan"
 	"laughing-server/util"
+	"log"
 	"net/http"
 )
 
@@ -19,6 +20,7 @@ func followop(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	uid := req.GetParamInt("uid")
 	tuid := req.GetParamInt("tuid")
 	ftype := req.GetParamInt("type")
+	log.Printf("uid:%d tuid:%d type:%d", uid, tuid, ftype)
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.FanServerType, uid, "Follow",
