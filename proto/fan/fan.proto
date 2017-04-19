@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "laughing-server/proto/common/common.proto";
+
+package fan;
+
+service Fan {
+    rpc Follow(FanRequest) returns (common.CommReply) {}
+}
+
+message FanRequest {
+    common.Head head = 1;
+    int64 type = 2;
+    int64 tuid = 3;
+}
