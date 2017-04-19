@@ -8,6 +8,7 @@ enum ErrCode {
     SQL = 1001;
     INVALID_TOKEN = 1002;
     FETCH_SERVER  = 1003;
+    FB_LOGIN = 1004;
 }
 
 message Head {

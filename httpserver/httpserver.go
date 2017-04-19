@@ -10,6 +10,7 @@ import (
 	"laughing-server/proto/common"
 	"laughing-server/proto/discover"
 	"laughing-server/proto/fan"
+	"laughing-server/proto/verify"
 	"laughing-server/util"
 	"log"
 	"net/http"
@@ -539,6 +540,8 @@ func genServerName(rtype int64, callback string) string {
 	switch rtype {
 	case util.FanServerType:
 		return util.FanServerName
+	case util.VerifyServerType:
+		return util.VerifyServerName
 	default:
 		panic(util.AppError{ErrInvalidParam, "illegal server type", callback})
 	}
@@ -549,6 +552,8 @@ func genClient(rtype int64, conn *grpc.ClientConn, callback string) interface{} 
 	switch rtype {
 	case util.FanServerType:
 		cli = fan.NewFanClient(conn)
+	case util.VerifyServerType:
+		cli = verify.NewVerifyClient(conn)
 	default:
 		panic(util.AppError{ErrInvalidParam, "illegal server type", callback})
 	}

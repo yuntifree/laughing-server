@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "laughing-server/proto/common/common.proto";
+
+package verify;
+
+service Verify {
+    rpc FbLogin(FbLoginRequest) returns (LoginReply) {}
+}
+
+message FbLoginRequest {
+    common.Head head = 1;
+    string fbid = 2;
+    string fbtoken = 3;
+}
+
+message LoginReply {
+    common.Head head = 1;
+    int64 uid = 2;
+    string token = 3;
+    string headurl = 4;
+    string nickname = 5;
+}
+
