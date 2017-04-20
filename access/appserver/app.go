@@ -60,10 +60,30 @@ func fblogin(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func logout(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+	uid := req.GetParamInt("uid")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.VerifyServerType, uid, "Logout",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid}})
+
+	httpserver.CheckRPCErr(rpcerr, "Logout")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "Logout")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewAppServer return app http handler
 func NewAppServer() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/followop", httpserver.AppHandler(followop))
 	mux.Handle("/fblogin", httpserver.AppHandler(fblogin))
+	mux.Handle("/logout", httpserver.AppHandler(logout))
 	return mux
 }

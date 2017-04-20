@@ -35,6 +35,15 @@ func (s *server) FbLogin(ctx context.Context, in *verify.FbLoginRequest) (*verif
 		Uid:  uid, Token: token, Headurl: headurl, Nickname: nickname}, nil
 }
 
+func (s *server) Logout(ctx context.Context, in *common.CommRequest) (*common.CommReply, error) {
+	log.Printf("Logout request:%v", in)
+	util.PubRPCRequest(w, "verify", "Logout")
+	logout(db, in.Head.Uid)
+	util.PubRPCSuccRsp(w, "verify", "Logout")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0}}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.VerifyServerPort)
 	if err != nil {

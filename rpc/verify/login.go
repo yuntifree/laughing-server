@@ -35,3 +35,10 @@ func fblogin(db *sql.DB, fbid, fbtoken string) (uid int64, token, headurl,
 	}
 	return
 }
+
+func logout(db *sql.DB, uid int64) {
+	_, err := db.Exec("UPDATE users SET token = '' WHERE uid = ?", uid)
+	if err != nil {
+		log.Printf("logout failed:%v", err)
+	}
+}
