@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "laughing-server/proto/common/common.proto";
+
+package share;
+
+service Share{
+    rpc GetTags(common.CommRequest) returns (TagReply) {}
+}
+
+message TagInfo {
+    int64 id = 1;
+    string content = 2;
+}
+
+message TagReply {
+    common.Head head = 1;
+    repeated TagInfo infos = 2;
+}

@@ -4,6 +4,7 @@ import (
 	"laughing-server/httpserver"
 	"laughing-server/proto/common"
 	"laughing-server/proto/fan"
+	"laughing-server/proto/share"
 	"laughing-server/proto/verify"
 	"laughing-server/util"
 	"log"
@@ -102,6 +103,24 @@ func getRelations(w http.ResponseWriter, r *http.Request) (apperr *util.AppError
 	return nil
 }
 
+func getTags(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, 0, "GetTags",
+		&common.CommRequest{Head: &common.Head{Sid: uuid}})
+
+	httpserver.CheckRPCErr(rpcerr, "GetTags")
+	res := resp.Interface().(*share.TagReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "GetTags")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewAppServer return app http handler
 func NewAppServer() http.Handler {
 	mux := http.NewServeMux()
@@ -109,5 +128,6 @@ func NewAppServer() http.Handler {
 	mux.Handle("/fblogin", httpserver.AppHandler(fblogin))
 	mux.Handle("/logout", httpserver.AppHandler(logout))
 	mux.Handle("/get_relations", httpserver.AppHandler(getRelations))
+	mux.Handle("/get_tags", httpserver.AppHandler(getTags))
 	return mux
 }
