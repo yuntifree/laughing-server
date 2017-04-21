@@ -22,6 +22,7 @@ message CommRequest {
     Head head = 1;
     int64 seq = 2;
     int64 num = 3;
+    int64 type = 4;
 }
 
 message CommReply {

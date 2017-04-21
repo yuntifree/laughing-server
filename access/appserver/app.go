@@ -79,11 +79,35 @@ func logout(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func getRelations(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+	uid := req.GetParamInt("uid")
+	stype := req.GetParamInt("type")
+	seq := req.GetParamInt("seq")
+	num := req.GetParamInt("num")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.FanServerType, uid, "GetRelations",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+			Type: stype, Seq: seq, Num: num})
+
+	httpserver.CheckRPCErr(rpcerr, "GetRelations")
+	res := resp.Interface().(*fan.RelationReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "GetRelations")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewAppServer return app http handler
 func NewAppServer() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/followop", httpserver.AppHandler(followop))
 	mux.Handle("/fblogin", httpserver.AppHandler(fblogin))
 	mux.Handle("/logout", httpserver.AppHandler(logout))
+	mux.Handle("/get_relations", httpserver.AppHandler(getRelations))
 	return mux
 }

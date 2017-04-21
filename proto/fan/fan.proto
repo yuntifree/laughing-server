@@ -6,10 +6,24 @@ package fan;
 
 service Fan {
     rpc Follow(FanRequest) returns (common.CommReply) {}
+    rpc GetRelations(common.CommRequest) returns (RelationReply) {}
 }
 
 message FanRequest {
     common.Head head = 1;
     int64 type = 2;
     int64 tuid = 3;
+}
+
+message UserInfo {
+    int64 uid = 1;
+    string headurl = 2;
+    string nickname = 3;
+}
+
+message RelationReply {
+    common.Head head = 1;
+    repeated UserInfo infos = 2;
+    int64 hasmore = 3;
+    int64 nextseq = 4;
 }
