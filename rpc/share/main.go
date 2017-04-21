@@ -31,6 +31,23 @@ func (s *server) GetTags(ctx context.Context, in *common.CommRequest) (*share.Ta
 		Infos: infos}, nil
 }
 
+func (s *server) AddShare(ctx context.Context, in *share.ShareRequest) (*common.CommReply, error) {
+	log.Printf("AddShare request:%v", in)
+	util.PubRPCRequest(w, "share", "AddShare")
+	id, err := addShare(db, in)
+	if err != nil {
+		log.Printf("addShare failed:%v", err)
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_ADD_SHARE,
+				Uid: in.Head.Uid}}, nil
+
+	}
+	util.PubRPCSuccRsp(w, "share", "AddShare")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Id:   id}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ShareServerPort)
 	if err != nil {

@@ -6,6 +6,7 @@ package share;
 
 service Share{
     rpc GetTags(common.CommRequest) returns (TagReply) {}
+    rpc AddShare(ShareRequest) returns (common.CommReply) {}
 }
 
 message TagInfo {
@@ -16,4 +17,14 @@ message TagInfo {
 message TagReply {
     common.Head head = 1;
     repeated TagInfo infos = 2;
+}
+
+message ShareRequest {
+    common.Head head = 1;
+    string title = 2;
+    string abstract = 3;
+    string img = 4;
+    string dst = 5;
+    repeated int64 tags = 6;
+    int64 origin = 7;
 }

@@ -9,6 +9,7 @@ enum ErrCode {
     INVALID_TOKEN = 1002;
     FETCH_SERVER  = 1003;
     FB_LOGIN = 1004;
+    ADD_SHARE = 1005;
 }
 
 message Head {
@@ -27,4 +28,5 @@ message CommRequest {
 
 message CommReply {
     Head head = 1;
+    int64 id = 2;
 }

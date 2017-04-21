@@ -104,6 +104,22 @@ func getJSONStringDef(js *simplejson.Json, key, def string) string {
 	return def
 }
 
+func getJSONStringArray(js *simplejson.Json, key string) []string {
+	var s []string
+	arr, err := js.Get("data").Get(key).Array()
+	if err == nil {
+		for i := 0; i < len(arr); i++ {
+			v, err := js.Get("data").Get(key).GetIndex(i).String()
+			if err != nil {
+				log.Printf("getJSONIntArray get failed, idx:%d %v", i, err)
+				continue
+			}
+			s = append(s, v)
+		}
+	}
+	return s
+}
+
 func getJSONInt(js *simplejson.Json, key string) int64 {
 	if val, err := js.Get(key).Int64(); err == nil {
 		return val
@@ -124,6 +140,22 @@ func getJSONIntDef(js *simplejson.Json, key string, def int64) int64 {
 		return val
 	}
 	return def
+}
+
+func getJSONIntArray(js *simplejson.Json, key string) []int64 {
+	var s []int64
+	arr, err := js.Get("data").Get(key).Array()
+	if err == nil {
+		for i := 0; i < len(arr); i++ {
+			v, err := js.Get("data").Get(key).GetIndex(i).Int64()
+			if err != nil {
+				log.Printf("getJSONIntArray get failed, idx:%d %v", i, err)
+				continue
+			}
+			s = append(s, v)
+		}
+	}
+	return s
 }
 
 func getJSONBool(js *simplejson.Json, key string) bool {
@@ -362,6 +394,14 @@ func (r *Request) GetParamFloatDef(key string, def float64) float64 {
 		return getFormFloatDef(r.Form, key, def)
 	}
 	return getJSONFloatDef(r.Post, key, def)
+}
+
+func (r *Request) GetParamIntArray(key string) []int64 {
+	return getJSONIntArray(r.Post, key)
+}
+
+func (r *Request) GetParamStringArray(key string) []string {
+	return getJSONStringArray(r.Post, key)
 }
 
 func extractError(r interface{}) *util.AppError {

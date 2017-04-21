@@ -11,11 +11,6 @@ import (
 	"net/http"
 )
 
-const (
-	FollowType   = 0
-	UnfollowType = 1
-)
-
 func followop(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
@@ -121,6 +116,34 @@ func getTags(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func addShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+
+	uid := req.GetParamInt("uid")
+	title := req.GetParamString("title")
+	abstract := req.GetParamString("abstract")
+	img := req.GetParamString("img")
+	dst := req.GetParamString("dst")
+	origin := req.GetParamInt("origin")
+	tags := req.GetParamIntArray("tags")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, 0, "AddShare",
+		&share.ShareRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+			Title: title, Abstract: abstract, Img: img,
+			Dst: dst, Tags: tags, Origin: origin})
+
+	httpserver.CheckRPCErr(rpcerr, "AddShare")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "AddShare")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewAppServer return app http handler
 func NewAppServer() http.Handler {
 	mux := http.NewServeMux()
@@ -129,5 +152,6 @@ func NewAppServer() http.Handler {
 	mux.Handle("/logout", httpserver.AppHandler(logout))
 	mux.Handle("/get_relations", httpserver.AppHandler(getRelations))
 	mux.Handle("/get_tags", httpserver.AppHandler(getTags))
+	mux.Handle("/add_share", httpserver.AppHandler(addShare))
 	return mux
 }
