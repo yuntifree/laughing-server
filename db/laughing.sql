@@ -1,6 +1,6 @@
 use laughing;
 
-//用户信息
+-- 用户信息
 CREATE TABLE IF NOT EXISTS users 
 (
     uid     bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users
 -- 粉丝
 CREATE TABLE IF NOT EXISTS fan 
 (
-    id      bigint unsigned NOT NULL,
+    id     bigint unsigned NOT NULL AUTO_INCREMENT,
     uid     int unsigned NOT NULL,
     tuid    int unsigned NOT NULL,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS fan
 -- 关注
 CREATE TABLE IF NOT EXISTS follower 
 (
-    id      bigint unsigned NOT NULL,
+    id     bigint unsigned NOT NULL AUTO_INCREMENT,
     uid     int unsigned NOT NULL,
     tuid    int unsigned NOT NULL,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS follower
 -- 视频信息
 CREATE TABLE IF NOT EXISTS media 
 (
-    id      bigint unsigned NOT NULL,
+    id     bigint unsigned NOT NULL AUTO_INCREMENT,
     uid     int unsigned NOT NULL,
     img     varchar(128) NOT NULL,
     dst     varchar(128) NOT NULL, 
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS media
 -- 标签
 CREATE TABLE IF NOT EXISTS tags
 (
-    id      bigint unsigned NOT NULL,
+    id     bigint unsigned NOT NULL AUTO_INCREMENT,
     content varchar(64) NOT NULL,
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS tags
 -- 视频标签
 CREATE TABLE IF NOT EXISTS media_tags
 (
-    id      bigint unsigned NOT NULL,
+    id     bigint unsigned NOT NULL AUTO_INCREMENT,
     mid     bigint unsigned NOT NULL,
     tid     int unsigned NOT NULL,
     deleted tinyint unsigned NOT NULL DEFAULT 0,
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS media_tags
 -- 分享
 CREATE TABLE IF NOT EXISTS shares
 (
-    id      bigint unsigned NOT NULL,
+    id     bigint unsigned NOT NULL AUTO_INCREMENT,
     uid     int unsigned NOT NULL,
     -- medias id
     mid     int unsigned NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS shares
     comments    int unsigned NOT NULL DEFAULT 0,
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
     KEY(uid),
     KEY(mid)
 ) ENGINE = InnoDB;
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS shares
 -- 评论
 CREATE TABLE IF NOT EXISTS comments
 (
-    id      bigint unsigned NOT NULL,
+    id     bigint unsigned NOT NULL AUTO_INCREMENT,
     -- shares id
     sid     int unsigned NOT NULL,
     uid     int unsigned NOT NULL,
