@@ -153,7 +153,7 @@ func getUserInfo(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.UserServerType, uid, "GetInfo",
-		&user.InfoRequest{Head: &common.Head{Sid: uuid, Uid: uid}, Tuid: tuid})
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid}, Id: tuid})
 
 	httpserver.CheckRPCErr(rpcerr, "GetInfo")
 	res := resp.Interface().(*user.InfoReply)
