@@ -137,3 +137,34 @@ func getShares(db *sql.DB, seq, num int64) (infos []*share.ShareInfo, nextseq in
 	}
 	return
 }
+
+func genCommentQuery(id, seq, num int64) string {
+	query := fmt.Sprintf("SELECT c.id, c.uid, c.content, c.ctime, u.headurl, u.nickname FROM comments c, users u WHERE c.uid = u.uid AND c.sid = %d ", id)
+	if seq != 0 {
+		query += fmt.Sprintf(" AND c.id < %d ", seq)
+	}
+	query += fmt.Sprintf(" ORDER BY c.id DESC LIMIT %d", num)
+	return query
+}
+
+func getShareComments(db *sql.DB, id, seq, num int64) (infos []*share.CommentInfo, nextseq int64) {
+	query := genCommentQuery(id, seq, num)
+	rows, err := db.Query(query)
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var info share.CommentInfo
+		err := rows.Scan(&info.Id, &info.Uid, &info.Content, &info.Ctime,
+			&info.Headurl, &info.Nickname)
+		if err != nil {
+			log.Printf("getShareComments scan failed:%v", err)
+			continue
+		}
+		nextseq = info.Id
+		infos = append(infos, &info)
+	}
+	return
+}

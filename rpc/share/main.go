@@ -80,14 +80,18 @@ func (s *server) AddComment(ctx context.Context, in *share.CommentRequest) (*com
 		Id:   id}, nil
 }
 
+func getHasmore(len int, num int64) int64 {
+	if len >= int(num) {
+		return 1
+	}
+	return 0
+}
+
 func (s *server) GetMyShares(ctx context.Context, in *common.CommRequest) (*share.ShareReply, error) {
 	log.Printf("GetMyShares request:%v", in)
 	util.PubRPCRequest(w, "share", "GetMyShare")
 	infos, nextseq := getMyShares(db, in.Head.Uid, in.Seq, in.Num)
-	var hasmore int64
-	if len(infos) >= int(in.Num) {
-		hasmore = 1
-	}
+	hasmore := getHasmore(len(infos), in.Num)
 	util.PubRPCSuccRsp(w, "share", "GetMyShare")
 	return &share.ShareReply{
 		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
@@ -98,12 +102,20 @@ func (s *server) GetShares(ctx context.Context, in *common.CommRequest) (*share.
 	log.Printf("GetShares request:%v", in)
 	util.PubRPCRequest(w, "share", "GetShare")
 	infos, nextseq := getShares(db, in.Seq, in.Num)
-	var hasmore int64
-	if len(infos) >= int(in.Num) {
-		hasmore = 1
-	}
+	hasmore := getHasmore(len(infos), in.Num)
 	util.PubRPCSuccRsp(w, "share", "GetShare")
 	return &share.ShareReply{
+		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Infos: infos, Hasmore: hasmore, Nextseq: nextseq}, nil
+}
+
+func (s *server) GetShareComments(ctx context.Context, in *common.CommRequest) (*share.CommentReply, error) {
+	log.Printf("GetShareComments request:%v", in)
+	util.PubRPCRequest(w, "share", "GetShareComments")
+	infos, nextseq := getShareComments(db, in.Id, in.Seq, in.Num)
+	hasmore := getHasmore(len(infos), in.Num)
+	util.PubRPCSuccRsp(w, "share", "GetShareComments")
+	return &share.CommentReply{
 		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
 		Infos: infos, Hasmore: hasmore, Nextseq: nextseq}, nil
 }
