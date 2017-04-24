@@ -213,6 +213,29 @@ func getMyShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 	return nil
 }
 
+func getShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+
+	uid := req.GetParamInt("uid")
+	seq := req.GetParamInt("seq")
+	num := req.GetParamInt("num")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, uid, "GetShares",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+			Seq: seq, Num: num})
+
+	httpserver.CheckRPCErr(rpcerr, "GetShares")
+	res := resp.Interface().(*share.ShareReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "GetShares")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 func getUserInfo(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
@@ -243,6 +266,7 @@ func NewAppServer() http.Handler {
 	mux.Handle("/get_tags", httpserver.AppHandler(getTags))
 	mux.Handle("/add_share", httpserver.AppHandler(addShare))
 	mux.Handle("/get_my_shares", httpserver.AppHandler(getMyShares))
+	mux.Handle("/get_shares", httpserver.AppHandler(getShares))
 	mux.Handle("/reshare", httpserver.AppHandler(reshare))
 	mux.Handle("/add_comment", httpserver.AppHandler(addComment))
 	mux.Handle("/get_user_info", httpserver.AppHandler(getUserInfo))

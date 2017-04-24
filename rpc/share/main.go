@@ -94,6 +94,20 @@ func (s *server) GetMyShares(ctx context.Context, in *common.CommRequest) (*shar
 		Infos: infos, Hasmore: hasmore, Nextseq: nextseq}, nil
 }
 
+func (s *server) GetShares(ctx context.Context, in *common.CommRequest) (*share.ShareReply, error) {
+	log.Printf("GetShares request:%v", in)
+	util.PubRPCRequest(w, "share", "GetShare")
+	infos, nextseq := getShares(db, in.Seq, in.Num)
+	var hasmore int64
+	if len(infos) >= int(in.Num) {
+		hasmore = 1
+	}
+	util.PubRPCSuccRsp(w, "share", "GetShare")
+	return &share.ShareReply{
+		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Infos: infos, Hasmore: hasmore, Nextseq: nextseq}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ShareServerPort)
 	if err != nil {

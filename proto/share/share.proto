@@ -10,6 +10,7 @@ service Share{
     rpc Reshare(common.CommRequest) returns (common.CommReply) {}
     rpc AddComment(CommentRequest) returns (common.CommReply) {}
     rpc GetMyShares(common.CommRequest) returns (ShareReply) {}
+    rpc GetShares(common.CommRequest) returns (ShareReply) {}
 }
 
 message TagInfo {
