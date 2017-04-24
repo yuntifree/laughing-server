@@ -12,6 +12,7 @@ enum ErrCode {
     ADD_SHARE = 1005;
     GET_INFO = 1006;
     RESHARE = 1007;
+    ADD_COMMENT = 1008;
 }
 
 message Head {

@@ -8,6 +8,7 @@ service Share{
     rpc GetTags(common.CommRequest) returns (TagReply) {}
     rpc AddShare(ShareRequest) returns (common.CommReply) {}
     rpc Reshare(common.CommRequest) returns (common.CommReply) {}
+    rpc AddComment(CommentRequest) returns (common.CommReply) {}
 }
 
 message TagInfo {
@@ -28,4 +29,10 @@ message ShareRequest {
     string dst = 5;
     repeated int64 tags = 6;
     int64 origin = 7;
+}
+
+message CommentRequest {
+    common.Head head = 1;
+    int64 id = 2;
+    string content = 3;
 }

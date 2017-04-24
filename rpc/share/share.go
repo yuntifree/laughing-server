@@ -72,3 +72,12 @@ func reshare(db *sql.DB, uid, sid int64) (id int64, err error) {
 	}
 	return
 }
+
+func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error) {
+	res, err := db.Exec("INSERT INTO comments(uid, sid, content, ctime) VALUES (?, ?, ?, NOW())", uid, sid, content)
+	if err != nil {
+		return
+	}
+	id, err = res.LastInsertId()
+	return
+}
