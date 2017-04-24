@@ -48,6 +48,22 @@ func (s *server) AddShare(ctx context.Context, in *share.ShareRequest) (*common.
 		Id:   id}, nil
 }
 
+func (s *server) Reshare(ctx context.Context, in *common.CommRequest) (*common.CommReply, error) {
+	log.Printf("Reshare request:%v", in)
+	util.PubRPCRequest(w, "share", "Reshare")
+	id, err := reshare(db, in.Head.Uid, in.Id)
+	if err != nil {
+		log.Printf("reshare failed:%v", err)
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_RESHARE,
+				Uid: in.Head.Uid}}, nil
+	}
+	util.PubRPCSuccRsp(w, "share", "Reshare")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Id:   id}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ShareServerPort)
 	if err != nil {

@@ -7,6 +7,7 @@ package share;
 service Share{
     rpc GetTags(common.CommRequest) returns (TagReply) {}
     rpc AddShare(ShareRequest) returns (common.CommReply) {}
+    rpc Reshare(common.CommRequest) returns (common.CommReply) {}
 }
 
 message TagInfo {

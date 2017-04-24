@@ -11,6 +11,7 @@ enum ErrCode {
     FB_LOGIN = 1004;
     ADD_SHARE = 1005;
     GET_INFO = 1006;
+    RESHARE = 1007;
 }
 
 message Head {

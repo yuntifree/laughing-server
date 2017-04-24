@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"laughing-server/proto/share"
 	"log"
@@ -39,6 +40,29 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 
 	res, err = db.Exec("INSERT INTO shares(uid, mid, allowshare, ctime) VALUES (?, ?, ?, NOW())",
 		in.Head.Uid, mid, in.Origin)
+	if err != nil {
+		return
+	}
+	id, err = res.LastInsertId()
+	if err != nil {
+		return
+	}
+	return
+}
+
+func reshare(db *sql.DB, uid, sid int64) (id int64, err error) {
+	var mid, allowshare int64
+	err = db.QueryRow("SELECT mid, allowshare FROM shares WHERE id = ?", sid).
+		Scan(&mid, &allowshare)
+	if err != nil {
+		return
+	}
+	if allowshare != 1 {
+		err = errors.New("reshare not allowed")
+		return
+	}
+
+	res, err := db.Exec("INSERT INTO shares (uid, mid, sid, allowshare, ctime) VALUES (?, ?, ?, 0, NOW())", uid, mid, sid)
 	if err != nil {
 		return
 	}
