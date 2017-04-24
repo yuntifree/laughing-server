@@ -168,3 +168,95 @@ func getShareComments(db *sql.DB, id, seq, num int64) (infos []*share.CommentInf
 	}
 	return
 }
+
+func getMediaTags(db *sql.DB, id int64) string {
+	rows, err := db.Query("SELECT t.content FROM media_tags m, tags t WHERE m.tid = t.id AND m.id = ?", id)
+	if err != nil {
+		return ""
+	}
+	defer rows.Close()
+	var tags string
+	for rows.Next() {
+		var content string
+		err := rows.Scan(&content)
+		if err != nil {
+			log.Printf("getMediaTags scan failed:%v", err)
+			continue
+		}
+		tags += content + " "
+	}
+	return tags
+}
+
+const (
+	inner     = 0
+	facebook  = 1
+	instagram = 2
+	musically = 3
+)
+
+func genShareDesc(minutes, origin, sid int64) string {
+	var desc string
+	if sid != 0 {
+		desc = "Reshared "
+	} else {
+		switch origin {
+		case facebook:
+			desc = "Shared from Facebook "
+		case instagram:
+			desc = "Shared from Instagram "
+		case musically:
+			desc = "Shared from Musically "
+		default:
+			desc = "Uploaded "
+		}
+	}
+
+	if minutes < 60 {
+		desc += fmt.Sprintf(" %d minutes ago", minutes)
+	} else if minutes < 24*60 {
+		desc += fmt.Sprintf(" %d hours ago", minutes/60)
+	} else {
+		desc += fmt.Sprintf(" %d days ago", minutes/(60*24))
+	}
+	return desc
+}
+
+func getOrigShare(db *sql.DB, id, origin int64) (info share.ShareRecord, err error) {
+	var minutes int64
+	err = db.QueryRow("SELECT u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()) FROM shares s, users u WHERE s.uid = u.uid AND s.id = ?", id).
+		Scan(&info.Uid, &info.Headurl, &info.Nickname, &minutes)
+	if err != nil {
+		log.Printf("getOrigShare failed:%v", err)
+		return
+	}
+	info.Desc = genShareDesc(minutes, origin, 0)
+	info.Origin = origin
+	return
+}
+
+func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
+	var mid, sid, diff int64
+	var record share.ShareRecord
+	err = db.QueryRow("SELECT s.reshare, s.comments, s.allowshare, m.img, m.dst, m.title, m.views, m.id, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
+		Scan(&info.Reshare, &info.Comments, &info.Allowshare, &info.Img, &info.Dst,
+			&info.Title, &info.Views, &mid, &sid, &record.Uid, &record.Headurl,
+			&record.Nickname, &diff, &record.Origin)
+	if err != nil {
+		return
+	}
+	info.Tag = getMediaTags(db, mid)
+	record.Desc = genShareDesc(diff, record.Origin, sid)
+	if sid != 0 {
+		rec, err := getOrigShare(db, sid, record.Origin)
+		if err != nil {
+			info.Records = append(info.Records, &record)
+		} else {
+			info.Records = append(info.Records, &rec)
+			info.Records = append(info.Records, &record)
+		}
+	} else {
+		info.Records = append(info.Records, &record)
+	}
+	return
+}

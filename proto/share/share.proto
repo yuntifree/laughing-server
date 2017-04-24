@@ -12,6 +12,7 @@ service Share{
     rpc GetMyShares(common.CommRequest) returns (ShareReply) {}
     rpc GetShares(common.CommRequest) returns (ShareReply) {}
     rpc GetShareComments(common.CommRequest) returns (CommentReply) {}
+    rpc GetShareDetail(common.CommRequest) returns (ShareDetailReply) {}
 }
 
 message TagInfo {
@@ -72,4 +73,30 @@ message CommentReply {
     repeated CommentInfo infos = 2;
     int64 hasmore = 3;
     int64 nextseq = 4;
+}
+
+message ShareRecord {
+    int64 uid = 1;
+    string headurl = 2;
+    string nickname = 3;
+    string desc = 4;
+    int64 origin = 5;
+}
+
+message ShareDetail {
+    string img = 1;
+    string dst = 2;
+    string title = 3;
+    string tag = 4;
+    int64 views = 5;
+    int64 reshare = 6;
+    int64 comments = 7;
+    int64 unshare = 8;
+    int64 allowshare = 9;
+    repeated ShareRecord records = 10;
+}
+
+message ShareDetailReply {
+    common.Head head = 1;
+    ShareDetail Info = 2;
 }

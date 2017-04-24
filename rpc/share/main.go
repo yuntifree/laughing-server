@@ -120,6 +120,22 @@ func (s *server) GetShareComments(ctx context.Context, in *common.CommRequest) (
 		Infos: infos, Hasmore: hasmore, Nextseq: nextseq}, nil
 }
 
+func (s *server) GetShareDetail(ctx context.Context, in *common.CommRequest) (*share.ShareDetailReply, error) {
+	log.Printf("GetShareDetail request:%v", in)
+	util.PubRPCRequest(w, "share", "GetShareDetail")
+	info, err := getShareDetail(db, in.Id)
+	if err != nil {
+		log.Printf("getShareDetail failed:%v", err)
+		return &share.ShareDetailReply{
+			Head: &common.Head{Retcode: common.ErrCode_GET_INFO, Uid: in.Head.Uid},
+		}, nil
+	}
+	util.PubRPCSuccRsp(w, "share", "GetShareDetail")
+	return &share.ShareDetailReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Info: &info}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ShareServerPort)
 	if err != nil {
