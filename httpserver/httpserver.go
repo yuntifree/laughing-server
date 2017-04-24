@@ -11,6 +11,7 @@ import (
 	"laughing-server/proto/discover"
 	"laughing-server/proto/fan"
 	"laughing-server/proto/share"
+	"laughing-server/proto/user"
 	"laughing-server/proto/verify"
 	"laughing-server/util"
 	"log"
@@ -509,6 +510,29 @@ func RspGzip(w http.ResponseWriter, body []byte) {
 	w.Write(buf.Bytes())
 }
 
+//GenInfoResponseBody generate info response body
+func GenInfoResponseBody(res interface{}) []byte {
+	js, err := simplejson.NewJson([]byte(`{"errno":0}`))
+	if err != nil {
+		panic(util.AppError{ErrInner, err.Error(), ""})
+	}
+	val := reflect.ValueOf(res).Elem()
+	for i := 0; i < val.NumField(); i++ {
+		valueField := val.Field(i)
+		typeField := val.Type().Field(i)
+		if typeField.Name == "Info" {
+			js.Set("data", valueField.Interface())
+			break
+		}
+	}
+	data, err := js.MarshalJSON()
+	if err != nil {
+		panic(util.AppError{ErrInner, err.Error(), ""})
+	}
+
+	return data
+}
+
 //GenResponseBody generate response body
 func GenResponseBody(res interface{}, flag bool) []byte {
 	return GenResponseBodyCallback(res, "", flag)
@@ -585,6 +609,8 @@ func genServerName(rtype int64, callback string) string {
 		return util.VerifyServerName
 	case util.ShareServerType:
 		return util.ShareServerName
+	case util.UserServerType:
+		return util.UserServerName
 	default:
 		panic(util.AppError{ErrInvalidParam, "illegal server type", callback})
 	}
@@ -599,6 +625,8 @@ func genClient(rtype int64, conn *grpc.ClientConn, callback string) interface{} 
 		cli = verify.NewVerifyClient(conn)
 	case util.ShareServerType:
 		cli = share.NewShareClient(conn)
+	case util.UserServerType:
+		cli = user.NewUserClient(conn)
 	default:
 		panic(util.AppError{ErrInvalidParam, "illegal server type", callback})
 	}

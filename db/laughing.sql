@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS users
     fan_cnt int unsigned NOT NULL DEFAULT 0,
     -- 关注数
     follow_cnt  int unsigned NOT NULL DEFAULT 0,
+    -- 分享数
+    videos      int unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     etime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(uid),

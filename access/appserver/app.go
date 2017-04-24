@@ -5,6 +5,7 @@ import (
 	"laughing-server/proto/common"
 	"laughing-server/proto/fan"
 	"laughing-server/proto/share"
+	"laughing-server/proto/user"
 	"laughing-server/proto/verify"
 	"laughing-server/util"
 	"log"
@@ -144,6 +145,26 @@ func addShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func getUserInfo(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+	uid := req.GetParamInt("uid")
+	tuid := req.GetParamInt("tuid")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.UserServerType, uid, "GetInfo",
+		&user.InfoRequest{Head: &common.Head{Sid: uuid, Uid: uid}, Tuid: tuid})
+
+	httpserver.CheckRPCErr(rpcerr, "GetInfo")
+	res := resp.Interface().(*user.InfoReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "GetInfo")
+
+	body := httpserver.GenInfoResponseBody(res)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewAppServer return app http handler
 func NewAppServer() http.Handler {
 	mux := http.NewServeMux()
@@ -153,5 +174,6 @@ func NewAppServer() http.Handler {
 	mux.Handle("/get_relations", httpserver.AppHandler(getRelations))
 	mux.Handle("/get_tags", httpserver.AppHandler(getTags))
 	mux.Handle("/add_share", httpserver.AppHandler(addShare))
+	mux.Handle("/get_user_info", httpserver.AppHandler(getUserInfo))
 	return mux
 }
