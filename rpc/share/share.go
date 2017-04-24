@@ -81,3 +81,30 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 	id, err = res.LastInsertId()
 	return
 }
+
+func getMyShares(db *sql.DB, uid, seq, num int64) (infos []*share.ShareInfo, nextseq int64) {
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id "
+	if seq != 0 {
+		query += fmt.Sprintf(" AND s.id < %d ", seq)
+	}
+	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
+	log.Printf("getMyShares query:%s", query)
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Printf("getMyShares query failed:%v", err)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var info share.ShareInfo
+		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
+			&info.Img, &info.Views, &info.Title, &info.Abstract)
+		if err != nil {
+			log.Printf("getMyShare scan failed:%v", err)
+			continue
+		}
+		nextseq = info.Id
+		infos = append(infos, &info)
+	}
+	return
+}
