@@ -270,6 +270,27 @@ func getUserInfo(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 	return nil
 }
 
+func modUserInfo(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+	headurl := req.GetParamStringDef("headurl", "")
+	nickname := req.GetParamStringDef("nickname", "")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.UserServerType, req.Uid, "ModInfo",
+		&user.ModInfoRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Headurl: headurl, Nickname: nickname})
+
+	httpserver.CheckRPCErr(rpcerr, "ModInfo")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "ModInfo")
+
+	body := httpserver.GenInfoResponseBody(res)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 func getShareDetail(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
@@ -305,5 +326,6 @@ func NewAppServer() http.Handler {
 	mux.Handle("/reshare", httpserver.AppHandler(reshare))
 	mux.Handle("/add_comment", httpserver.AppHandler(addComment))
 	mux.Handle("/get_user_info", httpserver.AppHandler(getUserInfo))
+	mux.Handle("/mod_user_info", httpserver.AppHandler(modUserInfo))
 	return mux
 }

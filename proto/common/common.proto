@@ -14,6 +14,7 @@ enum ErrCode {
     RESHARE = 1007;
     ADD_COMMENT = 1008;
     FOLLOW = 1009;
+    MOD_INFO = 10010;
 }
 
 message Head {

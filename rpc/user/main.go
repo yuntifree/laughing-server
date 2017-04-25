@@ -38,6 +38,23 @@ func (s *server) GetInfo(ctx context.Context, in *common.CommRequest) (*user.Inf
 	}, nil
 }
 
+func (s *server) ModInfo(ctx context.Context, in *user.ModInfoRequest) (*common.CommReply, error) {
+	log.Printf("ModInfo request:%v", in)
+	util.PubRPCRequest(w, "user", "ModInfo")
+	err := modInfo(db, in.Head.Uid, in.Headurl, in.Nickname)
+	if err != nil {
+		log.Printf("modInfo failed:%v", err)
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_MOD_INFO,
+				Uid: in.Head.Uid},
+		}, nil
+	}
+	util.PubRPCSuccRsp(w, "user", "ModInfo")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid},
+	}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.UserServerPort)
 	if err != nil {

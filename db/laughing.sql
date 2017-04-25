@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users
     fb_token    varchar(128) NOT NULL,
     nickname    varchar(256) NOT NULL,
     headurl varchar(256) NOT NULL,
+    imei    varchar(36) NOT NULL,
     -- 粉丝数
     fan_cnt int unsigned NOT NULL DEFAULT 0,
     -- 关注数
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users
     -- 分享数
     videos      int unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
+    mtime   datetime NOT NULL DEFAULT '2017-01-01',
     etime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(uid),
     KEY(fb_id)
