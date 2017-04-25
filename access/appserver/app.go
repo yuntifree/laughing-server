@@ -39,12 +39,14 @@ func fblogin(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	req.Init(r)
 	fbid := req.GetParamString("fb_id")
 	fbtoken := req.GetParamString("fb_token")
-	log.Printf("fblogin fb_id:%s fb_token:%s", fbid, fbtoken)
+	dev := req.ParseDevice(r)
+	log.Printf("fblogin fb_id:%s fb_token:%s device:%v", fbid, fbtoken, dev)
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.VerifyServerType, 0, "FbLogin",
 		&verify.FbLoginRequest{Head: &common.Head{Sid: uuid},
-			Fbid: fbid, Fbtoken: fbtoken})
+			Fbid: fbid, Fbtoken: fbtoken, Imei: dev.Imei, Model: dev.Model,
+			Language: dev.Language, Version: dev.Version, Os: dev.Os})
 
 	httpserver.CheckRPCErr(rpcerr, "FbLogin")
 	res := resp.Interface().(*verify.LoginReply)

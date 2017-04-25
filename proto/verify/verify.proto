@@ -13,6 +13,11 @@ message FbLoginRequest {
     common.Head head = 1;
     string fbid = 2;
     string fbtoken = 3;
+    string imei = 4;
+    string model = 5;
+    string language = 6;
+    int64 version = 7;
+    string os = 8;
 }
 
 message LoginReply {

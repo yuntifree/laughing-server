@@ -20,6 +20,12 @@ CREATE TABLE IF NOT EXISTS users
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     mtime   datetime NOT NULL DEFAULT '2017-01-01',
     etime   datetime NOT NULL DEFAULT '2017-01-01',
+    deleted tinyint unsigned NOT NULL DEFAULT 0,
+    imei    varchar(36) NOT NULL,
+    model    varchar(36) NOT NULL,
+    language    varchar(36) NOT NULL,
+    os      varchar(36) NOT NULL,
+    version int unsigned NOT NULL DEFAULT 0,
     PRIMARY KEY(uid),
     KEY(fb_id)
 ) ENGINE = InnoDB;

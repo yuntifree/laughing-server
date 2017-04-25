@@ -354,6 +354,41 @@ func (r *Request) Init(req *http.Request) {
 	}
 }
 
+//DeviceInfo device info
+type DeviceInfo struct {
+	Imei     string
+	Model    string
+	Language string
+	Version  int64
+	Os       string
+	Api      string
+	Wifi     int64
+}
+
+func getArrStr(arr []string) string {
+	if len(arr) > 0 {
+		return arr[0]
+	}
+	return ""
+}
+
+//ParseDevice parse device info
+func (r *Request) ParseDevice(req *http.Request) (info DeviceInfo) {
+	device := req.Header.Get("X-Cc-Device")
+	if device == "" {
+		return
+	}
+	m, _ := url.ParseQuery(device)
+	info.Imei = getArrStr(m["imei"])
+	info.Model = getArrStr(m["model"])
+	info.Language = getArrStr(m["language"])
+	info.Version, _ = strconv.ParseInt(getArrStr(m["version"]), 10, 64)
+	info.Os = getArrStr(m["os"])
+	info.Api = getArrStr(m["api"])
+	info.Wifi, _ = strconv.ParseInt(getArrStr(m["wifi"]), 10, 64)
+	return
+}
+
 func (r *Request) GetParamInt(key string) int64 {
 	if r.debug {
 		return getFormInt(r.Form, key, r.Callback)

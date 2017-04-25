@@ -2,19 +2,22 @@ package main
 
 import (
 	"database/sql"
+	"laughing-server/proto/verify"
 	"laughing-server/util"
 	"log"
 )
 
-func fblogin(db *sql.DB, fbid, fbtoken string) (uid int64, token, headurl,
+func fblogin(db *sql.DB, in *verify.FbLoginRequest) (uid int64, token, headurl,
 	nickname string, err error) {
-	err = db.QueryRow("SELECT uid, headurl, nickname FROM users WHERE fb_id = ?", fbid).Scan(&uid, headurl, nickname)
+	err = db.QueryRow("SELECT uid, headurl, nickname FROM users WHERE fb_id = ?", in.Fbid).Scan(&uid, headurl, nickname)
 	if err != nil && err != sql.ErrNoRows {
 		log.Printf("fblogin query failed:%v", err)
 	}
 	if uid != 0 {
 		token = util.GenSalt()
-		_, err = db.Exec("UPDATE users SET token = ?", token)
+		_, err = db.Exec("UPDATE users SET token = ?, imei = ?, model = ?, language = ?, version = ?, os = ? WHERE uid = ?",
+			token, in.Imei, in.Model, in.Language, in.Version, in.Os,
+			uid)
 		if err != nil {
 			log.Printf("fblogin update user token  failed:%v", err)
 			return
@@ -22,8 +25,9 @@ func fblogin(db *sql.DB, fbid, fbtoken string) (uid int64, token, headurl,
 		return
 	}
 	token = util.GenSalt()
-	res, err := db.Exec("INSERT INTO users(token, fb_id, fb_token, ctime) VALUES (?, ?, ?, NOW())",
-		token, fbid, fbtoken)
+	res, err := db.Exec("INSERT INTO users(token, fb_id, fb_token, imei, model, language, version, os, ctime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,  NOW())",
+		token, in.Fbid, in.Fbtoken, in.Imei, in.Model, in.Language,
+		in.Version, in.Os)
 	if err != nil {
 		log.Printf("fblogin insert fb info failed:%v", err)
 		return
