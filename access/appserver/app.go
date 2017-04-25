@@ -15,14 +15,13 @@ import (
 func followop(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
-	uid := req.GetParamInt("uid")
 	tuid := req.GetParamInt("tuid")
 	ftype := req.GetParamInt("type")
-	log.Printf("followop uid:%d tuid:%d type:%d", uid, tuid, ftype)
+	log.Printf("followop uid:%d tuid:%d type:%d", req.Uid, tuid, ftype)
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.FanServerType, uid, "Follow",
-		&fan.FanRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+	resp, rpcerr := httpserver.CallRPC(util.FanServerType, req.Uid, "Follow",
+		&fan.FanRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Type: ftype, Tuid: tuid})
 
 	httpserver.CheckRPCErr(rpcerr, "Follow")
@@ -60,11 +59,10 @@ func fblogin(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 func logout(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
-	uid := req.GetParamInt("uid")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.VerifyServerType, uid, "Logout",
-		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid}})
+	resp, rpcerr := httpserver.CallRPC(util.VerifyServerType, req.Uid, "Logout",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid}})
 
 	httpserver.CheckRPCErr(rpcerr, "Logout")
 	res := resp.Interface().(*common.CommReply)
@@ -79,14 +77,13 @@ func logout(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 func getRelations(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
-	uid := req.GetParamInt("uid")
 	stype := req.GetParamInt("type")
 	seq := req.GetParamInt("seq")
 	num := req.GetParamInt("num")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.FanServerType, uid, "GetRelations",
-		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+	resp, rpcerr := httpserver.CallRPC(util.FanServerType, req.Uid, "GetRelations",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Type: stype, Seq: seq, Num: num})
 
 	httpserver.CheckRPCErr(rpcerr, "GetRelations")
@@ -121,7 +118,6 @@ func addShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
 
-	uid := req.GetParamInt("uid")
 	title := req.GetParamString("title")
 	abstract := req.GetParamString("abstract")
 	img := req.GetParamString("img")
@@ -130,8 +126,8 @@ func addShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	tags := req.GetParamIntArray("tags")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, 0, "AddShare",
-		&share.ShareRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "AddShare",
+		&share.ShareRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Title: title, Abstract: abstract, Img: img,
 			Dst: dst, Tags: tags, Origin: origin})
 
@@ -149,12 +145,11 @@ func reshare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
 
-	uid := req.GetParamInt("uid")
 	id := req.GetParamInt("id")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, uid, "Reshare",
-		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "Reshare",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Id: id})
 
 	httpserver.CheckRPCErr(rpcerr, "Reshare")
@@ -171,13 +166,12 @@ func addComment(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) 
 	var req httpserver.Request
 	req.Init(r)
 
-	uid := req.GetParamInt("uid")
 	id := req.GetParamInt("id")
 	content := req.GetParamString("content")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, uid, "AddComment",
-		&share.CommentRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "AddComment",
+		&share.CommentRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Id: id, Content: content})
 
 	httpserver.CheckRPCErr(rpcerr, "AddComment")
@@ -194,13 +188,12 @@ func getMyShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 	var req httpserver.Request
 	req.Init(r)
 
-	uid := req.GetParamInt("uid")
 	seq := req.GetParamInt("seq")
 	num := req.GetParamInt("num")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, uid, "GetMyShares",
-		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "GetMyShares",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Seq: seq, Num: num})
 
 	httpserver.CheckRPCErr(rpcerr, "GetMyShares")
@@ -217,13 +210,12 @@ func getShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
 
-	uid := req.GetParamInt("uid")
 	seq := req.GetParamInt("seq")
 	num := req.GetParamInt("num")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, uid, "GetShares",
-		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "GetShares",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Seq: seq, Num: num})
 
 	httpserver.CheckRPCErr(rpcerr, "GetShares")
@@ -240,14 +232,13 @@ func getShareComments(w http.ResponseWriter, r *http.Request) (apperr *util.AppE
 	var req httpserver.Request
 	req.Init(r)
 
-	uid := req.GetParamInt("uid")
 	id := req.GetParamInt("id")
 	seq := req.GetParamInt("seq")
 	num := req.GetParamInt("num")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, uid, "GetShareComments",
-		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "GetShareComments",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Id: id, Seq: seq, Num: num})
 
 	httpserver.CheckRPCErr(rpcerr, "GetShareComments")
@@ -263,12 +254,11 @@ func getShareComments(w http.ResponseWriter, r *http.Request) (apperr *util.AppE
 func getUserInfo(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
-	uid := req.GetParamInt("uid")
 	tuid := req.GetParamInt("tuid")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.UserServerType, uid, "GetInfo",
-		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid}, Id: tuid})
+	resp, rpcerr := httpserver.CallRPC(util.UserServerType, req.Uid, "GetInfo",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid}, Id: tuid})
 
 	httpserver.CheckRPCErr(rpcerr, "GetInfo")
 	res := resp.Interface().(*user.InfoReply)
@@ -283,12 +273,11 @@ func getUserInfo(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 func getShareDetail(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
-	uid := req.GetParamInt("uid")
 	id := req.GetParamInt("id")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, uid, "GetShareDetail",
-		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: uid}, Id: id})
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "GetShareDetail",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid}, Id: id})
 
 	httpserver.CheckRPCErr(rpcerr, "GetShareDetail")
 	res := resp.Interface().(*share.ShareDetailReply)

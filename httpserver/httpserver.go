@@ -304,6 +304,8 @@ type Request struct {
 	Form     url.Values
 	debug    bool
 	Callback string
+	Uid      int64
+	Token    string
 }
 
 func writeRsp(w http.ResponseWriter, body []byte, callback string) {
@@ -340,6 +342,15 @@ func (r *Request) Init(req *http.Request) {
 	if err != nil {
 		log.Printf("parse reqbody failed:%v", err)
 		panic(util.AppError{ErrInvalidParam, "invalid param", r.Callback})
+	}
+	c1, err := req.Cookie("u")
+	if err == nil {
+		id, _ := strconv.Atoi(c1.Value)
+		r.Uid = int64(id)
+	}
+	c2, err := req.Cookie("s")
+	if err == nil {
+		r.Token = c2.Value
 	}
 }
 
