@@ -432,9 +432,9 @@ func handleError(w http.ResponseWriter, e *util.AppError) {
 	js.Set("errno", e.Code)
 	if e.Code == ErrInvalidParam || e.Code == ErrMissParam {
 		js.Set("errno", ErrToken)
-		js.Set("desc", "服务器又傲娇了~")
+		js.Set("desc", "please retry later")
 	} else if e.Code < ErrToken {
-		js.Set("desc", "服务器又傲娇了~")
+		js.Set("desc", "please retry later")
 	} else {
 		js.Set("desc", e.Msg)
 	}

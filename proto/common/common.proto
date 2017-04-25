@@ -13,6 +13,7 @@ enum ErrCode {
     GET_INFO = 1006;
     RESHARE = 1007;
     ADD_COMMENT = 1008;
+    FOLLOW = 1009;
 }
 
 message Head {

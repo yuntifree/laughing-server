@@ -24,7 +24,11 @@ var w *nsq.Producer
 func (s *server) Follow(ctx context.Context, in *fan.FanRequest) (*common.CommReply, error) {
 	log.Printf("Follow request:%v", in)
 	util.PubRPCRequest(w, "fan", "Follow")
-	follow(db, in.Type, in.Head.Uid, in.Tuid)
+	flag := follow(db, in.Type, in.Head.Uid, in.Tuid)
+	if !flag {
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_FOLLOW, Uid: in.Head.Uid}}, nil
+	}
 	util.PubRPCSuccRsp(w, "fan", "Follow")
 	return &common.CommReply{
 		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
