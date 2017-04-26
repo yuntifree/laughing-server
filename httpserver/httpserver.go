@@ -8,11 +8,6 @@ import (
 	"io"
 	"laughing-server/proto/common"
 	"laughing-server/proto/discover"
-	"laughing-server/proto/fan"
-	"laughing-server/proto/modify"
-	"laughing-server/proto/share"
-	"laughing-server/proto/user"
-	"laughing-server/proto/verify"
 	"laughing-server/util"
 	"log"
 	"net/http"
@@ -649,42 +644,6 @@ func CheckRPCCodeCallback(retcode common.ErrCode, method, callback string) {
 	}
 }
 
-func genServerName(rtype int64, callback string) string {
-	switch rtype {
-	case util.FanServerType:
-		return util.FanServerName
-	case util.VerifyServerType:
-		return util.VerifyServerName
-	case util.ShareServerType:
-		return util.ShareServerName
-	case util.UserServerType:
-		return util.UserServerName
-	case util.ModifyServerType:
-		return util.ModifyServerName
-	default:
-		panic(util.AppError{ErrInvalidParam, "illegal server type", callback})
-	}
-}
-
-func genClient(rtype int64, conn *grpc.ClientConn, callback string) interface{} {
-	var cli interface{}
-	switch rtype {
-	case util.FanServerType:
-		cli = fan.NewFanClient(conn)
-	case util.VerifyServerType:
-		cli = verify.NewVerifyClient(conn)
-	case util.ShareServerType:
-		cli = share.NewShareClient(conn)
-	case util.UserServerType:
-		cli = user.NewUserClient(conn)
-	case util.ModifyServerType:
-		cli = modify.NewModifyClient(conn)
-	default:
-		panic(util.AppError{ErrInvalidParam, "illegal server type", callback})
-	}
-	return cli
-}
-
 //CallRPC call rpc method
 func CallRPC(rtype, uid int64, method string, request interface{}) (reflect.Value, reflect.Value) {
 	return CallRPCCallback(rtype, uid, method, "", request)
@@ -693,14 +652,14 @@ func CallRPC(rtype, uid int64, method string, request interface{}) (reflect.Valu
 //CallRPC call rpc method with callback
 func CallRPCCallback(rtype, uid int64, method, callback string, request interface{}) (reflect.Value, reflect.Value) {
 	var resp reflect.Value
-	serverName := genServerName(rtype, callback)
+	serverName := util.GenServerName(rtype, callback)
 	address := GetNameServerCallback(uid, serverName, callback)
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		return resp, reflect.ValueOf(err)
 	}
 	defer conn.Close()
-	cli := genClient(rtype, conn, callback)
+	cli := util.GenClient(rtype, conn, callback)
 	ctx := context.Background()
 
 	inputs := make([]reflect.Value, 2)
