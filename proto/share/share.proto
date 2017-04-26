@@ -70,7 +70,7 @@ message CommentInfo {
     string headurl = 3;
     string nickname = 4;
     string content = 5;
-    string ctime = 6;
+    int64 ctime = 6;
 }
 
 message CommentReply {

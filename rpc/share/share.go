@@ -152,7 +152,7 @@ func getShares(db *sql.DB, seq, num int64) (infos []*share.ShareInfo, nextseq in
 }
 
 func genCommentQuery(id, seq, num int64) string {
-	query := fmt.Sprintf("SELECT c.id, c.uid, c.content, c.ctime, u.headurl, u.nickname FROM comments c, users u WHERE c.uid = u.uid AND c.sid = %d ", id)
+	query := fmt.Sprintf("SELECT c.id, c.uid, c.content, UNIX_TIMESTAMP(c.ctime), u.headurl, u.nickname FROM comments c, users u WHERE c.uid = u.uid AND c.sid = %d ", id)
 	if seq != 0 {
 		query += fmt.Sprintf(" AND c.id < %d ", seq)
 	}
