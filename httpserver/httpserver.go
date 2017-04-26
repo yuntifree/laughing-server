@@ -3,13 +3,13 @@ package httpserver
 import (
 	"bytes"
 	"compress/gzip"
-	"context"
 	"errors"
 	"fmt"
 	"io"
 	"laughing-server/proto/common"
 	"laughing-server/proto/discover"
 	"laughing-server/proto/fan"
+	"laughing-server/proto/modify"
 	"laughing-server/proto/share"
 	"laughing-server/proto/user"
 	"laughing-server/proto/verify"
@@ -20,6 +20,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"golang.org/x/net/context"
 
 	"google.golang.org/grpc"
 
@@ -657,6 +659,8 @@ func genServerName(rtype int64, callback string) string {
 		return util.ShareServerName
 	case util.UserServerType:
 		return util.UserServerName
+	case util.ModifyServerType:
+		return util.ModifyServerName
 	default:
 		panic(util.AppError{ErrInvalidParam, "illegal server type", callback})
 	}
@@ -673,6 +677,8 @@ func genClient(rtype int64, conn *grpc.ClientConn, callback string) interface{} 
 		cli = share.NewShareClient(conn)
 	case util.UserServerType:
 		cli = user.NewUserClient(conn)
+	case util.ModifyServerType:
+		cli = modify.NewModifyClient(conn)
 	default:
 		panic(util.AppError{ErrInvalidParam, "illegal server type", callback})
 	}

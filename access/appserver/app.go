@@ -4,6 +4,7 @@ import (
 	"laughing-server/httpserver"
 	"laughing-server/proto/common"
 	"laughing-server/proto/fan"
+	"laughing-server/proto/modify"
 	"laughing-server/proto/share"
 	"laughing-server/proto/user"
 	"laughing-server/proto/verify"
@@ -312,6 +313,29 @@ func getShareDetail(w http.ResponseWriter, r *http.Request) (apperr *util.AppErr
 	return nil
 }
 
+func reportClick(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+	dev := req.ParseDevice(r)
+
+	id := req.GetParamInt("id")
+	ctype := req.GetParamInt("type")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ModifyServerType, req.Uid, "ReportClick",
+		&modify.ClickRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Type: ctype, Id: id, Imei: dev.Imei})
+
+	httpserver.CheckRPCErr(rpcerr, "ReportClick")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "ReportClick")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewAppServer return app http handler
 func NewAppServer() http.Handler {
 	mux := http.NewServeMux()
@@ -329,5 +353,6 @@ func NewAppServer() http.Handler {
 	mux.Handle("/add_comment", httpserver.AppHandler(addComment))
 	mux.Handle("/get_user_info", httpserver.AppHandler(getUserInfo))
 	mux.Handle("/mod_user_info", httpserver.AppHandler(modUserInfo))
+	mux.Handle("/report_click", httpserver.AppHandler(reportClick))
 	return mux
 }

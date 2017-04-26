@@ -1,5 +1,5 @@
 #!/bin/bash
-RPCLIST="discover fan verify share user"
+RPCLIST="discover fan verify share user modify"
 
 function gen_rpc()
 {

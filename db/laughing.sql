@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS users
     fb_token    varchar(128) NOT NULL,
     nickname    varchar(256) NOT NULL,
     headurl varchar(256) NOT NULL,
-    imei    varchar(36) NOT NULL,
     -- 粉丝数
     fan_cnt int unsigned NOT NULL DEFAULT 0,
     -- 关注数
@@ -129,5 +128,19 @@ CREATE TABLE IF NOT EXISTS comments
 ) ENGINE = InnoDB;
 
 
+CREATE TABLE IF NOT EXISTS click_record
+(
+    id      bigint unsigned NOT NULL AUTO_INCREMENT,
+    type    int unsigned NOT NULL DEFAULT 0,
+    uid     int unsigned NOT NULL,
+    cid     int unsigned NOT NULL,
+    imei    varchar(36) NOT NULL,
+    ctime   datetime NOT NULL DEFAULT '2017-01-01',
+    PRIMARY KEY(id),
+    KEY(uid),
+    KEY(cid),
+    KEY(imei),
+    KEY(ctime)
+) ENGINE = InnoDB;
 
 

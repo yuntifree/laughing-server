@@ -11,6 +11,8 @@ const (
 	ShareServerPort    = ":60063"
 	UserServerName     = "service:user"
 	UserServerPort     = ":60064"
+	ModifyServerName   = "service:laughmodify"
+	ModifyServerPort   = ":60065"
 	MaxIdleConns       = 3
 	DebugHost          = "10.26.210.175"
 	APIHosts           = "10.27.178.90,10.27.178.90"
@@ -19,4 +21,5 @@ const (
 	VerifyServerType   = 3
 	ShareServerType    = 4
 	UserServerType     = 5
+	ModifyServerType   = 6
 )

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "laughing-server/proto/common/common.proto";
+
+package modify;
+
+service Modify{
+    rpc ReportClick(ClickRequest) returns (common.CommReply) {}
+}
+
+message ClickRequest {
+    common.Head head = 1;
+    int64 type = 2;
+    int64 id = 3;
+    string imei = 4;
+}

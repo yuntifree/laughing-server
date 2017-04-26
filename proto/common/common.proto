@@ -15,6 +15,7 @@ enum ErrCode {
     ADD_COMMENT = 1008;
     FOLLOW = 1009;
     MOD_INFO = 10010;
+    REPORT_CLICK = 10011;
 }
 
 message Head {
