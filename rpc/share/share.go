@@ -25,8 +25,9 @@ func addMediaTags(db *sql.DB, mid int64, tags []int64) {
 }
 
 func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
-	res, err := db.Exec("INSERT INTO media(uid, title, img, dst, abstract, origin, ctime) VALUES (?, ?, ?, ?, ?, ?, NOW())",
-		in.Head.Uid, in.Title, in.Img, in.Dst, in.Abstract, in.Origin)
+	res, err := db.Exec("INSERT INTO media(uid, title, img, dst, abstract, origin, width, height, ctime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())",
+		in.Head.Uid, in.Title, in.Img, in.Dst, in.Desc, in.Origin,
+		in.Width, in.Height)
 	if err != nil {
 		return
 	}
@@ -38,8 +39,12 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 		addMediaTags(db, mid, in.Tags)
 	}
 
+	var allowshare int64
+	if in.Origin == 0 {
+		allowshare = 1
+	}
 	res, err = db.Exec("INSERT INTO shares(uid, mid, allowshare, ctime) VALUES (?, ?, ?, NOW())",
-		in.Head.Uid, mid, in.Origin)
+		in.Head.Uid, mid, allowshare)
 	if err != nil {
 		return
 	}
@@ -47,6 +52,8 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 	if err != nil {
 		return
 	}
+	_, err = db.Exec("UPDATE users SET videos = videos + 1 WHERE uid = ?",
+		in.Head.Uid)
 	return
 }
 
@@ -83,7 +90,7 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 }
 
 func genShareQuery(uid, seq, num int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id "
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id "
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
 	}
@@ -105,7 +112,8 @@ func getMyShares(db *sql.DB, uid, seq, num int64) (infos []*share.ShareInfo, nex
 	for rows.Next() {
 		var info share.ShareInfo
 		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
-			&info.Img, &info.Views, &info.Title, &info.Abstract)
+			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
+			&info.Height)
 		if err != nil {
 			log.Printf("getMyShare scan failed:%v", err)
 			continue
@@ -127,7 +135,8 @@ func getShares(db *sql.DB, seq, num int64) (infos []*share.ShareInfo, nextseq in
 	for rows.Next() {
 		var info share.ShareInfo
 		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
-			&info.Img, &info.Views, &info.Title, &info.Abstract)
+			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
+			&info.Height)
 		if err != nil {
 			log.Printf("getShare scan failed:%v", err)
 			continue

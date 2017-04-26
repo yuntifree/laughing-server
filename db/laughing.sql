@@ -65,10 +65,16 @@ CREATE TABLE IF NOT EXISTS media
     title   varchar(256) NOT NULL,
     abstract    varchar(256) NOT NULL,
     views   int unsigned NOT NULL DEFAULT 0,
-    -- origin 来源 0:上传 1:外部link
+    -- origin 来源 0:APP上传 1:Facebook 2:Instagram 3:Musically
     origin  tinyint unsigned NOT NULL DEFAULT 0,
+    -- 第三方mp4地址
+    src    varchar(256) NOT NULL,
+    -- ucoud mp4地址
+    cdn    varchar(256) NOT NULL,
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     unshare tinyint unsigned NOT NULL DEFAULT 0,
+    width   int unsigned NOT NULL DEFAULT 0,
+    height  int unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(id)
 ) ENGINE = InnoDB;

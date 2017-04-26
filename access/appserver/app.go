@@ -122,17 +122,20 @@ func addShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	req.Init(r)
 
 	title := req.GetParamString("title")
-	abstract := req.GetParamString("abstract")
-	img := req.GetParamString("img")
+	desc := req.GetParamString("desc")
+	img := req.GetParamStringDef("img", "")
 	dst := req.GetParamString("dst")
 	origin := req.GetParamInt("origin")
 	tags := req.GetParamIntArray("tags")
+	width := req.GetParamIntDef("width", 0)
+	height := req.GetParamIntDef("height", 0)
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "AddShare",
 		&share.ShareRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
-			Title: title, Abstract: abstract, Img: img,
-			Dst: dst, Tags: tags, Origin: origin})
+			Title: title, Desc: desc, Img: img,
+			Dst: dst, Tags: tags, Origin: origin,
+			Width: width, Height: height})
 
 	httpserver.CheckRPCErr(rpcerr, "AddShare")
 	res := resp.Interface().(*common.CommReply)
