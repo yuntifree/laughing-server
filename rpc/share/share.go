@@ -208,44 +208,42 @@ const (
 	musically = 3
 )
 
-func genShareDesc(minutes, origin, sid int64) string {
-	var desc string
-	if sid != 0 {
-		desc = "Reshared "
-	} else {
+func getShareNick(db *sql.DB, sid int64) string {
+	var nick string
+	err := db.QueryRow("SELECT u.nickname FROM users u, shares s WHERE s.uid = u.uid AND s.id = ?", sid).Scan(&nick)
+	if err != nil {
+		log.Printf("getShareNick failed:%v", err)
+	}
+	return nick
+}
+
+func genShareTitle(db *sql.DB, sid, origin, orisid int64, nickname string) string {
+	if orisid == 0 { //not reshare
 		switch origin {
 		case facebook:
-			desc = "Shared from Facebook "
+			return nickname + " share from Facebook"
 		case instagram:
-			desc = "Shared from Instagram "
+			return nickname + " share from Instagram"
 		case musically:
-			desc = "Shared from Musically "
+			return nickname + " share from Musically"
 		default:
-			desc = "Uploaded "
+			return nickname + " Uploaded"
 		}
 	}
+	nick := getShareNick(db, orisid)
+	return nickname + " share from " + nick
+}
 
+func genShareDesc(minutes int64) string {
+	var desc string
 	if minutes < 60 {
-		desc += fmt.Sprintf(" %d minutes ago", minutes)
+		desc += fmt.Sprintf(" %d mins ago", minutes)
 	} else if minutes < 24*60 {
-		desc += fmt.Sprintf(" %d hours ago", minutes/60)
+		desc += fmt.Sprintf(" %d hrs ago", minutes/60)
 	} else {
 		desc += fmt.Sprintf(" %d days ago", minutes/(60*24))
 	}
 	return desc
-}
-
-func getOrigShare(db *sql.DB, id, origin int64) (info share.ShareRecord, err error) {
-	var minutes int64
-	err = db.QueryRow("SELECT u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()) FROM shares s, users u WHERE s.uid = u.uid AND s.id = ?", id).
-		Scan(&info.Uid, &info.Headurl, &info.Nickname, &minutes)
-	if err != nil {
-		log.Printf("getOrigShare failed:%v", err)
-		return
-	}
-	info.Desc = genShareDesc(minutes, origin, 0)
-	info.Origin = origin
-	return
 }
 
 func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
@@ -259,17 +257,8 @@ func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
 		return
 	}
 	info.Tag = getMediaTags(db, mid)
-	record.Desc = genShareDesc(diff, record.Origin, sid)
-	if sid != 0 {
-		rec, err := getOrigShare(db, sid, record.Origin)
-		if err != nil {
-			info.Records = append(info.Records, &record)
-		} else {
-			info.Records = append(info.Records, &rec)
-			info.Records = append(info.Records, &record)
-		}
-	} else {
-		info.Records = append(info.Records, &record)
-	}
+	record.Desc = genShareDesc(diff)
+	record.Title = genShareTitle(db, id, record.Origin, sid, record.Nickname)
+	info.Record = &record
 	return
 }
