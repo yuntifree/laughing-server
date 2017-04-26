@@ -54,6 +54,7 @@ message ShareInfo {
     string headurl = 8;
     int64 width = 9;
     int64 height = 10;
+    string tags = 11;
 }
 
 message ShareReply {

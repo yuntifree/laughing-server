@@ -90,7 +90,7 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 }
 
 func genShareQuery(uid, seq, num int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id "
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id "
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
 	}
@@ -111,14 +111,16 @@ func getMyShares(db *sql.DB, uid, seq, num int64) (infos []*share.ShareInfo, nex
 	defer rows.Close()
 	for rows.Next() {
 		var info share.ShareInfo
+		var mid int64
 		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
 			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
-			&info.Height)
+			&info.Height, &mid)
 		if err != nil {
 			log.Printf("getMyShare scan failed:%v", err)
 			continue
 		}
 		nextseq = info.Id
+		info.Tags = getMediaTags(db, mid)
 		infos = append(infos, &info)
 	}
 	return
@@ -134,14 +136,16 @@ func getShares(db *sql.DB, seq, num int64) (infos []*share.ShareInfo, nextseq in
 	defer rows.Close()
 	for rows.Next() {
 		var info share.ShareInfo
+		var mid int64
 		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
 			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
-			&info.Height)
+			&info.Height, &mid)
 		if err != nil {
 			log.Printf("getShare scan failed:%v", err)
 			continue
 		}
 		nextseq = info.Id
+		info.Tags = getMediaTags(db, mid)
 		infos = append(infos, &info)
 	}
 	return
@@ -179,7 +183,7 @@ func getShareComments(db *sql.DB, id, seq, num int64) (infos []*share.CommentInf
 }
 
 func getMediaTags(db *sql.DB, id int64) string {
-	rows, err := db.Query("SELECT t.content FROM media_tags m, tags t WHERE m.tid = t.id AND m.id = ?", id)
+	rows, err := db.Query("SELECT t.content FROM media_tags m, tags t WHERE m.tid = t.id AND m.mid = ?", id)
 	if err != nil {
 		return ""
 	}
