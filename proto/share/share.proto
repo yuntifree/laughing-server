@@ -98,8 +98,7 @@ message ShareDetail {
     int64 reshare = 6;
     int64 comments = 7;
     int64 unshare = 8;
-    int64 allowshare = 9;
-    ShareRecord record = 10;
+    ShareRecord record = 9;
 }
 
 message ShareDetailReply {

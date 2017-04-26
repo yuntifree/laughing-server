@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"laughing-server/proto/share"
 	"log"
@@ -39,12 +38,8 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 		addMediaTags(db, mid, in.Tags)
 	}
 
-	var allowshare int64
-	if in.Origin == 0 {
-		allowshare = 1
-	}
-	res, err = db.Exec("INSERT INTO shares(uid, mid, allowshare, ctime) VALUES (?, ?, ?, NOW())",
-		in.Head.Uid, mid, allowshare)
+	res, err = db.Exec("INSERT INTO shares(uid, mid, ctime) VALUES (?, ?, NOW())",
+		in.Head.Uid, mid)
 	if err != nil {
 		return
 	}
@@ -58,18 +53,14 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 }
 
 func reshare(db *sql.DB, uid, sid int64) (id int64, err error) {
-	var mid, allowshare int64
-	err = db.QueryRow("SELECT mid, allowshare FROM shares WHERE id = ?", sid).
-		Scan(&mid, &allowshare)
+	var mid int64
+	err = db.QueryRow("SELECT mid FROM shares WHERE id = ?", sid).
+		Scan(&mid)
 	if err != nil {
 		return
 	}
-	if allowshare != 1 {
-		err = errors.New("reshare not allowed")
-		return
-	}
 
-	res, err := db.Exec("INSERT INTO shares (uid, mid, sid, allowshare, ctime) VALUES (?, ?, ?, 0, NOW())", uid, mid, sid)
+	res, err := db.Exec("INSERT INTO shares (uid, mid, sid, ctime) VALUES (?, ?, ?,  NOW())", uid, mid, sid)
 	if err != nil {
 		return
 	}
@@ -249,8 +240,8 @@ func genShareDesc(minutes int64) string {
 func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
 	var mid, sid, diff int64
 	var record share.ShareRecord
-	err = db.QueryRow("SELECT s.reshare, s.comments, s.allowshare, m.img, m.dst, m.title, m.views, m.id, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
-		Scan(&info.Reshare, &info.Comments, &info.Allowshare, &info.Img, &info.Dst,
+	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.dst, m.title, m.views, m.id, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
+		Scan(&info.Reshare, &info.Comments, &info.Img, &info.Dst,
 			&info.Title, &info.Views, &mid, &sid, &record.Uid, &record.Headurl,
 			&record.Nickname, &diff, &record.Origin)
 	if err != nil {
