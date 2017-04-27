@@ -108,7 +108,6 @@ CREATE TABLE IF NOT EXISTS shares
     uid     int unsigned NOT NULL,
     -- medias id
     mid     int unsigned NOT NULL,
-    allowshare  tinyint unsigned NOT NULL DEFAULT 0,
     reshare int unsigned NOT NULL DEFAULT 0,
     comments    int unsigned NOT NULL DEFAULT 0,
     deleted tinyint unsigned NOT NULL DEFAULT 0,

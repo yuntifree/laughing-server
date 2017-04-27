@@ -39,12 +39,8 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 		addMediaTags(db, mid, in.Tags)
 	}
 
-	var allowshare int64
-	if in.Origin == 0 {
-		allowshare = 1
-	}
-	res, err = db.Exec("INSERT INTO shares(uid, mid, allowshare, ctime) VALUES (?, ?, ?, NOW())",
-		in.Head.Uid, mid, allowshare)
+	res, err = db.Exec("INSERT INTO shares(uid, mid, ctime) VALUES (?, ?, NOW())",
+		in.Head.Uid, mid)
 	if err != nil {
 		return
 	}
@@ -58,18 +54,19 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 }
 
 func reshare(db *sql.DB, uid, sid int64) (id int64, err error) {
-	var mid, allowshare int64
-	err = db.QueryRow("SELECT mid, allowshare FROM shares WHERE id = ?", sid).
-		Scan(&mid, &allowshare)
+	var mid, owner int64
+	err = db.QueryRow("SELECT m.id, m.uid FROM shares s, media m WHERE s.mid = m.id AND s.id = ?", sid).
+		Scan(&mid, &owner)
 	if err != nil {
 		return
 	}
-	if allowshare != 1 {
-		err = errors.New("reshare not allowed")
+	if uid == owner {
+		err = errors.New("can't reshare your own media")
 		return
 	}
 
-	res, err := db.Exec("INSERT INTO shares (uid, mid, sid, allowshare, ctime) VALUES (?, ?, ?, 0, NOW())", uid, mid, sid)
+	res, err := db.Exec("INSERT INTO shares (uid, mid, sid, ctime) VALUES (?, ?, ?,  NOW())",
+		uid, mid, sid)
 	if err != nil {
 		return
 	}
@@ -208,30 +205,32 @@ const (
 	musically = 3
 )
 
-func getShareNick(db *sql.DB, sid int64) string {
+func getShareOriNick(db *sql.DB, mid int64) string {
 	var nick string
-	err := db.QueryRow("SELECT u.nickname FROM users u, shares s WHERE s.uid = u.uid AND s.id = ?", sid).Scan(&nick)
+	err := db.QueryRow("SELECT u.nickname FROM users u, media m WHERE m.uid = u.uid AND m.id = ?", mid).Scan(&nick)
 	if err != nil {
 		log.Printf("getShareNick failed:%v", err)
 	}
 	return nick
 }
 
-func genShareTitle(db *sql.DB, sid, origin, orisid int64, nickname string) string {
-	if orisid == 0 { //not reshare
-		switch origin {
-		case facebook:
-			return nickname + " share from Facebook"
-		case instagram:
-			return nickname + " share from Instagram"
-		case musically:
-			return nickname + " share from Musically"
-		default:
-			return nickname + " Uploaded"
-		}
+func getShareOriTitle(nickname string, origin int64) string {
+	prefix := "<b>" + nickname + "</b>"
+	switch origin {
+	case facebook:
+		return prefix + " Share from Facebook"
+	case instagram:
+		return prefix + " Share from Instagram"
+	case musically:
+		return prefix + " Share from Musically"
+	default:
+		return prefix + " Uploaded"
 	}
-	nick := getShareNick(db, orisid)
-	return nickname + " share from " + nick
+}
+
+func getReshareTitle(db *sql.DB, nickname string, mid int64) string {
+	nick := getShareOriNick(db, mid)
+	return "<b>" + nickname + "</b>" + " Share from <b>" + nick + "</b>"
 }
 
 func genShareDesc(minutes int64) string {
@@ -249,8 +248,8 @@ func genShareDesc(minutes int64) string {
 func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
 	var mid, sid, diff int64
 	var record share.ShareRecord
-	err = db.QueryRow("SELECT s.reshare, s.comments, s.allowshare, m.img, m.dst, m.title, m.views, m.id, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
-		Scan(&info.Reshare, &info.Comments, &info.Allowshare, &info.Img, &info.Dst,
+	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.dst, m.title, m.views, m.id, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
+		Scan(&info.Reshare, &info.Comments, &info.Img, &info.Dst,
 			&info.Title, &info.Views, &mid, &sid, &record.Uid, &record.Headurl,
 			&record.Nickname, &diff, &record.Origin)
 	if err != nil {
@@ -258,7 +257,11 @@ func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
 	}
 	info.Tag = getMediaTags(db, mid)
 	record.Desc = genShareDesc(diff)
-	record.Title = genShareTitle(db, id, record.Origin, sid, record.Nickname)
+	if sid == 0 {
+		record.Title = getShareOriTitle(record.Nickname, record.Origin)
+	} else {
+		record.Title = getReshareTitle(db, record.Nickname, mid)
+	}
 	info.Record = &record
 	return
 }
