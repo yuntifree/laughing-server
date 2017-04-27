@@ -97,7 +97,7 @@ message ShareDetail {
     int64 views = 5;
     int64 reshare = 6;
     int64 comments = 7;
-    int64 unshare = 8;
+    int64 hasshare = 8;
     ShareRecord record = 9;
 }
 

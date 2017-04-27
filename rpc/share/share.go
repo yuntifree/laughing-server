@@ -157,7 +157,6 @@ func getShares(db *sql.DB, seq, num, id int64) (infos []*share.ShareInfo, nextse
 			continue
 		}
 		nextseq = info.Id
-		info.Tags = getMediaTags(db, mid)
 		infos = append(infos, &info)
 	}
 	return
@@ -260,7 +259,19 @@ func genShareDesc(minutes int64) string {
 	return desc
 }
 
-func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
+func hasShare(db *sql.DB, uid, mid int64) int64 {
+	var cnt int64
+	err := db.QueryRow("SELECT COUNT(id) FROM shares WHERE uid = ? AND mid = ?", uid, mid).Scan(&cnt)
+	if err != nil {
+		return 0
+	}
+	if cnt > 0 {
+		return 1
+	}
+	return 0
+}
+
+func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err error) {
 	var mid, sid, diff int64
 	var record share.ShareRecord
 	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.dst, m.title, m.views, m.id, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
@@ -278,5 +289,6 @@ func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
 		record.Title = getReshareTitle(db, record.Nickname, mid)
 	}
 	info.Record = &record
+	info.Hasshare = hasShare(db, uid, mid)
 	return
 }
