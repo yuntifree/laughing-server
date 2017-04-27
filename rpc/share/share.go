@@ -86,6 +86,16 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 	return
 }
 
+func genShareTagQuery(seq, num, id int64) string {
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id FROM shares s, users u, media m, media_tags t WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id "
+	query += fmt.Sprintf(" AND t.tid = %d", id)
+	if seq != 0 {
+		query += fmt.Sprintf(" AND s.id < %d ", seq)
+	}
+	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
+	return query
+}
+
 func genShareQuery(uid, seq, num int64) string {
 	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id "
 	if seq != 0 {
@@ -123,8 +133,13 @@ func getMyShares(db *sql.DB, uid, seq, num int64) (infos []*share.ShareInfo, nex
 	return
 }
 
-func getShares(db *sql.DB, seq, num int64) (infos []*share.ShareInfo, nextseq int64) {
-	query := genShareQuery(0, seq, num)
+func getShares(db *sql.DB, seq, num, id int64) (infos []*share.ShareInfo, nextseq int64) {
+	var query string
+	if id != 0 {
+		query = genShareTagQuery(seq, num, id)
+	} else {
+		query = genShareQuery(0, seq, num)
+	}
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Printf("getShares query failed:%v", err)

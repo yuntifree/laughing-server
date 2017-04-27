@@ -218,11 +218,12 @@ func getShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 
 	seq := req.GetParamInt("seq")
 	num := req.GetParamInt("num")
+	id := req.GetParamInt("tag_id")
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "GetShares",
 		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
-			Seq: seq, Num: num})
+			Seq: seq, Num: num, Id: id})
 
 	httpserver.CheckRPCErr(rpcerr, "GetShares")
 	res := resp.Interface().(*share.ShareReply)
