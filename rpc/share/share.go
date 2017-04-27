@@ -86,6 +86,16 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 	return
 }
 
+func genShareTagQuery(seq, num, id int64) string {
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id FROM shares s, users u, media m, media_tags t WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id "
+	query += fmt.Sprintf(" AND t.tid = %d", id)
+	if seq != 0 {
+		query += fmt.Sprintf(" AND s.id < %d ", seq)
+	}
+	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
+	return query
+}
+
 func genShareQuery(uid, seq, num int64) string {
 	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id "
 	if seq != 0 {
@@ -123,8 +133,13 @@ func getMyShares(db *sql.DB, uid, seq, num int64) (infos []*share.ShareInfo, nex
 	return
 }
 
-func getShares(db *sql.DB, seq, num int64) (infos []*share.ShareInfo, nextseq int64) {
-	query := genShareQuery(0, seq, num)
+func getShares(db *sql.DB, seq, num, id int64) (infos []*share.ShareInfo, nextseq int64) {
+	var query string
+	if id != 0 {
+		query = genShareTagQuery(seq, num, id)
+	} else {
+		query = genShareQuery(0, seq, num)
+	}
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Printf("getShares query failed:%v", err)
@@ -142,7 +157,6 @@ func getShares(db *sql.DB, seq, num int64) (infos []*share.ShareInfo, nextseq in
 			continue
 		}
 		nextseq = info.Id
-		info.Tags = getMediaTags(db, mid)
 		infos = append(infos, &info)
 	}
 	return
@@ -245,7 +259,19 @@ func genShareDesc(minutes int64) string {
 	return desc
 }
 
-func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
+func hasShare(db *sql.DB, uid, mid int64) int64 {
+	var cnt int64
+	err := db.QueryRow("SELECT COUNT(id) FROM shares WHERE uid = ? AND mid = ?", uid, mid).Scan(&cnt)
+	if err != nil {
+		return 0
+	}
+	if cnt > 0 {
+		return 1
+	}
+	return 0
+}
+
+func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err error) {
 	var mid, sid, diff int64
 	var record share.ShareRecord
 	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.dst, m.title, m.views, m.id, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
@@ -263,5 +289,6 @@ func getShareDetail(db *sql.DB, id int64) (info share.ShareDetail, err error) {
 		record.Title = getReshareTitle(db, record.Nickname, mid)
 	}
 	info.Record = &record
+	info.Hasshare = hasShare(db, uid, mid)
 	return
 }
