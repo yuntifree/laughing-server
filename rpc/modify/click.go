@@ -28,3 +28,21 @@ func reportClick(db *sql.DB, in *modify.ClickRequest) (err error) {
 	}
 	return
 }
+
+func addReport(db *sql.DB, uid, sid int64) error {
+	res, err := db.Exec("INSERT IGNORE INTO report(uid, sid, ctime) VALUES (?, ?, NOW())")
+	if err != nil {
+		return err
+	}
+	cnt, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if cnt > 0 {
+		_, err = db.Exec("UPDATE shares SET report = report + 1 WHERE id = ?", sid)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

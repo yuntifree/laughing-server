@@ -16,6 +16,8 @@ enum ErrCode {
     FOLLOW = 1009;
     MOD_INFO = 10010;
     REPORT_CLICK = 10011;
+    REPORT = 10012;
+    UNSHARE = 10013;
 }
 
 message Head {

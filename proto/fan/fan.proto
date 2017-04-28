@@ -19,6 +19,7 @@ message UserInfo {
     int64 uid = 1;
     string headurl = 2;
     string nickname = 3;
+    int64 hasfollow = 4;
 }
 
 message RelationReply {

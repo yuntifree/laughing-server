@@ -122,7 +122,6 @@ func addShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	req.Init(r)
 
 	title := req.GetParamString("title")
-	desc := req.GetParamString("desc")
 	img := req.GetParamStringDef("img", "")
 	dst := req.GetParamString("dst")
 	origin := req.GetParamInt("origin")
@@ -133,7 +132,7 @@ func addShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "AddShare",
 		&share.ShareRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
-			Title: title, Desc: desc, Img: img,
+			Title: title, Img: img,
 			Dst: dst, Tags: tags, Origin: origin,
 			Width: width, Height: height})
 
@@ -219,6 +218,7 @@ func getShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	seq := req.GetParamInt("seq")
 	num := req.GetParamInt("num")
 	id := req.GetParamInt("tag_id")
+	log.Printf("getShares request:%v", r)
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "GetShares",
@@ -340,6 +340,27 @@ func reportClick(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 	return nil
 }
 
+func report(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+
+	id := req.GetParamInt("id")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ModifyServerType, req.Uid, "Report",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Id: id})
+
+	httpserver.CheckRPCErr(rpcerr, "Report")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "Report")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewAppServer return app http handler
 func NewAppServer() http.Handler {
 	mux := http.NewServeMux()
@@ -358,5 +379,6 @@ func NewAppServer() http.Handler {
 	mux.Handle("/get_user_info", httpserver.AppHandler(getUserInfo))
 	mux.Handle("/mod_user_info", httpserver.AppHandler(modUserInfo))
 	mux.Handle("/report_click", httpserver.AppHandler(reportClick))
+	mux.Handle("/report", httpserver.AppHandler(report))
 	return mux
 }

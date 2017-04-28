@@ -36,6 +36,21 @@ func (s *server) ReportClick(ctx context.Context, in *modify.ClickRequest) (*com
 		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
 }
 
+func (s *server) Report(ctx context.Context, in *common.CommRequest) (*common.CommReply, error) {
+	log.Printf("Report request:%v", in)
+	util.PubRPCRequest(w, "modify", "Report")
+	err := addReport(db, in.Head.Uid, in.Id)
+	if err != nil {
+		log.Printf("addReportfailed:%v", err)
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_REPORT,
+				Uid: in.Head.Uid}}, nil
+	}
+	util.PubRPCSuccRsp(w, "modify", "Report")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ModifyServerPort)
 	if err != nil {

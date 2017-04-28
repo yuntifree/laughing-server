@@ -97,7 +97,7 @@ func genShareTagQuery(seq, num, id int64) string {
 }
 
 func genShareQuery(uid, seq, num int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id "
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
 	}
@@ -291,4 +291,10 @@ func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err erro
 	info.Record = &record
 	info.Hasshare = hasShare(db, uid, mid)
 	return
+}
+
+func unshare(db *sql.DB, uid, sid int64) error {
+	_, err := db.Exec("UPDATE shares SET deleted = 1 WHERE uid = ? AND id = ?",
+		uid, sid)
+	return err
 }

@@ -6,6 +6,7 @@ package modify;
 
 service Modify{
     rpc ReportClick(ClickRequest) returns (common.CommReply) {}
+    rpc Report(common.CommRequest) returns (common.CommReply) {}
 }
 
 message ClickRequest {
