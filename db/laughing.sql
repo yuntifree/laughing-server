@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS shares
     mid     int unsigned NOT NULL,
     reshare int unsigned NOT NULL DEFAULT 0,
     comments    int unsigned NOT NULL DEFAULT 0,
+    report      int unsigned NOT NULL DEFAULT 0,
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(id),
@@ -148,4 +149,12 @@ CREATE TABLE IF NOT EXISTS click_record
     KEY(ctime)
 ) ENGINE = InnoDB;
 
-
+CREATE TABLE IF NOT EXISTS report
+(
+    id      bigint unsigned NOT NULL AUTO_INCREMENT,
+    uid     int unsigned NOT NULL,
+    sid     int unsigned NOT NULL,
+    ctime   datetime NOT NULL DEFAULT '2017-01-01',
+    PRIMARY KEY(id),
+    UNIQUE KEY(uid, sid)
+) ENGINE = InnoDB;
