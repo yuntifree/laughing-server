@@ -24,12 +24,10 @@ type VideoInfo struct {
 	duration int
 }
 
-func checkerr(e error) bool {
+func checkerr(e error) {
 	if e != nil {
 		panic(e)
-		return true
 	}
-	return false
 }
 
 func getVideoInfo(url string) *VideoInfo {
@@ -37,19 +35,16 @@ func getVideoInfo(url string) *VideoInfo {
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
-	if checkerr(err) {
-		return vinfo
-	}
+	checkerr(err)
 
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36")
 
 	resp, err := client.Do(req)
+	checkerr(err)
 	defer resp.Body.Close()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
-	if checkerr(err) {
-		return vinfo
-	}
+	checkerr(err)
 
 	content := string(bytes)
 
@@ -63,9 +58,7 @@ func getVideoInfo(url string) *VideoInfo {
 	pos2 := strings.Index(str, ";</script>")
 
 	jsonObj, err := simplejson.NewJson([]byte(str[:pos2]))
-	if checkerr(err) {
-		return vinfo
-	}
+	checkerr(err)
 
 	postPage := jsonObj.Get("entry_data").Get("PostPage")
 	if postPage == nil {
