@@ -24,12 +24,10 @@ type VideoInfo struct {
 	duration int
 }
 
-func checkerr(e error) bool {
+func checkerr(e error) {
 	if e != nil {
 		panic(e)
-		return true
 	}
-	return false
 }
 
 func getVideoInfo(url string) *VideoInfo {
@@ -37,23 +35,16 @@ func getVideoInfo(url string) *VideoInfo {
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
-	if checkerr(err) {
-		return vinfo
-	}
+	checkerr(err)
 
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36")
 
 	resp, err := client.Do(req)
+	checkerr(err)
 	defer resp.Body.Close()
 
-	if checkerr(err) {
-		return vinfo
-	}
-
 	d, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		return vinfo
-	}
+	checkerr(err)
 
 	div := d.Find(".widePic")
 	video := div.Find("div").First()
@@ -61,10 +52,7 @@ func getVideoInfo(url string) *VideoInfo {
 	style, _ := video.Find("i").First().Attr("style")
 
 	jsonObj, err := simplejson.NewJson([]byte(jsonText))
-	if checkerr(err) {
-		log.Printf("Parse vidoe node error, CHECK!!\n")
-		return vinfo
-	}
+	checkerr(err)
 
 	vType, _ := jsonObj.Get("type").String()
 	if vType != "video" {

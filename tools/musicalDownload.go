@@ -26,12 +26,10 @@ var urls = []string{
 	"https://www.musical.ly/v/MzcyNTEyMTYyNTc3MzA1OTkyMjMyOTY.html",
 }
 
-func checkerr(e error) bool {
+func checkerr(e error) {
 	if e != nil {
 		panic(e)
-		return true
 	}
-	return false
 }
 
 func getVideoInfo(url string) *VideoInfo {
@@ -40,24 +38,25 @@ func getVideoInfo(url string) *VideoInfo {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 
-	if checkerr(err) {
-		return info
-	}
+	checkerr(err)
 
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36")
 
 	resp, err := client.Do(req)
+
+	checkerr(err)
+
 	defer resp.Body.Close()
 
 	jsonObj, err := simplejson.NewFromReader(resp.Body)
 
-	if checkerr(err) {
-		return info
-	}
+	checkerr(err)
 
 	succ, err := jsonObj.Get("success").Bool()
 
-	if checkerr(err) || !succ {
+	checkerr(err)
+
+	if !succ {
 		return info
 	}
 
