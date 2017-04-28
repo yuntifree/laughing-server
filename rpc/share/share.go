@@ -292,3 +292,9 @@ func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err erro
 	info.Hasshare = hasShare(db, uid, mid)
 	return
 }
+
+func unshare(db *sql.DB, uid, sid int64) error {
+	_, err := db.Exec("UPDATE shares SET deleted = 1 WHERE uid = ? AND id = ?",
+		uid, sid)
+	return err
+}

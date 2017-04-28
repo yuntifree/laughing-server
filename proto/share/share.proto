@@ -8,6 +8,7 @@ service Share{
     rpc GetTags(common.CommRequest) returns (TagReply) {}
     rpc AddShare(ShareRequest) returns (common.CommReply) {}
     rpc Reshare(common.CommRequest) returns (common.CommReply) {}
+    rpc Unshare(common.CommRequest) returns (common.CommReply) {}
     rpc AddComment(CommentRequest) returns (common.CommReply) {}
     rpc GetMyShares(common.CommRequest) returns (ShareReply) {}
     rpc GetShares(common.CommRequest) returns (ShareReply) {}
