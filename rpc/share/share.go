@@ -274,9 +274,9 @@ func hasShare(db *sql.DB, uid, mid int64) int64 {
 func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err error) {
 	var mid, sid, diff int64
 	var record share.ShareRecord
-	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.dst, m.title, m.views, m.id, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
+	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.dst, m.title, m.views, m.id, m.uid, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
 		Scan(&info.Reshare, &info.Comments, &info.Img, &info.Dst,
-			&info.Title, &info.Views, &mid, &sid, &record.Uid, &record.Headurl,
+			&info.Title, &info.Views, &mid, &info.Owner, &sid, &record.Uid, &record.Headurl,
 			&record.Nickname, &diff, &record.Origin)
 	if err != nil {
 		return

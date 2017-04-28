@@ -99,6 +99,7 @@ message ShareDetail {
     int64 comments = 7;
     int64 hasshare = 8;
     ShareRecord record = 9;
+    int64 owner = 10;
 }
 
 message ShareDetailReply {
