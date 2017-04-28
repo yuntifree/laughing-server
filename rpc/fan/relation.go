@@ -12,6 +12,24 @@ const (
 	followerType = 1
 )
 
+func getFollowerUids(db *sql.DB, uid int64) map[int64]bool {
+	m := make(map[int64]bool)
+	rows, err := db.Query("SELECT tuid FROM follower WHERE uid = ?", uid)
+	if err != nil {
+		return m
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var uid int64
+		err = rows.Scan(&uid)
+		if err != nil {
+			continue
+		}
+		m[uid] = true
+	}
+	return m
+}
+
 func getRelations(db *sql.DB, uid, rtype, seq, num int64) ([]*fan.UserInfo, int64) {
 	table := "fan"
 	if rtype == followerType {
@@ -30,6 +48,11 @@ func getRelations(db *sql.DB, uid, rtype, seq, num int64) ([]*fan.UserInfo, int6
 		log.Printf("getRelations query failed:%v", err)
 		return infos, nextseq
 	}
+	var followers map[int64]bool
+	if rtype == fanType {
+		followers = getFollowerUids(db, uid)
+		log.Printf("followers:%v", followers)
+	}
 
 	defer rows.Close()
 	for rows.Next() {
@@ -38,6 +61,17 @@ func getRelations(db *sql.DB, uid, rtype, seq, num int64) ([]*fan.UserInfo, int6
 		if err != nil {
 			log.Printf("getRelations scan failed:%v", err)
 			continue
+		}
+		if rtype == fanType {
+			if len(followers) > 0 {
+				if _, ok := followers[info.Uid]; ok {
+					info.Hasfollow = 1
+				} else {
+					info.Hasfollow = 0
+				}
+			} else {
+				info.Hasfollow = 0
+			}
 		}
 		infos = append(infos, &info)
 	}
