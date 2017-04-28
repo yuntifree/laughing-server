@@ -14,7 +14,7 @@ const (
 
 func getFollowerUids(db *sql.DB, uid int64) map[int64]bool {
 	m := make(map[int64]bool)
-	rows, err := db.Query("SELECT tuid FROM follower WHERE uid = ?", uid)
+	rows, err := db.Query("SELECT tuid FROM follower WHERE uid = ? AND deleted = 0 ", uid)
 	if err != nil {
 		return m
 	}
@@ -35,7 +35,7 @@ func getRelations(db *sql.DB, uid, rtype, seq, num int64) ([]*fan.UserInfo, int6
 	if rtype == followerType {
 		table = "follower"
 	}
-	query := fmt.Sprintf("SELECT r.id, r.tuid, u.headurl, u.nickname FROM %s r, users u WHERE r.tuid = u.uid AND r.uid = %d ", table, uid)
+	query := fmt.Sprintf("SELECT r.id, r.tuid, u.headurl, u.nickname FROM %s r, users u WHERE r.tuid = u.uid AND r.uid = %d AND r.deleted = 0 ", table, uid)
 	if seq != 0 {
 		query += fmt.Sprintf(" AND r.id < %d", seq)
 	}
