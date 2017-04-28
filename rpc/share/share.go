@@ -294,7 +294,20 @@ func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err erro
 }
 
 func unshare(db *sql.DB, uid, sid int64) error {
-	_, err := db.Exec("UPDATE shares SET deleted = 1 WHERE uid = ? AND id = ?",
+	res, err := db.Exec("UPDATE shares SET deleted = 1 WHERE uid = ? AND id = ?",
 		uid, sid)
-	return err
+	if err != nil {
+		return err
+	}
+	cnt, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if cnt > 0 {
+		_, err = db.Exec("UPDATE users SET videos = IF(videos > 0, videos-1, 0) WHERE uid = ?", uid)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

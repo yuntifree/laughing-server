@@ -35,5 +35,5 @@ func GetName(id, token string) (name string, err error) {
 
 //GenHeadurl generate fb head url
 func GenHeadurl(id string) string {
-	return fmt.Sprintf("%s/%s/%s", imgurl, id, imgsuffix)
+	return fmt.Sprintf("%s%s%s", imgurl, id, imgsuffix)
 }

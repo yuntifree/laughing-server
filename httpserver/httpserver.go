@@ -104,10 +104,10 @@ func getJSONStringDef(js *simplejson.Json, key, def string) string {
 
 func getJSONStringArray(js *simplejson.Json, key string) []string {
 	var s []string
-	arr, err := js.Get("data").Get(key).Array()
+	arr, err := js.Get(key).Array()
 	if err == nil {
 		for i := 0; i < len(arr); i++ {
-			v, err := js.Get("data").Get(key).GetIndex(i).String()
+			v, err := js.Get(key).GetIndex(i).String()
 			if err != nil {
 				log.Printf("getJSONIntArray get failed, idx:%d %v", i, err)
 				continue
@@ -142,10 +142,10 @@ func getJSONIntDef(js *simplejson.Json, key string, def int64) int64 {
 
 func getJSONIntArray(js *simplejson.Json, key string) []int64 {
 	var s []int64
-	arr, err := js.Get("data").Get(key).Array()
+	arr, err := js.Get(key).Array()
 	if err == nil {
 		for i := 0; i < len(arr); i++ {
-			v, err := js.Get("data").Get(key).GetIndex(i).Int64()
+			v, err := js.Get(key).GetIndex(i).Int64()
 			if err != nil {
 				log.Printf("getJSONIntArray get failed, idx:%d %v", i, err)
 				continue
