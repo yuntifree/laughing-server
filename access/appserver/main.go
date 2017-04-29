@@ -4,6 +4,7 @@ import (
 	"Server/util"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/facebookgo/grace/gracehttp"
 )
@@ -15,6 +16,6 @@ func init() {
 
 func main() {
 	gracehttp.Serve(
-		&http.Server{Addr: ":81", Handler: NewAppServer()},
+		&http.Server{Addr: ":81", Handler: NewAppServer(), IdleTimeout: 30 * time.Second},
 	)
 }
