@@ -7,6 +7,7 @@ package verify;
 service Verify {
     rpc FbLogin(FbLoginRequest) returns (LoginReply) {}
     rpc Logout(common.CommRequest) returns (common.CommReply) {}
+    rpc CheckToken(CheckTokenRequest) returns (common.CommReply) {}
 }
 
 message FbLoginRequest {
@@ -28,3 +29,7 @@ message LoginReply {
     string nickname = 5;
 }
 
+message CheckTokenRequest {
+    common.Head head = 1;
+    string token = 2;
+}

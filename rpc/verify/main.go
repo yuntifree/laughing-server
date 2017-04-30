@@ -44,6 +44,19 @@ func (s *server) Logout(ctx context.Context, in *common.CommRequest) (*common.Co
 		Head: &common.Head{Retcode: 0}}, nil
 }
 
+func (s *server) CheckToken(ctx context.Context, in *verify.CheckTokenRequest) (*common.CommReply, error) {
+	log.Printf("CheckToken request:%v", in)
+	util.PubRPCRequest(w, "verify", "CheckToken")
+	flag := checkToken(db, kv, in.Head.Uid, in.Token)
+	if !flag {
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_TOKEN}}, nil
+	}
+	util.PubRPCSuccRsp(w, "verify", "CheckToken")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0}}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.VerifyServerPort)
 	if err != nil {

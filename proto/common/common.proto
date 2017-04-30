@@ -18,6 +18,7 @@ enum ErrCode {
     REPORT_CLICK = 10011;
     REPORT = 10012;
     UNSHARE = 10013;
+    TOKEN = 10014;
 }
 
 message Head {
