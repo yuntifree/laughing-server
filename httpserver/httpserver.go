@@ -8,6 +8,8 @@ import (
 	"io"
 	"laughing-server/proto/common"
 	"laughing-server/proto/discover"
+	"laughing-server/proto/limit"
+	"laughing-server/proto/verify"
 	"laughing-server/util"
 	"log"
 	"net/http"
@@ -324,6 +326,40 @@ func (r *Request) WriteRsp(w http.ResponseWriter, body []byte) {
 	writeRsp(w, body, r.Callback)
 }
 
+func checkNonce(uid int64, nonce string) bool {
+	uuid := util.GenUUID()
+	resp, err := CallRPC(util.LimitServerType, uid, "CheckDuplicate",
+		&limit.CheckDuplicateRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+			Type: limit.CheckType_NONCE, Id: nonce})
+	if err.Interface() != nil {
+		return false
+	}
+	res := resp.Interface().(*common.CommReply)
+	if res.Head.Retcode != 0 {
+		log.Printf("check duplicate nonce failed:%d %s", uid, nonce)
+		return false
+	}
+
+	return true
+}
+
+func checkToken(uid int64, token string) bool {
+	uuid := util.GenUUID()
+	resp, err := CallRPC(util.VerifyServerType, uid, "CheckToken",
+		&verify.CheckTokenRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+			Token: token})
+	if err.Interface() != nil {
+		return false
+	}
+	res := resp.Interface().(*common.CommReply)
+	if res.Head.Retcode != 0 {
+		log.Printf("check token failed:%d %s", uid, token)
+		return false
+	}
+
+	return true
+}
+
 //Init init request
 func (r *Request) Init(req *http.Request) {
 	ReportRequest(req.RequestURI)
@@ -348,6 +384,21 @@ func (r *Request) Init(req *http.Request) {
 	c2, err := req.Cookie("s")
 	if err == nil {
 		r.Token = c2.Value
+	}
+	nonce := getJSONString(r.Post, "nonce")
+	if !checkNonce(r.Uid, nonce) {
+		log.Printf("checkNonce failed:%d %s", r.Uid, nonce)
+		panic(util.AppError{ErrInvalidParam, "duplicate nonce", r.Callback})
+	}
+}
+
+func (r *Request) InitCheck(req *http.Request) {
+	r.Init(req)
+	if r.Uid == 0 {
+		panic(util.AppError{ErrInvalidParam, "need login", r.Callback})
+	}
+	if !checkToken(r.Uid, r.Token) {
+		panic(util.AppError{ErrInvalidParam, "illegal token", r.Callback})
 	}
 }
 

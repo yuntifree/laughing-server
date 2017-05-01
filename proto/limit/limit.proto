@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "laughing-server/proto/common/common.proto";
+
+package limit;
+
+enum CheckType {
+    NONCE = 0;
+    IMEI = 1;
+}
+
+service Limit {
+    rpc CheckDuplicate(CheckDuplicateRequest) returns (common.CommReply) {}
+}
+
+message CheckDuplicateRequest {
+    common.Head head = 1;
+    CheckType type = 2;
+    string id = 3;
+}

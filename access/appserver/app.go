@@ -15,7 +15,7 @@ import (
 
 func followop(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
-	req.Init(r)
+	req.InitCheck(r)
 	tuid := req.GetParamInt("tuid")
 	ftype := req.GetParamInt("type")
 	log.Printf("followop uid:%d tuid:%d type:%d", req.Uid, tuid, ftype)

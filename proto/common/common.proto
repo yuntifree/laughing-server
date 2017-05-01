@@ -19,6 +19,7 @@ enum ErrCode {
     REPORT = 10012;
     UNSHARE = 10013;
     TOKEN = 10014;
+    LIMIT = 10015;
 }
 
 message Head {

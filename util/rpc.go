@@ -2,6 +2,7 @@ package util
 
 import (
 	"laughing-server/proto/fan"
+	"laughing-server/proto/limit"
 	"laughing-server/proto/modify"
 	"laughing-server/proto/share"
 	"laughing-server/proto/user"
@@ -27,6 +28,8 @@ func GenServerName(rtype int64, callback string) string {
 		return UserServerName
 	case ModifyServerType:
 		return ModifyServerName
+	case LimitServerType:
+		return LimitServerName
 	default:
 		panic(AppError{ErrInvalidParam, "illegal server type", callback})
 	}
@@ -46,6 +49,8 @@ func GenClient(rtype int64, conn *grpc.ClientConn, callback string) interface{} 
 		cli = user.NewUserClient(conn)
 	case ModifyServerType:
 		cli = modify.NewModifyClient(conn)
+	case LimitServerType:
+		cli = limit.NewLimitClient(conn)
 	default:
 		panic(AppError{ErrInvalidParam, "illegal server type", callback})
 	}
