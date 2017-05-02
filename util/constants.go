@@ -18,6 +18,7 @@ const (
 	MaxIdleConns       = 3
 	DebugHost          = "10.26.210.175"
 	APIHosts           = "10.11.38.52"
+	TimeFormat         = "2006-01-02 15:04:05"
 	DiscoverServerType = 1
 	FanServerType      = 2
 	VerifyServerType   = 3

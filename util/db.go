@@ -7,6 +7,7 @@ const (
 	MaxListSize = 20
 	masterRds   = "10.11.56.116"
 	readRds     = "10.11.56.116"
+	access      = "root:^laughingFxT@#$"
 )
 
 func genDsn(readonly bool) string {
@@ -14,11 +15,21 @@ func genDsn(readonly bool) string {
 	if readonly {
 		host = readRds
 	}
-	return "root:^laughingFxT@#$@tcp(" + host + ":3306)/laughing?charset=utf8"
+	return access + "@tcp(" + host + ":3306)/laughing?charset=utf8"
+}
+
+func genMonitorDsn() string {
+	return access + "@tcp(" + masterRds + ":3306)/monitor?charset=utf8"
 }
 
 //InitDB connect to rds
 func InitDB(readonly bool) (*sql.DB, error) {
 	dsn := genDsn(readonly)
+	return sql.Open("mysql", dsn)
+}
+
+//InitMonitorDB connect to rds
+func InitMonitorDB() (*sql.DB, error) {
+	dsn := genMonitorDsn()
 	return sql.Open("mysql", dsn)
 }
