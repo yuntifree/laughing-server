@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Server/util"
+	"laughing-server/util"
 	"log"
 	"net/http"
 	"time"
@@ -10,12 +10,12 @@ import (
 )
 
 func init() {
-	w := util.NewRotateWriter("/data/server/laughing.log", 1024*1024*1024)
+	w := util.NewRotateWriter("/data/server/app.log", 1024*1024*1024)
 	log.SetOutput(w)
 }
 
 func main() {
 	gracehttp.Serve(
-		&http.Server{Addr: ":81", Handler: NewAppServer(), IdleTimeout: 30 * time.Second},
+		&http.Server{Addr: ":80", Handler: NewAppServer(), IdleTimeout: 30 * time.Second},
 	)
 }

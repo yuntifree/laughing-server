@@ -12,8 +12,8 @@ import (
 //InitEtcdCli return etcd client
 func InitEtcdCli() *clientv3.Client {
 	cli, err := clientv3.New(clientv3.Config{
-		Endpoints: []string{"10.26.210.175:2379", "10.27.178.90:2379",
-			"10.27.168.11:2379"},
+		Endpoints: []string{"10.11.38.52:2379", "10.11.38.52:22379",
+			"10.11.38.52:32379"},
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {

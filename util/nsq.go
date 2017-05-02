@@ -17,7 +17,7 @@ const (
 //NewNsqProducer return nsq producer
 func NewNsqProducer() *nsq.Producer {
 	config := nsq.NewConfig()
-	w, err := nsq.NewProducer("10.26.210.175:4150", config)
+	w, err := nsq.NewProducer("10.11.38.52:4150", config)
 	if err != nil {
 		log.Fatal(err)
 	}

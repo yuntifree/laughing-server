@@ -17,7 +17,7 @@ const (
 	LimitServerPort    = ":60066"
 	MaxIdleConns       = 3
 	DebugHost          = "10.26.210.175"
-	APIHosts           = "10.27.178.90,10.27.178.90"
+	APIHosts           = "10.11.38.52"
 	DiscoverServerType = 1
 	FanServerType      = 2
 	VerifyServerType   = 3

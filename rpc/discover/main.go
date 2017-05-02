@@ -136,10 +136,7 @@ func fetchServers(name string) []string {
 }
 
 func isEtcdTestUid(uid int64) bool {
-	if uid == 1 {
-		return true
-	}
-	return false
+	return true
 }
 
 func convertServerName(name string) string {

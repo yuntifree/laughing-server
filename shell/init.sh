@@ -7,6 +7,7 @@ mkdir -p /data/init
 mkdir -p /usr/local/gocode
 
 yum install unzip
+yum install psmisc
 
 cd /data/init
 #golang
@@ -34,6 +35,8 @@ go get github.com/nsqio/go-nsq
 go get github.com/coreos/etcd/clientv3
 go get gopkg.in/redis.v5
 go get github.com/go-sql-driver/mysql
+go get github.com/mercari/go-grpc-interceptor/panichandler
+github.com/satori/go.uuid
 
 #etcd
 cd /data/etcd

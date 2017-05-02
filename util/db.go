@@ -5,8 +5,8 @@ import "database/sql"
 const (
 	//MaxListSize for page
 	MaxListSize = 20
-	masterRds   = "rm-wz9sb2613092ki9xn.mysql.rds.aliyuncs.com"
-	readRds     = "rm-wz9sb2613092ki9xn.mysql.rds.aliyuncs.com"
+	masterRds   = "10.11.56.116"
+	readRds     = "10.11.56.116"
 )
 
 func genDsn(readonly bool) string {
@@ -14,7 +14,7 @@ func genDsn(readonly bool) string {
 	if readonly {
 		host = readRds
 	}
-	return "access:^yunti9df3b01c$@tcp(" + host + ":3306)/laughing?charset=utf8"
+	return "root:^laughingFxT@#$@tcp(" + host + ":3306)/laughing?charset=utf8"
 }
 
 //InitDB connect to rds

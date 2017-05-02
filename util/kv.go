@@ -8,16 +8,14 @@ import (
 )
 
 const (
-	redisHost   = "r-wz9191666aa18664.redis.rds.aliyuncs.com:6379"
-	redisPasswd = "YXZHwifiredis01server"
+	redisHost = "10.11.121.205:6379"
 )
 
 //InitRedis return initialed redis client
 func InitRedis() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr:     redisHost,
-		Password: redisPasswd,
-		DB:       0,
+		Addr: redisHost,
+		DB:   0,
 	})
 }
 

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Server/util"
 	"database/sql"
+	"laughing-server/util"
 	"log"
 	"net"
 	"os"
@@ -128,7 +128,7 @@ func main() {
 		os.Exit(1)
 	}
 	config := nsq.NewConfig()
-	laddr := "10.26.210.175"
+	laddr := "10.11.38.52"
 	config.LocalAddr, _ = net.ResolveTCPAddr("tcp", laddr+":0")
 	config.DefaultRequeueDelay = 0
 	config.MaxBackoffDuration = time.Millisecond * 50
@@ -145,7 +145,7 @@ func main() {
 		return nil
 	}))
 
-	err = q.ConnectToNSQLookupd("10.26.210.175:4161")
+	err = q.ConnectToNSQLookupd("10.11.38.52:4161")
 	if err != nil {
 		log.Printf("connect failed:%v", err)
 	}
