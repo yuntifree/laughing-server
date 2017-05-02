@@ -312,3 +312,67 @@ func unshare(db *sql.DB, uid, sid int64) error {
 	}
 	return nil
 }
+
+func getShareIds(db *sql.DB, seq, num, tag int64) (ids []int64, nextseq, nexttag int64) {
+	var query string
+	if tag == 0 {
+		query = "SELECT s.id FROM shares s, media m  WHERE s.mid = m.id "
+	} else {
+		query = fmt.Sprintf("SELECT s.id FROM shares s, media m, media_tags t WHERE s.mid = m.id AND m.id = t.mid AND t.tid = %d", tag)
+	}
+	if seq != 0 {
+		query += fmt.Sprintf(" AND s.id < %d ", seq)
+	}
+	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
+	log.Printf("getShareIds query:%s", query)
+	rows, err := db.Query(query)
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var id int64
+		err := rows.Scan(&id)
+		if err != nil {
+			log.Printf("getShareIds scan failed:%v", err)
+			continue
+		}
+		nextseq = id
+		ids = append(ids, id)
+	}
+	if len(ids) < int(num) && tag != recommendTag {
+		rids, next := getRecommendIds(db, 0, num-int64(len(ids)))
+		ids = append(ids, rids...)
+		nexttag = recommendTag
+		nextseq = next
+	} else {
+		nexttag = tag
+	}
+	return
+}
+
+func getRecommendIds(db *sql.DB, seq, num int64) (ids []int64, nextseq int64) {
+	query := fmt.Sprintf("SELECT s.id FROM shares s, media m, media_tags t WHERE s.mid = m.id AND m.id = t.mid AND t.tid = %d", recommendTag)
+	if seq != 0 {
+		query += fmt.Sprintf(" AND s.id < %d ", seq)
+	}
+	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
+	rows, err := db.Query(query)
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var id int64
+		err := rows.Scan(&id)
+		if err != nil {
+			log.Printf("getShareIds scan failed:%v", err)
+			continue
+		}
+		nextseq = id
+		ids = append(ids, id)
+	}
+	return
+}

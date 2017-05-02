@@ -14,6 +14,7 @@ service Share{
     rpc GetShares(common.CommRequest) returns (ShareReply) {}
     rpc GetShareComments(common.CommRequest) returns (CommentReply) {}
     rpc GetShareDetail(common.CommRequest) returns (ShareDetailReply) {}
+    rpc GetShareIds(common.CommRequest) returns (ShareIdReply) {}
 }
 
 message TagInfo {
@@ -107,4 +108,13 @@ message ShareDetail {
 message ShareDetailReply {
     common.Head head = 1;
     ShareDetail Info = 2;
+}
+
+message ShareIdReply {
+    common.Head head = 1;
+    int64 hasmore = 2;
+    int64 nextseq = 3;
+    int64 nexttag = 4;
+    repeated int64 ids = 5;
+
 }

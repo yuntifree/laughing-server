@@ -15,6 +15,10 @@ import (
 	redis "gopkg.in/redis.v5"
 )
 
+const (
+	recommendTag = 1
+)
+
 type server struct{}
 
 var db *sql.DB
@@ -122,6 +126,18 @@ func (s *server) GetShares(ctx context.Context, in *common.CommRequest) (*share.
 	return &share.ShareReply{
 		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
 		Infos: infos, Hasmore: hasmore, Nextseq: nextseq}, nil
+}
+
+func (s *server) GetShareIds(ctx context.Context, in *common.CommRequest) (*share.ShareIdReply, error) {
+	log.Printf("GetShareIds request:%v", in)
+	util.PubRPCRequest(w, "share", "GetShareIds")
+	ids, nextseq, nexttag := getShareIds(db, in.Seq, in.Num, in.Id)
+	hasmore := getHasmore(len(ids), in.Num)
+	util.PubRPCSuccRsp(w, "share", "GetShareIds")
+	return &share.ShareIdReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Ids:  ids, Hasmore: hasmore, Nextseq: nextseq,
+		Nexttag: nexttag}, nil
 }
 
 func (s *server) GetShareComments(ctx context.Context, in *common.CommRequest) (*share.CommentReply, error) {
