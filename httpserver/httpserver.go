@@ -656,6 +656,13 @@ func GenResponseBodyCallback(res interface{}, callback string, flag bool) []byte
 			} else {
 				continue
 			}
+		} else if typeField.Name == "Infos" {
+			if valueField.IsNil() {
+				continue
+			} else {
+				js.SetPath([]string{"data", strings.ToLower(typeField.Name)},
+					valueField.Interface())
+			}
 		} else {
 			js.SetPath([]string{"data", strings.ToLower(typeField.Name)},
 				valueField.Interface())
