@@ -146,6 +146,39 @@ func addShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func loadShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitNoCheck(r)
+
+	uid := req.GetParamInt("uid")
+	title := req.GetParamString("title")
+	thumbnail := req.GetParamStringDef("thumbnail", "")
+	img := req.GetParamStringDef("img", "")
+	dst := req.GetParamString("dst")
+	origin := req.GetParamInt("origin")
+	tags := req.GetParamIntArray("tags")
+	width := req.GetParamIntDef("width", 0)
+	height := req.GetParamIntDef("height", 0)
+	src := req.GetParamStringDef("src", "")
+	cdn := req.GetParamStringDef("cdn", "")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, uid, "AddShare",
+		&share.ShareRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+			Title: title, Img: img, Thumbnail: thumbnail,
+			Dst: dst, Tags: tags, Origin: origin, Src: src, Cdn: cdn,
+			Width: width, Height: height})
+
+	httpserver.CheckRPCErr(rpcerr, "AddShare")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "AddShare")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 func reshare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)

@@ -37,6 +37,9 @@ message ShareRequest {
     int64 origin = 7;
     int64 width = 8;
     int64 height = 9;
+    string thumbnail = 10;
+    string src = 11;
+    string cdn = 12;
 }
 
 message CommentRequest {

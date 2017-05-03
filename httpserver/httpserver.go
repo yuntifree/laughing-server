@@ -360,8 +360,8 @@ func checkToken(uid int64, token string) bool {
 	return true
 }
 
-//Init init request
-func (r *Request) Init(req *http.Request) {
+//InitNoCheck init without any check
+func (r *Request) InitNoCheck(req *http.Request) {
 	ReportRequest(req.RequestURI)
 	var err error
 	r.Post, err = simplejson.NewFromReader(req.Body)
@@ -376,6 +376,11 @@ func (r *Request) Init(req *http.Request) {
 		log.Printf("parse reqbody failed:%v", err)
 		panic(util.AppError{ErrInvalidParam, "invalid param", r.Callback})
 	}
+}
+
+//Init init request
+func (r *Request) Init(req *http.Request) {
+	r.InitNoCheck(req)
 	c1, err := req.Cookie("u")
 	if err == nil {
 		id, _ := strconv.Atoi(c1.Value)
