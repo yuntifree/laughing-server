@@ -131,7 +131,7 @@ func getMyShares(db *sql.DB, uid, seq, num int64) (infos []*share.ShareInfo, nex
 			continue
 		}
 		nextseq = info.Id
-		info.Tags = getMediaTags(db, mid)
+		info.Tags, _ = getMediaTags(db, mid)
 		infos = append(infos, &info)
 	}
 	return
@@ -197,23 +197,24 @@ func getShareComments(db *sql.DB, id, seq, num int64) (infos []*share.CommentInf
 	return
 }
 
-func getMediaTags(db *sql.DB, id int64) string {
-	rows, err := db.Query("SELECT t.content FROM media_tags m, tags t WHERE m.tid = t.id AND m.mid = ?", id)
+func getMediaTags(db *sql.DB, id int64) (string, int64) {
+	rows, err := db.Query("SELECT t.id t.content FROM media_tags m, tags t WHERE m.tid = t.id AND m.mid = ?", id)
 	if err != nil {
-		return ""
+		return "", 0
 	}
 	defer rows.Close()
 	var tags string
+	var tid int64
 	for rows.Next() {
 		var content string
-		err := rows.Scan(&content)
+		err := rows.Scan(&tid, &content)
 		if err != nil {
 			log.Printf("getMediaTags scan failed:%v", err)
 			continue
 		}
 		tags += content + " "
 	}
-	return tags
+	return tags, tid
 }
 
 const (
@@ -286,7 +287,7 @@ func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err erro
 	if err != nil {
 		return
 	}
-	info.Tag = getMediaTags(db, mid)
+	info.Tag, info.Tagid = getMediaTags(db, mid)
 	record.Desc = genShareDesc(diff)
 	if sid == 0 {
 		record.Title = getShareOriTitle(record.Nickname, record.Origin)
@@ -295,6 +296,7 @@ func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err erro
 	}
 	info.Record = &record
 	info.Hasshare = hasShare(db, uid, mid)
+	info.Id = id
 	return
 }
 

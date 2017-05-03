@@ -107,6 +107,8 @@ message ShareDetail {
     ShareRecord record = 9;
     int64 width = 10;
     int64 height = 11;
+    int64 tagid = 12;
+    int64 id = 13;
 }
 
 message ShareDetailReply {
