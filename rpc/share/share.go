@@ -8,6 +8,10 @@ import (
 	"log"
 )
 
+const (
+	recommendNum = 10
+)
+
 func addMediaTags(db *sql.DB, mid int64, tags []int64) {
 	query := "INSERT INTO media_tags(mid, tid) VALUES "
 	for i := 0; i < len(tags); i++ {
@@ -375,4 +379,21 @@ func getRecommendIds(db *sql.DB, seq, num int64) (ids []int64, nextseq int64) {
 		ids = append(ids, id)
 	}
 	return
+}
+
+func getRecommendShares(db *sql.DB, uid, tag int64) (infos []*share.ShareDetail, err error) {
+	var ids []int64
+	if tag != 0 {
+		ids, _, _ = getShareIds(db, 0, recommendNum, tag)
+	} else {
+		ids, _ = getRecommendIds(db, 0, recommendNum)
+	}
+	for _, v := range ids {
+		info, err := getShareDetail(db, uid, v)
+		if err != nil {
+			continue
+		}
+		infos = append(infos, &info)
+	}
+	return infos, nil
 }

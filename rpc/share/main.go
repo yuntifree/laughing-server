@@ -167,6 +167,22 @@ func (s *server) GetShareDetail(ctx context.Context, in *common.CommRequest) (*s
 		Info: &info}, nil
 }
 
+func (s *server) GetRecommendShares(ctx context.Context, in *common.CommRequest) (*share.RecommendShareReply, error) {
+	log.Printf("GetRecommendSharerequest:%v", in)
+	util.PubRPCRequest(w, "share", "GetRecommendShares")
+	infos, err := getRecommendShares(db, in.Head.Uid, in.Id)
+	if err != nil {
+		log.Printf("getRecommendSharefailed:%v", err)
+		return &share.RecommendShareReply{
+			Head: &common.Head{Retcode: common.ErrCode_GET_INFO, Uid: in.Head.Uid},
+		}, nil
+	}
+	util.PubRPCSuccRsp(w, "share", "GetRecommendShare")
+	return &share.RecommendShareReply{
+		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Infos: infos}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ShareServerPort)
 	if err != nil {
