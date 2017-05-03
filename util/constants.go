@@ -15,6 +15,8 @@ const (
 	ModifyServerPort   = ":60065"
 	LimitServerName    = "service:limit"
 	LimitServerPort    = ":60066"
+	ConfigServerName   = "service:laughconfig"
+	ConfigServerPort   = ":60067"
 	MaxIdleConns       = 3
 	DebugHost          = "10.26.210.175"
 	APIHosts           = "10.11.38.52"
@@ -26,4 +28,5 @@ const (
 	UserServerType     = 5
 	ModifyServerType   = 6
 	LimitServerType    = 7
+	ConfigServerType   = 8
 )

@@ -1,9 +1,9 @@
 #!/bin/bash
-RPCLIST="discover fan verify share user modify limit"
+RPCLIST="discover fan verify share user modify limit config"
 
 function gen_rpc()
 {
-    for srv in $RPCLIST; do 
+    for srv in $RPCLIST; do
         echo $srv
         protoc --go_out=plugins=grpc:../proto/$srv/ ../proto/$srv/$srv.proto -I../.. -I../proto/$srv
      done

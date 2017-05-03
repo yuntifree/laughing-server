@@ -3,6 +3,7 @@ package main
 import (
 	"laughing-server/httpserver"
 	"laughing-server/proto/common"
+	"laughing-server/proto/config"
 	"laughing-server/proto/fan"
 	"laughing-server/proto/modify"
 	"laughing-server/proto/share"
@@ -438,6 +439,30 @@ func report(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func checkUpdate(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.Init(r)
+	dev := req.ParseDevice(r)
+	var term int64
+	if dev.Model == "iPhone" {
+		term = 1
+	}
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "CheckUpdate",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid,
+			Term: term, Version: dev.Version}})
+
+	httpserver.CheckRPCErr(rpcerr, "CheckUpdate")
+	res := resp.Interface().(*config.VersionReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "CheckUpdate")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewAppServer return app http handler
 func NewAppServer() http.Handler {
 	mux := http.NewServeMux()
@@ -459,5 +484,6 @@ func NewAppServer() http.Handler {
 	mux.Handle("/mod_user_info", httpserver.AppHandler(modUserInfo))
 	mux.Handle("/report_click", httpserver.AppHandler(reportClick))
 	mux.Handle("/report", httpserver.AppHandler(report))
+	mux.Handle("/check_update", httpserver.AppHandler(checkUpdate))
 	return mux
 }

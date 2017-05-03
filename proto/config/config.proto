@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "laughing-server/proto/common/common.proto";
+
+package config;
+
+service Config {
+    rpc CheckUpdate(common.CommRequest) returns (VersionReply) {}
+}
+
+message VersionReply {
+    common.Head head = 1;
+    string version = 2;
+    string desc = 3;
+}

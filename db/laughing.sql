@@ -158,3 +158,15 @@ CREATE TABLE IF NOT EXISTS report
     PRIMARY KEY(id),
     UNIQUE KEY(uid, sid)
 ) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS app_version
+(
+    id      bigint unsigned NOT NULL AUTO_INCREMENT,
+    term    tinyint unsigned NOT NULL,
+    version int unsigned NOT NULL DEFAULT 0,
+    vname   varchar(32) NOT NULL,
+    description varchar(1024) NOT NULL,
+    ctime   datetime NOT NULL DEFAULT '2017-01-01',
+    PRIMARY KEY(id),
+    KEY(version)
+) ENGINE = InnoDB; 
