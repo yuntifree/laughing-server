@@ -88,7 +88,7 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 		return
 	}
 	id, err = res.LastInsertId()
-	_, err = db.Exec("UPDATE shares SET comments = comments + 1 WHERE id = ?", id)
+	_, err = db.Exec("UPDATE shares SET comments = comments + 1 WHERE id = ?", sid)
 	return
 }
 
