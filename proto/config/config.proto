@@ -12,4 +12,7 @@ message VersionReply {
     common.Head head = 1;
     string version = 2;
     string desc = 3;
+    string title = 4;
+    string subtitle = 5;
+    string downurl = 6;
 }
