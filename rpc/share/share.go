@@ -78,6 +78,7 @@ func reshare(db *sql.DB, uid, sid int64) (id int64, err error) {
 	if err != nil {
 		return
 	}
+	_, err = db.Exec("UPDATE shares SET reshare = reshare + 1 WHERE id = ?", sid)
 	return
 }
 
@@ -87,6 +88,7 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 		return
 	}
 	id, err = res.LastInsertId()
+	_, err = db.Exec("UPDATE shares SET comments = comments + 1 WHERE id = ?", id)
 	return
 }
 
