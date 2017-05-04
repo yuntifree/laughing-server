@@ -24,7 +24,7 @@ var w *nsq.Producer
 func (s *server) FbLogin(ctx context.Context, in *verify.FbLoginRequest) (*verify.LoginReply, error) {
 	log.Printf("Login request:%v", in)
 	util.PubRPCRequest(w, "verify", "FbLogin")
-	uid, token, headurl, nickname, err := fblogin(db, in)
+	uid, token, headurl, err := fblogin(db, in)
 	if err != nil {
 		return &verify.LoginReply{
 			Head: &common.Head{Retcode: common.ErrCode_FB_LOGIN}}, nil
@@ -32,7 +32,7 @@ func (s *server) FbLogin(ctx context.Context, in *verify.FbLoginRequest) (*verif
 	util.PubRPCSuccRsp(w, "verify", "FbLogin")
 	return &verify.LoginReply{
 		Head: &common.Head{Retcode: 0},
-		Uid:  uid, Token: token, Headurl: headurl, Nickname: nickname}, nil
+		Uid:  uid, Token: token, Headurl: headurl}, nil
 }
 
 func (s *server) Logout(ctx context.Context, in *common.CommRequest) (*common.CommReply, error) {

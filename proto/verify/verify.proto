@@ -19,6 +19,7 @@ message FbLoginRequest {
     string language = 6;
     int64 version = 7;
     string os = 8;
+    string nickname = 9;
 }
 
 message LoginReply {
@@ -26,7 +27,6 @@ message LoginReply {
     int64 uid = 2;
     string token = 3;
     string headurl = 4;
-    string nickname = 5;
 }
 
 message CheckTokenRequest {
