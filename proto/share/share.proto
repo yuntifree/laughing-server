@@ -101,7 +101,7 @@ message ShareDetail {
     string img = 1;
     string dst = 2;
     string title = 3;
-    string tag = 4;
+    repeated TagInfo tags = 4;
     int64 views = 5;
     int64 reshare = 6;
     int64 comments = 7;
@@ -109,8 +109,7 @@ message ShareDetail {
     ShareRecord record = 9;
     int64 width = 10;
     int64 height = 11;
-    int64 tagid = 12;
-    int64 id = 13;
+    int64 id = 12;
 }
 
 message ShareDetailReply {

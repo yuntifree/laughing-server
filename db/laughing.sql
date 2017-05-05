@@ -84,7 +84,9 @@ CREATE TABLE IF NOT EXISTS tags
 (
     id     bigint unsigned NOT NULL AUTO_INCREMENT,
     content varchar(64) NOT NULL,
+    img      varchar(256) NOT NULL,
     deleted tinyint unsigned NOT NULL DEFAULT 0,
+    recommend tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(id)
 ) ENGINE = InnoDB;
