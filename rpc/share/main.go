@@ -106,12 +106,12 @@ func getHasmore(len int, num int64) int64 {
 	return 0
 }
 
-func (s *server) GetMyShares(ctx context.Context, in *common.CommRequest) (*share.ShareReply, error) {
-	log.Printf("GetMyShares request:%v", in)
-	util.PubRPCRequest(w, "share", "GetMyShare")
-	infos, nextseq := getMyShares(db, in.Head.Uid, in.Seq, in.Num)
+func (s *server) GetUserShares(ctx context.Context, in *common.CommRequest) (*share.ShareReply, error) {
+	log.Printf("GetUserShares request:%v", in)
+	util.PubRPCRequest(w, "share", "GetUserShare")
+	infos, nextseq := getUserShares(db, in.Head.Uid, in.Id, in.Seq, in.Num)
 	hasmore := getHasmore(len(infos), in.Num)
-	util.PubRPCSuccRsp(w, "share", "GetMyShare")
+	util.PubRPCSuccRsp(w, "share", "GetUserShare")
 	return &share.ShareReply{
 		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
 		Infos: infos, Hasmore: hasmore, Nextseq: nextseq}, nil

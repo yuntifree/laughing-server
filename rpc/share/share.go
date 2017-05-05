@@ -117,8 +117,8 @@ func genShareQuery(uid, seq, num int64) string {
 	return query
 }
 
-func getMyShares(db *sql.DB, uid, seq, num int64) (infos []*share.ShareInfo, nextseq int64) {
-	query := genShareQuery(uid, seq, num)
+func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareInfo, nextseq int64) {
+	query := genShareQuery(tuid, seq, num)
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Printf("getMyShares query failed:%v", err)

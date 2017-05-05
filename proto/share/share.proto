@@ -10,7 +10,7 @@ service Share{
     rpc Reshare(common.CommRequest) returns (common.CommReply) {}
     rpc Unshare(common.CommRequest) returns (common.CommReply) {}
     rpc AddComment(CommentRequest) returns (common.CommReply) {}
-    rpc GetMyShares(common.CommRequest) returns (ShareReply) {}
+    rpc GetUserShares(common.CommRequest) returns (ShareReply) {}
     rpc GetShares(common.CommRequest) returns (ShareReply) {}
     rpc GetShareComments(common.CommRequest) returns (CommentReply) {}
     rpc GetShareDetail(common.CommRequest) returns (ShareDetailReply) {}
