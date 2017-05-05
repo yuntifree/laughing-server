@@ -24,7 +24,7 @@ var w *nsq.Producer
 func (s *server) GetInfo(ctx context.Context, in *common.CommRequest) (*user.InfoReply, error) {
 	log.Printf("GetInfo request:%v", in)
 	util.PubRPCRequest(w, "user", "GetInfo")
-	info, err := getInfo(db, in.Id)
+	info, err := getInfo(db, in.Head.Uid, in.Id)
 	if err != nil {
 		log.Printf("GetInfo query failed:%v", err)
 		return &user.InfoReply{

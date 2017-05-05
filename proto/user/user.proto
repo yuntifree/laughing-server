@@ -15,6 +15,7 @@ message Info {
     int64 videos = 3;
     int64 followers = 4;
     int64 following = 5;
+    int64 hasfollow = 6;
 }
 
 message InfoReply {
