@@ -309,7 +309,7 @@ func genShareDesc(minutes int64) string {
 
 func hasShare(db *sql.DB, uid, mid int64) int64 {
 	var cnt int64
-	err := db.QueryRow("SELECT COUNT(id) FROM shares WHERE uid = ? AND mid = ?", uid, mid).Scan(&cnt)
+	err := db.QueryRow("SELECT COUNT(id) FROM shares WHERE uid = ? AND mid = ? AND deleted = 0", uid, mid).Scan(&cnt)
 	if err != nil {
 		return 0
 	}
