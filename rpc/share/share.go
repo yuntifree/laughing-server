@@ -82,6 +82,7 @@ func reshare(db *sql.DB, uid, sid int64) (id int64, err error) {
 		return
 	}
 	_, err = db.Exec("UPDATE shares SET reshare = reshare + 1 WHERE id = ?", sid)
+	_, err = db.Exec("UPDATE users SET videos = videos + 1 WHERE uid = ?", uid)
 	return
 }
 
