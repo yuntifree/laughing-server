@@ -84,11 +84,12 @@ func getRelations(w http.ResponseWriter, r *http.Request) (apperr *util.AppError
 	stype := req.GetParamInt("type")
 	seq := req.GetParamInt("seq")
 	num := req.GetParamInt("num")
+	tuid := req.GetParamInt("tuid")
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.FanServerType, req.Uid, "GetRelations",
 		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
-			Type: stype, Seq: seq, Num: num})
+			Type: stype, Seq: seq, Num: num, Id: tuid})
 
 	httpserver.CheckRPCErr(rpcerr, "GetRelations")
 	res := resp.Interface().(*fan.RelationReply)

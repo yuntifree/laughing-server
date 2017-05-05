@@ -37,7 +37,7 @@ func (s *server) Follow(ctx context.Context, in *fan.FanRequest) (*common.CommRe
 func (s *server) GetRelations(ctx context.Context, in *common.CommRequest) (*fan.RelationReply, error) {
 	log.Printf("GetRelations request:%v", in)
 	util.PubRPCRequest(w, "fan", "GetRelations")
-	infos, nextseq := getRelations(db, in.Head.Uid, in.Type, in.Seq, in.Num)
+	infos, nextseq := getRelations(db, in.Head.Uid, in.Id, in.Type, in.Seq, in.Num)
 	var hasmore int64
 	if len(infos) >= int(in.Num) {
 		hasmore = 1
