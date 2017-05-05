@@ -122,10 +122,12 @@ func (s *server) GetShares(ctx context.Context, in *common.CommRequest) (*share.
 	util.PubRPCRequest(w, "share", "GetShare")
 	infos, nextseq := getShares(db, in.Seq, in.Num, in.Id)
 	hasmore := getHasmore(len(infos), in.Num)
+	recommend := getRecommendTag(db)
 	util.PubRPCSuccRsp(w, "share", "GetShare")
 	return &share.ShareReply{
 		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
-		Infos: infos, Hasmore: hasmore, Nextseq: nextseq}, nil
+		Infos: infos, Hasmore: hasmore, Nextseq: nextseq,
+		Recommendtag: recommend}, nil
 }
 
 func (s *server) GetShareIds(ctx context.Context, in *common.CommRequest) (*share.ShareIdReply, error) {

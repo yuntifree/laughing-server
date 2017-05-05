@@ -21,6 +21,7 @@ service Share{
 message TagInfo {
     int64 id = 1;
     string content = 2;
+    string img = 3;
 }
 
 message TagReply {
@@ -68,6 +69,7 @@ message ShareReply {
     repeated ShareInfo infos = 2;
     int64 hasmore = 3;
     int64 nextseq = 4;
+    TagInfo recommendtag = 5;
 }
 
 message CommentInfo {

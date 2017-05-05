@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"laughing-server/proto/share"
+	"laughing-server/util"
 	"log"
+	"time"
 )
 
 const (
 	recommendNum = 10
+	interval     = 600
 )
 
 func addMediaTags(db *sql.DB, mid int64, tags []int64) {
@@ -166,6 +169,44 @@ func getShares(db *sql.DB, seq, num, id int64) (infos []*share.ShareInfo, nextse
 		infos = append(infos, &info)
 	}
 	return
+}
+
+type tagCache struct {
+	expired int64
+	infos   []*share.TagInfo
+}
+
+var tc tagCache
+
+func getRecommendTag(db *sql.DB) *share.TagInfo {
+	cnt := len(tc.infos)
+	if cnt > 0 && tc.expired > time.Now().Unix() {
+		idx := int(util.Rand()) % cnt
+		return tc.infos[idx]
+	}
+	rows, err := db.Query("SELECT id, content, img FROM tags WHERE recommend = 1 AND deleted = 0")
+	if err != nil {
+		log.Printf("getRecommendTag failed:%v", err)
+	}
+	var tags []*share.TagInfo
+	defer rows.Close()
+	for rows.Next() {
+		var info share.TagInfo
+		err = rows.Scan(&info.Id, &info.Content, &info.Img)
+		if err != nil {
+			continue
+		}
+		tags = append(tags, &info)
+	}
+	tc.infos = tags
+	tc.expired = time.Now().Unix() + interval
+
+	cnt = len(tc.infos)
+	if cnt > 0 {
+		idx := int(util.Rand()) % cnt
+		return tc.infos[idx]
+	}
+	return nil
 }
 
 func genCommentQuery(id, seq, num int64) string {
