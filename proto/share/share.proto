@@ -110,6 +110,7 @@ message ShareDetail {
     int64 width = 10;
     int64 height = 11;
     int64 id = 12;
+    int64 unshare = 13;
 }
 
 message ShareDetailReply {

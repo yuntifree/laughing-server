@@ -321,13 +321,16 @@ func hasShare(db *sql.DB, uid, mid int64) int64 {
 func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err error) {
 	var mid, sid, diff int64
 	var record share.ShareRecord
-	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.dst, m.title, m.views, m.id, m.width, m.height, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
+	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.dst, m.title, m.views, m.id, m.width, m.height, m.unshare, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
 		Scan(&info.Reshare, &info.Comments, &info.Img, &info.Dst,
 			&info.Title, &info.Views, &mid, &info.Width, &info.Height,
-			&sid, &record.Uid, &record.Headurl,
+			&info.Unshare, &sid, &record.Uid, &record.Headurl,
 			&record.Nickname, &diff, &record.Origin)
 	if err != nil {
 		return
+	}
+	if info.Unshare > 0 {
+		info.Dst = ""
 	}
 	info.Tags = getMediaTags(db, mid)
 	record.Desc = genShareDesc(diff)
@@ -356,6 +359,17 @@ func unshare(db *sql.DB, uid, sid int64) error {
 		_, err = db.Exec("UPDATE users SET videos = IF(videos > 0, videos-1, 0) WHERE uid = ?", uid)
 		if err != nil {
 			return err
+		}
+	}
+	var euid, mid int64
+	err = db.QueryRow("SELECT m.id, m.uid FROM media m, shares s WHERE s.mid = m.id AND s.id = ?", sid).Scan(&mid, euid)
+	if err != nil {
+		log.Printf("unshare query euid failed:%v", err)
+	}
+	if euid == uid {
+		_, err = db.Exec("UPDATE media SET unshare = 1 WHERE id = ?", mid)
+		if err != nil {
+			log.Printf("unshare update media failed:%v", err)
 		}
 	}
 	return nil
