@@ -362,10 +362,18 @@ func unshare(db *sql.DB, uid, sid int64) error {
 			return err
 		}
 	}
-	var euid, mid int64
-	err = db.QueryRow("SELECT m.id, m.uid FROM media m, shares s WHERE s.mid = m.id AND s.id = ?", sid).Scan(&mid, euid)
+	var euid, mid, orisid int64
+	err = db.QueryRow("SELECT m.id, m.uid, s.sid FROM media m, shares s WHERE s.mid = m.id AND s.id = ?", sid).Scan(&mid, &euid, &orisid)
 	if err != nil {
 		log.Printf("unshare query euid failed:%v", err)
+		return err
+	}
+	if orisid != 0 {
+		_, err = db.Exec("UDPATE shares SET reshare = IF(reshare > 0, reshare-1, 0) WHERE id = ?", orisid)
+		if err != nil {
+			log.Printf("unshare minus origin sid reshare failed:%v", err)
+			return err
+		}
 	}
 	if euid == uid {
 		_, err = db.Exec("UPDATE media SET unshare = 1 WHERE id = ?", mid)
