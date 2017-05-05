@@ -25,12 +25,12 @@ func InitEtcdCli() *clientv3.Client {
 func report(cli *clientv3.Client, key, val string) {
 	resp, err := cli.Grant(context.TODO(), 5)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("report grant failed:%v", err)
 	}
 	_, err = cli.Put(context.TODO(), key, val,
 		clientv3.WithLease(resp.ID))
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("report put failed:%v", err)
 	}
 }
 
@@ -38,7 +38,8 @@ func report(cli *clientv3.Client, key, val string) {
 func ReportEtcd(cli *clientv3.Client, server, port string) {
 	host, err := os.Hostname()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("report etcd failed:%v", err)
+		return
 	}
 	ip := GetInnerIP()
 	addr := ip + port
