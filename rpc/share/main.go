@@ -168,6 +168,17 @@ func (s *server) GetShares(ctx context.Context, in *common.CommRequest) (*share.
 		Recommendtag: recommend}, nil
 }
 
+func (s *server) FetchShares(ctx context.Context, in *common.CommRequest) (*share.ShareReply, error) {
+	log.Printf("FetchShares request:%v", in)
+	util.PubRPCRequest(w, "share", "FetchShare")
+	infos := fetchShares(db, in.Seq, in.Num, in.Type)
+	total := getTotalShares(db, in.Type)
+	util.PubRPCSuccRsp(w, "share", "GetShare")
+	return &share.ShareReply{
+		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Infos: infos, Total: total}, nil
+}
+
 func (s *server) GetShareIds(ctx context.Context, in *common.CommRequest) (*share.ShareIdReply, error) {
 	log.Printf("GetShareIds request:%v", in)
 	util.PubRPCRequest(w, "share", "GetShareIds")

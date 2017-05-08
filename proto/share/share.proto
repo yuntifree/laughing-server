@@ -19,6 +19,7 @@ service Share{
     rpc FetchTags(common.CommRequest) returns (TagReply) {}
     rpc AddTag(TagRequest) returns (common.CommReply) {}
     rpc DelTags(DelTagRequest) returns (common.CommReply) {}
+    rpc FetchShares(common.CommRequest) returns (ShareReply) {}
 }
 
 message TagInfo {
@@ -84,7 +85,9 @@ message ShareReply {
     int64 hasmore = 3;
     int64 nextseq = 4;
     TagInfo recommendtag = 5;
+    int64 total = 6;
 }
+
 
 message CommentInfo {
     int64 id = 1;

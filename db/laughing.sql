@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS shares
     comments    int unsigned NOT NULL DEFAULT 0,
     report      int unsigned NOT NULL DEFAULT 0,
     deleted tinyint unsigned NOT NULL DEFAULT 0,
+    review  tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(id),
     KEY(uid),

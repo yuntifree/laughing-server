@@ -185,6 +185,28 @@ func addUser(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func getShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	seq := req.GetParamInt("seq")
+	num := req.GetParamInt("num")
+	rtype := req.GetParamInt("type")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "FetchShares",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Seq: seq, Num: num, Type: rtype})
+
+	httpserver.CheckRPCErr(rpcerr, "FetchShares")
+	res := resp.Interface().(*share.ShareReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "FetchShares")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewOssServer return oss http handler
 func NewOssServer() http.Handler {
 	mux := http.NewServeMux()
@@ -194,5 +216,6 @@ func NewOssServer() http.Handler {
 	mux.Handle("/del_tags", httpserver.AppHandler(delTags))
 	mux.Handle("/add_version", httpserver.AppHandler(addVersion))
 	mux.Handle("/get_versions", httpserver.AppHandler(getVersions))
+	mux.Handle("/get_shares", httpserver.AppHandler(getShares))
 	return mux
 }
