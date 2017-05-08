@@ -171,6 +171,7 @@ CREATE TABLE IF NOT EXISTS app_version
     subtitle varchar(256) NOT NULL,
     downurl varchar(256) NOT NULL,
     description varchar(1024) NOT NULL,
+    deleted tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(id),
     KEY(version)
