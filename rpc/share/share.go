@@ -359,7 +359,7 @@ func unshare(db *sql.DB, uid, sid int64) error {
 		return err
 	}
 	if orisid != 0 {
-		_, err = db.Exec("UDPATE shares SET reshare = IF(reshare > 0, reshare-1, 0) WHERE id = ?", orisid)
+		_, err = db.Exec("UPDATE shares SET reshare = IF(reshare > 0, reshare-1, 0) WHERE id = ?", orisid)
 		if err != nil {
 			log.Printf("unshare minus origin sid reshare failed:%v", err)
 			return err
