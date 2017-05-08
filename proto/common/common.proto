@@ -24,6 +24,7 @@ enum ErrCode {
     PASSWD = 10017;
     ADD_TAG = 10018;
     DEL_TAG = 10019;
+    ADD_VERSION = 10020;
 }
 
 message Head {

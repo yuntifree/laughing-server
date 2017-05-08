@@ -37,6 +37,32 @@ func (s *server) CheckUpdate(ctx context.Context, in *common.CommRequest) (*conf
 		Downurl: downurl}, nil
 }
 
+func (s *server) FetchVersions(ctx context.Context, in *common.CommRequest) (*config.FetchVersionReply, error) {
+	log.Printf("FetchVersion request:%v", in)
+	util.PubRPCRequest(w, "config", "FetchVersions")
+	infos := fetchVersions(db, in.Seq, in.Num)
+	total := getTotalVersions(db)
+	util.PubRPCSuccRsp(w, "config", "FetchVersions")
+	return &config.FetchVersionReply{
+		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Infos: infos, Total: total}, nil
+}
+
+func (s *server) AddVersion(ctx context.Context, in *config.VersionRequest) (*common.CommReply, error) {
+	log.Printf("AddVersion request:%v", in)
+	util.PubRPCRequest(w, "config", "AddVersion")
+	id, err := addVersion(db, in.Info)
+	if err != nil {
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_ADD_VERSION, Uid: in.Head.Uid},
+		}, nil
+	}
+	util.PubRPCSuccRsp(w, "config", "AddVersion")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Id:   id}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ConfigServerPort)
 	if err != nil {

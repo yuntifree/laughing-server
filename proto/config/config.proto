@@ -6,6 +6,19 @@ package config;
 
 service Config {
     rpc CheckUpdate(common.CommRequest) returns (VersionReply) {}
+    rpc FetchVersions(common.CommRequest) returns (FetchVersionReply) {}
+    rpc AddVersion(VersionRequest) returns (common.CommReply) {}
+}
+
+message VersionInfo {
+    int64 id = 1;
+    int64 version = 2;
+    string vname = 3;
+    int64 term = 4;
+    string title = 5;
+    string subtitle = 6;
+    string desc = 7;
+    string downurl = 8;
 }
 
 message VersionReply {
@@ -15,4 +28,15 @@ message VersionReply {
     string title = 4;
     string subtitle = 5;
     string downurl = 6;
+}
+
+message FetchVersionReply {
+    common.Head head = 1;
+    repeated VersionInfo infos = 2;
+    int64 total = 3;
+}
+
+message VersionRequest {
+    common.Head head = 1;
+    VersionInfo info = 2;
 }

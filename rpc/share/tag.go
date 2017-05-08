@@ -39,7 +39,7 @@ func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
 	defer rows.Close()
 	for rows.Next() {
 		var info share.TagInfo
-		err := rows.Scan(&info.Id, &info.Content)
+		err := rows.Scan(&info.Id, &info.Content, &info.Img)
 		if err != nil {
 			log.Printf("fetchTags scan failed:%v", err)
 			continue
