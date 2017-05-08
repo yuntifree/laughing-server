@@ -89,10 +89,17 @@ func reshare(db *sql.DB, uid, sid int64) (id int64, err error) {
 func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error) {
 	res, err := db.Exec("INSERT INTO comments(uid, sid, content, ctime) VALUES (?, ?, ?, NOW())", uid, sid, content)
 	if err != nil {
+		log.Printf("addComment insert comments failed:%v", err)
 		return
 	}
 	id, err = res.LastInsertId()
+	if err != nil {
+		log.Printf("addComment get last insert id failed:%v", err)
+	}
 	_, err = db.Exec("UPDATE shares SET comments = comments + 1 WHERE id = ?", sid)
+	if err != nil {
+		log.Printf("addComment update share comments failed:%v", err)
+	}
 	return
 }
 
