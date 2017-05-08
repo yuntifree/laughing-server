@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"laughing-server/proto/share"
 	"log"
 )
@@ -66,4 +67,22 @@ func addTag(db *sql.DB, info *share.TagInfo) (id int64, err error) {
 
 	id, err = res.LastInsertId()
 	return
+}
+
+func genDelTagQuery(ids []int64) string {
+	query := "UPDATE tags SET deleted = 1 WHERE id IN ("
+	for i := 0; i < len(ids); i++ {
+		query += fmt.Sprintf("%d,", ids[i])
+	}
+	query += "0)"
+	return query
+}
+
+func delTags(db *sql.DB, ids []int64) error {
+	query := genDelTagQuery(ids)
+	_, err := db.Exec(query)
+	if err != nil {
+		log.Printf("delTags failed:%s %v", query, err)
+	}
+	return err
 }

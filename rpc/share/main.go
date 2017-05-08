@@ -60,6 +60,19 @@ func (s *server) AddTag(ctx context.Context, in *share.TagRequest) (*common.Comm
 		Id:   id}, nil
 }
 
+func (s *server) DelTags(ctx context.Context, in *share.DelTagRequest) (*common.CommReply, error) {
+	log.Printf("DelTag request:%v", in)
+	util.PubRPCRequest(w, "share", "DelTags")
+	err := delTags(db, in.Ids)
+	if err != nil {
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_DEL_TAG}}, nil
+	}
+	util.PubRPCSuccRsp(w, "share", "DelTags")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
+}
+
 func (s *server) AddShare(ctx context.Context, in *share.ShareRequest) (*common.CommReply, error) {
 	log.Printf("AddShare request:%v", in)
 	util.PubRPCRequest(w, "share", "AddShare")

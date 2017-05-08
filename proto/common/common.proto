@@ -23,6 +23,7 @@ enum ErrCode {
     CHECK_UPDATE = 10016;
     PASSWD = 10017;
     ADD_TAG = 10018;
+    DEL_TAG = 10019;
 }
 
 message Head {

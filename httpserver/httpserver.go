@@ -120,6 +120,22 @@ func getJSONStringArray(js *simplejson.Json, key string) []string {
 	return s
 }
 
+func getWrapJSONStringArray(js *simplejson.Json, key string) []string {
+	var s []string
+	arr, err := js.Get("data").Get(key).Array()
+	if err == nil {
+		for i := 0; i < len(arr); i++ {
+			v, err := js.Get("data").Get(key).GetIndex(i).String()
+			if err != nil {
+				log.Printf("getJSONIntArray get failed, idx:%d %v", i, err)
+				continue
+			}
+			s = append(s, v)
+		}
+	}
+	return s
+}
+
 func getJSONInt(js *simplejson.Json, key string) int64 {
 	if val, err := js.Get(key).Int64(); err == nil {
 		return val
@@ -148,6 +164,22 @@ func getJSONIntArray(js *simplejson.Json, key string) []int64 {
 	if err == nil {
 		for i := 0; i < len(arr); i++ {
 			v, err := js.Get(key).GetIndex(i).Int64()
+			if err != nil {
+				log.Printf("getJSONIntArray get failed, idx:%d %v", i, err)
+				continue
+			}
+			s = append(s, v)
+		}
+	}
+	return s
+}
+
+func getWrapJSONIntArray(js *simplejson.Json, key string) []int64 {
+	var s []int64
+	arr, err := js.Get("data").Get(key).Array()
+	if err == nil {
+		for i := 0; i < len(arr); i++ {
+			v, err := js.Get("data").Get(key).GetIndex(i).Int64()
 			if err != nil {
 				log.Printf("getJSONIntArray get failed, idx:%d %v", i, err)
 				continue
@@ -528,9 +560,16 @@ func (r *Request) GetParamFloatDef(key string, def float64) float64 {
 func (r *Request) GetParamIntArray(key string) []int64 {
 	return getJSONIntArray(r.Post, key)
 }
+func (r *Request) GetParamWrapIntArray(key string) []int64 {
+	return getWrapJSONIntArray(r.Post, key)
+}
 
 func (r *Request) GetParamStringArray(key string) []string {
 	return getJSONStringArray(r.Post, key)
+}
+
+func (r *Request) GetParamWrapStringArray(key string) []string {
+	return getWrapJSONStringArray(r.Post, key)
 }
 
 func extractError(r interface{}) *util.AppError {

@@ -18,6 +18,7 @@ service Share{
     rpc GetRecommendShares(common.CommRequest) returns (RecommendShareReply) {}
     rpc FetchTags(common.CommRequest) returns (TagReply) {}
     rpc AddTag(TagRequest) returns (common.CommReply) {}
+    rpc DelTags(DelTagRequest) returns (common.CommReply) {}
 }
 
 message TagInfo {
@@ -29,6 +30,11 @@ message TagInfo {
 message TagRequest {
     common.Head head = 1;
     TagInfo info = 2;
+}
+
+message DelTagRequest {
+    common.Head head = 1;
+    repeated int64 ids = 2;
 }
 
 message TagReply {
