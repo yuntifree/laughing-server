@@ -26,3 +26,33 @@ func getTags(db *sql.DB) []*share.TagInfo {
 	}
 	return infos
 }
+
+func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
+	var infos []*share.TagInfo
+	rows, err := db.Query("SELECT id, content, img FROM tags WHERE deleted = 0 ORDER BY id DESC LIMIT ?, ?", seq, num)
+	if err != nil {
+		log.Printf("fetchTags query failed:%v", err)
+		return infos
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var info share.TagInfo
+		err := rows.Scan(&info.Id, &info.Content)
+		if err != nil {
+			log.Printf("fetchTags scan failed:%v", err)
+			continue
+		}
+		infos = append(infos, &info)
+	}
+	return infos
+}
+
+func getTotalTags(db *sql.DB) int64 {
+	var cnt int64
+	err := db.QueryRow("SELECT COUNT(id) FROM tags WHERE deleted = 0").Scan(&cnt)
+	if err != nil {
+		log.Printf("getTotalTags query failed:%v", err)
+	}
+	return cnt
+}

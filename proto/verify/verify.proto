@@ -9,6 +9,7 @@ service Verify {
     rpc Logout(common.CommRequest) returns (common.CommReply) {}
     rpc CheckToken(CheckTokenRequest) returns (common.CommReply) {}
     rpc BackLogin(BackLoginRequest) returns (LoginReply) {}
+    rpc CheckBackToken(CheckTokenRequest) returns (common.CommReply) {}
 }
 
 message FbLoginRequest {

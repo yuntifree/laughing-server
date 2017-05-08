@@ -16,6 +16,7 @@ service Share{
     rpc GetShareDetail(common.CommRequest) returns (ShareDetailReply) {}
     rpc GetShareIds(common.CommRequest) returns (ShareIdReply) {}
     rpc GetRecommendShares(common.CommRequest) returns (RecommendShareReply) {}
+    rpc FetchTags(common.CommRequest) returns (TagReply) {}
 }
 
 message TagInfo {
@@ -27,6 +28,7 @@ message TagInfo {
 message TagReply {
     common.Head head = 1;
     repeated TagInfo infos = 2;
+    int64 total = 3;
 }
 
 message ShareRequest {

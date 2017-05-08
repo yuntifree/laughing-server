@@ -3,6 +3,7 @@ package main
 import (
 	"laughing-server/httpserver"
 	"laughing-server/proto/common"
+	"laughing-server/proto/share"
 	"laughing-server/proto/verify"
 	"laughing-server/util"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 
 func login(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
-	req.Init(r)
+	req.InitNoCheck(r)
 	username := req.GetParamString("username")
 	passwd := req.GetParamString("passwd")
 
@@ -29,9 +30,31 @@ func login(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func getTags(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	seq := req.GetParamInt("seq")
+	num := req.GetParamInt("num")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "FetchTags",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Seq: seq, Num: num})
+
+	httpserver.CheckRPCErr(rpcerr, "FetchTags")
+	res := resp.Interface().(*share.TagReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "FetchTags")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewOssServer return oss http handler
 func NewOssServer() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/login", httpserver.AppHandler(login))
+	mux.Handle("/get_tags", httpserver.AppHandler(getTags))
 	return mux
 }

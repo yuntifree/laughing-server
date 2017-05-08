@@ -360,6 +360,23 @@ func checkToken(uid int64, token string) bool {
 	return true
 }
 
+func checkBackToken(uid int64, token string) bool {
+	uuid := util.GenUUID()
+	resp, err := CallRPC(util.VerifyServerType, uid, "CheckBackToken",
+		&verify.CheckTokenRequest{Head: &common.Head{Sid: uuid, Uid: uid},
+			Token: token})
+	if err.Interface() != nil {
+		return false
+	}
+	res := resp.Interface().(*common.CommReply)
+	if res.Head.Retcode != 0 {
+		log.Printf("check token failed:%d %s", uid, token)
+		return false
+	}
+
+	return true
+}
+
 //InitNoCheck init without any check
 func (r *Request) InitNoCheck(req *http.Request) {
 	ReportRequest(req.RequestURI)
@@ -375,6 +392,18 @@ func (r *Request) InitNoCheck(req *http.Request) {
 	if err != nil {
 		log.Printf("parse reqbody failed:%v", err)
 		panic(util.AppError{ErrInvalidParam, "invalid param", r.Callback})
+	}
+}
+
+func (r *Request) InitOss(req *http.Request) {
+	r.InitNoCheck(req)
+	r.Uid = getJSONInt(r.Post, "uid")
+	if r.Uid == 0 {
+		panic(util.AppError{ErrInvalidParam, "need login", r.Callback})
+	}
+	r.Token = getJSONString(r.Post, "token")
+	if !checkBackToken(r.Uid, r.Token) {
+		panic(util.AppError{ErrInvalidParam, "illegal token", r.Callback})
 	}
 }
 

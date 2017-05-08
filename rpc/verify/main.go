@@ -57,6 +57,19 @@ func (s *server) CheckToken(ctx context.Context, in *verify.CheckTokenRequest) (
 		Head: &common.Head{Retcode: 0}}, nil
 }
 
+func (s *server) CheckBackToken(ctx context.Context, in *verify.CheckTokenRequest) (*common.CommReply, error) {
+	log.Printf("CheckBackToken request:%v", in)
+	util.PubRPCRequest(w, "verify", "CheckBackToken")
+	flag := checkBackToken(db, in.Head.Uid, in.Token)
+	if !flag {
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_TOKEN}}, nil
+	}
+	util.PubRPCSuccRsp(w, "verify", "CheckBackToken")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0}}, nil
+}
+
 func (s *server) BackLogin(ctx context.Context, in *verify.BackLoginRequest) (*verify.LoginReply, error) {
 	log.Printf("BackLogin request:%v", in)
 	util.PubRPCRequest(w, "verify", "BackLogin")

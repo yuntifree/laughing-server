@@ -43,3 +43,16 @@ func checkToken(db *sql.DB, kv *redis.Client, uid int64, token string) bool {
 	}
 	return false
 }
+
+func checkBackToken(db *sql.DB, uid int64, token string) bool {
+	var etoken string
+	err := db.QueryRow("SELECT token FROM back_login WHERE uid = ?", uid).
+		Scan(&etoken)
+	if err != nil {
+		return false
+	}
+	if token == etoken {
+		return true
+	}
+	return false
+}
