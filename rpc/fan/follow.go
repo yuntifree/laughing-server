@@ -11,7 +11,7 @@ const (
 )
 
 func doFollow(db *sql.DB, uid, tuid int64) bool {
-	res, err := db.Exec("INSERT INTO follower(uid, tuid, ctime) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE deleted = 0, mtime = NOW()", uid, tuid)
+	res, err := db.Exec("INSERT INTO follower(uid, tuid, ctime) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE deleted = 0", uid, tuid)
 	if err != nil {
 		log.Printf("doFollow query failed:%v", err)
 		return false
@@ -25,7 +25,7 @@ func doFollow(db *sql.DB, uid, tuid int64) bool {
 		log.Printf("%d has follow %d", uid, tuid)
 		return true
 	}
-	_, err = db.Exec("INSERT INTO fan(uid, tuid, ctime) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE deleted = 0, mtime = NOW()", tuid, uid)
+	_, err = db.Exec("INSERT INTO fan(uid, tuid, ctime) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE deleted = 0", tuid, uid)
 	if err != nil {
 		log.Printf("record fan failed:%d %d %v", tuid, uid, err)
 		return false
