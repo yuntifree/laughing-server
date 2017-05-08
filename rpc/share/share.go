@@ -274,32 +274,12 @@ const (
 	musically = 3
 )
 
-func getShareOriNick(db *sql.DB, mid int64) string {
-	var nick string
-	err := db.QueryRow("SELECT u.nickname FROM users u, media m WHERE m.uid = u.uid AND m.id = ?", mid).Scan(&nick)
+func getShareOriInfo(db *sql.DB, mid int64) (uid int64, nickname string) {
+	err := db.QueryRow("SELECT u.uid, u.nickname FROM users u, media m WHERE m.uid = u.uid AND m.id = ?", mid).Scan(&uid, &nickname)
 	if err != nil {
 		log.Printf("getShareNick failed:%v", err)
 	}
-	return nick
-}
-
-func getShareOriTitle(nickname string, origin int64) string {
-	prefix := "<b>" + nickname + "</b>"
-	switch origin {
-	case facebook:
-		return prefix + " Share from Facebook"
-	case instagram:
-		return prefix + " Share from Instagram"
-	case musically:
-		return prefix + " Share from Musically"
-	default:
-		return prefix + " Uploaded"
-	}
-}
-
-func getReshareTitle(db *sql.DB, nickname string, mid int64) string {
-	nick := getShareOriNick(db, mid)
-	return "<b>" + nickname + "</b>" + " Share from <b>" + nick + "</b>"
+	return
 }
 
 func genShareDesc(minutes int64) string {
@@ -343,9 +323,12 @@ func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err erro
 	info.Tags = getMediaTags(db, mid)
 	record.Desc = genShareDesc(diff)
 	if sid == 0 {
-		record.Title = getShareOriTitle(record.Nickname, record.Origin)
+		record.Oriuid = record.Uid
+		record.Orinick = record.Nickname
+		record.Uid = 0
+		record.Nickname = ""
 	} else {
-		record.Title = getReshareTitle(db, record.Nickname, mid)
+		record.Oriuid, record.Orinick = getShareOriInfo(db, mid)
 	}
 	info.Record = &record
 	info.Hasshare = hasShare(db, uid, mid)
