@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	fb "laughing-server/facebook"
 	"laughing-server/proto/verify"
 	"laughing-server/util"
@@ -47,4 +48,22 @@ func logout(db *sql.DB, uid int64) {
 	if err != nil {
 		log.Printf("logout failed:%v", err)
 	}
+}
+
+func backLogin(db *sql.DB, username, passwd string) (uid int64, token string, err error) {
+	var salt, epass string
+	err = db.QueryRow("SELECT uid, salt, passwd FROM back_login WHERE username = ?", username).
+		Scan(&uid, &salt, &epass)
+	if err != nil {
+		return
+	}
+	pass := util.GenSaltPasswd(passwd, salt)
+	if pass != epass {
+		err = errors.New("illegal passwd")
+		return
+	}
+
+	token = util.GenSalt()
+	_, err = db.Exec("UPDATE back_login SET token = ? WHERE uid = ?", token, uid)
+	return
 }

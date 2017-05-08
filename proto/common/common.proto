@@ -21,6 +21,7 @@ enum ErrCode {
     TOKEN = 10014;
     LIMIT = 10015;
     CHECK_UPDATE = 10016;
+    PASSWD = 10017;
 }
 
 message Head {

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"Server/httpserver"
-	"Server/proto/common"
-	"Server/util"
+	"laughing-server/httpserver"
+	"laughing-server/proto/common"
+	"laughing-server/proto/verify"
+	"laughing-server/util"
 	"net/http"
 )
 
@@ -28,8 +29,8 @@ func login(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
-//NewAppServer return app http handler
-func NewAppServer() http.Handler {
+//NewOssServer return oss http handler
+func NewOssServer() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/login", httpserver.AppHandler(login))
 	return mux

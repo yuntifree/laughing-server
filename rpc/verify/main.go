@@ -57,6 +57,20 @@ func (s *server) CheckToken(ctx context.Context, in *verify.CheckTokenRequest) (
 		Head: &common.Head{Retcode: 0}}, nil
 }
 
+func (s *server) BackLogin(ctx context.Context, in *verify.BackLoginRequest) (*verify.LoginReply, error) {
+	log.Printf("BackLogin request:%v", in)
+	util.PubRPCRequest(w, "verify", "BackLogin")
+	uid, token, err := backLogin(db, in.Username, in.Passwd)
+	if err != nil {
+		log.Printf("backLogin failed:%s %s %v", in.Username, in.Passwd, err)
+		return &verify.LoginReply{
+			Head: &common.Head{Retcode: common.ErrCode_PASSWD}}, nil
+	}
+	util.PubRPCSuccRsp(w, "verify", "CheckToken")
+	return &verify.LoginReply{
+		Head: &common.Head{Retcode: 0}, Uid: uid, Token: token}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.VerifyServerPort)
 	if err != nil {
