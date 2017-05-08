@@ -22,6 +22,7 @@ enum ErrCode {
     LIMIT = 10015;
     CHECK_UPDATE = 10016;
     PASSWD = 10017;
+    ADD_TAG = 10018;
 }
 
 message Head {

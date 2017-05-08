@@ -46,6 +46,20 @@ func (s *server) FetchTags(ctx context.Context, in *common.CommRequest) (*share.
 		Infos: infos, Total: total}, nil
 }
 
+func (s *server) AddTag(ctx context.Context, in *share.TagRequest) (*common.CommReply, error) {
+	log.Printf("AddTag request:%v", in)
+	util.PubRPCRequest(w, "share", "AddTag")
+	id, err := addTag(db, in.Info)
+	if err != nil {
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_ADD_TAG}}, nil
+	}
+	util.PubRPCSuccRsp(w, "share", "AddTag")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Id:   id}, nil
+}
+
 func (s *server) AddShare(ctx context.Context, in *share.ShareRequest) (*common.CommReply, error) {
 	log.Printf("AddShare request:%v", in)
 	util.PubRPCRequest(w, "share", "AddShare")

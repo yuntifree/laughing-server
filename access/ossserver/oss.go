@@ -51,10 +51,32 @@ func getTags(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func addTag(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	content := req.GetParamString("content")
+	img := req.GetParamString("img")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "AddTag",
+		&share.TagRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Info: &share.TagInfo{Content: content, Img: img}})
+
+	httpserver.CheckRPCErr(rpcerr, "AddTags")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "AddTag")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewOssServer return oss http handler
 func NewOssServer() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/login", httpserver.AppHandler(login))
 	mux.Handle("/get_tags", httpserver.AppHandler(getTags))
+	mux.Handle("/add_tag", httpserver.AppHandler(addTag))
 	return mux
 }

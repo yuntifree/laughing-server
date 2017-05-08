@@ -17,12 +17,18 @@ service Share{
     rpc GetShareIds(common.CommRequest) returns (ShareIdReply) {}
     rpc GetRecommendShares(common.CommRequest) returns (RecommendShareReply) {}
     rpc FetchTags(common.CommRequest) returns (TagReply) {}
+    rpc AddTag(TagRequest) returns (common.CommReply) {}
 }
 
 message TagInfo {
     int64 id = 1;
     string content = 2;
     string img = 3;
+}
+
+message TagRequest {
+    common.Head head = 1;
+    TagInfo info = 2;
 }
 
 message TagReply {
