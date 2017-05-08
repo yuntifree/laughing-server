@@ -7,6 +7,8 @@ package user;
 service User {
     rpc GetInfo(common.CommRequest) returns (InfoReply) {}
     rpc ModInfo(ModInfoRequest) returns (common.CommReply) {}
+    rpc FetchInfos(common.CommRequest) returns (FetchInfosReply) {}
+    rpc AddInfo(InfoRequest) returns (common.CommReply) {}
 }
 
 message Info {
@@ -16,11 +18,25 @@ message Info {
     int64 followers = 4;
     int64 following = 5;
     int64 hasfollow = 6;
+    string ctime = 7;
+    string imei = 8;
+    int64 id = 9;
+}
+
+message InfoRequest {
+    common.Head head = 1;
+    Info info = 2;
 }
 
 message InfoReply {
     common.Head head = 1;
     Info info = 2;
+}
+
+message FetchInfosReply {
+    common.Head head = 1;
+    repeated Info infos = 2;
+    int64 total = 3;
 }
 
 message ModInfoRequest {

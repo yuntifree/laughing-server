@@ -38,6 +38,34 @@ func (s *server) GetInfo(ctx context.Context, in *common.CommRequest) (*user.Inf
 	}, nil
 }
 
+func (s *server) FetchInfos(ctx context.Context, in *common.CommRequest) (*user.FetchInfosReply, error) {
+	log.Printf("FetchInfos request:%v", in)
+	util.PubRPCRequest(w, "user", "FetchInfos")
+	infos := fetchInfos(db, in.Seq, in.Num)
+	total := getTotalUsers(db)
+	util.PubRPCSuccRsp(w, "user", "FetchInfos")
+	return &user.FetchInfosReply{
+		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Infos: infos, Total: total,
+	}, nil
+}
+
+func (s *server) AddInfo(ctx context.Context, in *user.InfoRequest) (*common.CommReply, error) {
+	log.Printf("AddInfo request:%v", in)
+	util.PubRPCRequest(w, "user", "AddInfo")
+	id, err := addInfo(db, in.Info)
+	util.PubRPCSuccRsp(w, "user", "AddInfo")
+	if err != nil {
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_ADD_INFO, Uid: in.Head.Uid},
+		}, nil
+	}
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Id:   id,
+	}, nil
+}
+
 func (s *server) ModInfo(ctx context.Context, in *user.ModInfoRequest) (*common.CommReply, error) {
 	log.Printf("ModInfo request:%v", in)
 	util.PubRPCRequest(w, "user", "ModInfo")

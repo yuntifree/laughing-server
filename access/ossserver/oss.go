@@ -5,6 +5,7 @@ import (
 	"laughing-server/proto/common"
 	"laughing-server/proto/config"
 	"laughing-server/proto/share"
+	"laughing-server/proto/user"
 	"laughing-server/proto/verify"
 	"laughing-server/util"
 	"net/http"
@@ -135,6 +136,48 @@ func addVersion(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) 
 	httpserver.CheckRPCErr(rpcerr, "AddVersion")
 	res := resp.Interface().(*common.CommReply)
 	httpserver.CheckRPCCode(res.Head.Retcode, "AddVersion")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func getUsers(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	seq := req.GetParamInt("seq")
+	num := req.GetParamInt("num")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.UserServerType, req.Uid, "FetchInfos",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Seq: seq, Num: num})
+
+	httpserver.CheckRPCErr(rpcerr, "FetchInfos")
+	res := resp.Interface().(*user.FetchInfosReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "FetchInfos")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func addUser(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	nickname := req.GetParamString("nickname")
+	headurl := req.GetParamString("headurl")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.UserServerType, req.Uid, "AddInfo",
+		&user.InfoRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Info: &user.Info{Nickname: nickname, Headurl: headurl}})
+
+	httpserver.CheckRPCErr(rpcerr, "AddInfo")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "AddInfo")
 
 	body := httpserver.GenResponseBody(res, false)
 	w.Write(body)

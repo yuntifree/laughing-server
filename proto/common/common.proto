@@ -25,6 +25,7 @@ enum ErrCode {
     ADD_TAG = 10018;
     DEL_TAG = 10019;
     ADD_VERSION = 10020;
+    ADD_INFO = 10021;
 }
 
 message Head {
