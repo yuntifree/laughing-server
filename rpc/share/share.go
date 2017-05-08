@@ -493,3 +493,38 @@ func getTotalShares(db *sql.DB, rtype int64) int64 {
 	}
 	return cnt
 }
+
+func getShareMid(db *sql.DB, sid int64) int64 {
+	var id int64
+	err := db.QueryRow("SELECT mid FROM shares WHERE id = ?", sid).Scan(&id)
+	if err != nil {
+		log.Printf("getShareMid failed:%v", err)
+	}
+	return id
+}
+
+func reviewShare(db *sql.DB, in *share.ReviewShareRequest) {
+	if in.Reject > 0 {
+		_, err := db.Exec("UPDATE shares SET review = 2, deleted = 1 WHERE id = ?", in.Id)
+		if err != nil {
+			log.Printf("reviewShare update shares failed:%v", err)
+			return
+		}
+	}
+
+	if in.Modify > 0 {
+		_, err := db.Exec("UPDATE shares SET review = 1, title = ? WHERE id = ?", in.Title, in.Id)
+		if err != nil {
+			log.Printf("reviewShare update shares failed:%v", err)
+			return
+		}
+	}
+	return
+}
+
+func addShareTag(db *sql.DB, id int64, tags []int64) {
+	mid := getShareMid(db, id)
+	if mid > 0 {
+		addMediaTags(db, mid, tags)
+	}
+}

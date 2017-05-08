@@ -207,6 +207,50 @@ func getShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func addShareTags(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	id := req.GetParamInt("id")
+	tags := req.GetParamWrapIntArray("tags")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "AddShareTags",
+		&share.AddTagRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Id: id, Tags: tags})
+
+	httpserver.CheckRPCErr(rpcerr, "AddShareTags")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "AddShareTags")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func reviewShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	id := req.GetParamInt("id")
+	reject := req.GetParamIntDef("reject", 0)
+	modify := req.GetParamIntDef("modify", 0)
+	title := req.GetParamStringDef("title", "")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "ReviewShare",
+		&share.ReviewShareRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Id: id, Reject: reject, Modify: modify, Title: title})
+
+	httpserver.CheckRPCErr(rpcerr, "ReviewShare")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "ReviewShare")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewOssServer return oss http handler
 func NewOssServer() http.Handler {
 	mux := http.NewServeMux()
@@ -217,5 +261,9 @@ func NewOssServer() http.Handler {
 	mux.Handle("/add_version", httpserver.AppHandler(addVersion))
 	mux.Handle("/get_versions", httpserver.AppHandler(getVersions))
 	mux.Handle("/get_shares", httpserver.AppHandler(getShares))
+	mux.Handle("/get_users", httpserver.AppHandler(getUsers))
+	mux.Handle("/add_user", httpserver.AppHandler(addUser))
+	mux.Handle("/review_share", httpserver.AppHandler(reviewShare))
+	mux.Handle("/add_share_tags", httpserver.AppHandler(addShareTags))
 	return mux
 }

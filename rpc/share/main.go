@@ -234,6 +234,24 @@ func (s *server) GetRecommendShares(ctx context.Context, in *common.CommRequest)
 		Infos: infos}, nil
 }
 
+func (s *server) ReviewShare(ctx context.Context, in *share.ReviewShareRequest) (*common.CommReply, error) {
+	log.Printf("ReviewShare request:%v", in)
+	util.PubRPCRequest(w, "share", "ReviewShare")
+	reviewShare(db, in)
+	util.PubRPCSuccRsp(w, "share", "ReviewShare")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
+}
+
+func (s *server) AddShareTags(ctx context.Context, in *share.AddTagRequest) (*common.CommReply, error) {
+	log.Printf("AddShareTags request:%v", in)
+	util.PubRPCRequest(w, "share", "AddShareTags")
+	addShareTag(db, in.Id, in.Tags)
+	util.PubRPCSuccRsp(w, "share", "AddShareTags")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ShareServerPort)
 	if err != nil {

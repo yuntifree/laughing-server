@@ -20,6 +20,8 @@ service Share{
     rpc AddTag(TagRequest) returns (common.CommReply) {}
     rpc DelTags(DelTagRequest) returns (common.CommReply) {}
     rpc FetchShares(common.CommRequest) returns (ShareReply) {}
+    rpc ReviewShare(ReviewShareRequest) returns (common.CommReply) {}
+    rpc AddShareTags(AddTagRequest) returns (common.CommReply) {}
 }
 
 message TagInfo {
@@ -149,4 +151,18 @@ message ShareIdReply {
 message RecommendShareReply {
     common.Head head = 1;
     repeated ShareDetail infos = 2;
+}
+
+message ReviewShareRequest {
+    common.Head head = 1;
+    int64 id = 2;
+    int64 reject = 3;
+    int64 modify = 4;
+    string title = 5;
+}
+
+message AddTagRequest {
+    common.Head head = 1;
+    int64 id = 2;
+    repeated int64 tags = 3;
 }
