@@ -511,5 +511,6 @@ func NewAppServer() http.Handler {
 	mux.Handle("/report_click", httpserver.AppHandler(reportClick))
 	mux.Handle("/report", httpserver.AppHandler(report))
 	mux.Handle("/check_update", httpserver.AppHandler(checkUpdate))
+	mux.Handle("/load_share", httpserver.AppHandler(loadShare))
 	return mux
 }
