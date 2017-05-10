@@ -117,6 +117,7 @@ message ShareRecord {
     string title = 6;
     int64 oriuid = 7;
     string orinick = 8;
+    string src = 9;
 }
 
 message ShareDetail {
