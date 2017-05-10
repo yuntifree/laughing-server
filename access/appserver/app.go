@@ -43,7 +43,7 @@ func fblogin(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	fbtoken := req.GetParamString("fb_token")
 	nickname := req.GetParamString("nickname")
 	dev := req.ParseDevice(r)
-	log.Printf("fblogin fb_id:%s fb_token:%s device:%v", fbid, fbtoken, dev)
+	log.Printf("fblogin fb_id:%s fb_token:%s nickname:%s device:%v", fbid, fbtoken, nickname, dev)
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.VerifyServerType, 0, "FbLogin",
@@ -125,7 +125,7 @@ func addShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.Init(r)
 
-	title := req.GetParamString("title")
+	title := req.GetParamStringDef("title", "")
 	img := req.GetParamStringDef("img", "")
 	dst := req.GetParamString("dst")
 	origin := req.GetParamInt("origin")
