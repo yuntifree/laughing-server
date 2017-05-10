@@ -79,6 +79,7 @@ message ShareInfo {
     int64 width = 9;
     int64 height = 10;
     string tags = 11;
+    int64 smile = 12;
 }
 
 message ShareReply {
@@ -132,6 +133,7 @@ message ShareDetail {
     int64 height = 11;
     int64 id = 12;
     int64 unshare = 13;
+    int64 smile = 14;
 }
 
 message ShareDetailReply {

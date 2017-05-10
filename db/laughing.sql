@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS media
     unshare tinyint unsigned NOT NULL DEFAULT 0,
     width   int unsigned NOT NULL DEFAULT 0,
     height  int unsigned NOT NULL DEFAULT 0,
+    smile   tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(id)
 ) ENGINE = InnoDB;

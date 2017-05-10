@@ -107,7 +107,7 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 }
 
 func genShareTagQuery(seq, num, id int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id FROM shares s, users u, media m, media_tags t WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile FROM shares s, users u, media m, media_tags t WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND m.smile != 0 "
 	query += fmt.Sprintf(" AND t.tid = %d", id)
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
@@ -116,12 +116,15 @@ func genShareTagQuery(seq, num, id int64) string {
 	return query
 }
 
-func genShareQuery(uid, seq, num int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
+func genShareQuery(uid, tuid, seq, num int64) string {
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
+	if uid != tuid {
+		query += fmt.Sprintf(" AND m.smile != 0 ")
+	}
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
 	}
-	if uid != 0 {
+	if tuid != 0 {
 		query += fmt.Sprintf(" AND s.uid = %d ", uid)
 	}
 	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
@@ -129,7 +132,7 @@ func genShareQuery(uid, seq, num int64) string {
 }
 
 func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareInfo, nextseq int64) {
-	query := genShareQuery(tuid, seq, num)
+	query := genShareQuery(uid, tuid, seq, num)
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Printf("getMyShares query failed:%v", err)
@@ -141,7 +144,7 @@ func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareI
 		var mid int64
 		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
 			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
-			&info.Height, &mid)
+			&info.Height, &mid, &info.Smile)
 		if err != nil {
 			log.Printf("getMyShare scan failed:%v", err)
 			continue
@@ -157,7 +160,7 @@ func getShares(db *sql.DB, seq, num, id int64) (infos []*share.ShareInfo, nextse
 	if id != 0 {
 		query = genShareTagQuery(seq, num, id)
 	} else {
-		query = genShareQuery(0, seq, num)
+		query = genShareQuery(0, 0, seq, num)
 	}
 	rows, err := db.Query(query)
 	if err != nil {
@@ -170,7 +173,7 @@ func getShares(db *sql.DB, seq, num, id int64) (infos []*share.ShareInfo, nextse
 		var mid int64
 		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
 			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
-			&info.Height, &mid)
+			&info.Height, &mid, &info.Smile)
 		if err != nil {
 			log.Printf("getShare scan failed:%v", err)
 			continue
@@ -312,11 +315,11 @@ func hasShare(db *sql.DB, uid, mid int64) int64 {
 func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err error) {
 	var mid, sid, diff int64
 	var record share.ShareRecord
-	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.cdn, m.title, m.views, m.id, m.width, m.height, m.unshare, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
+	err = db.QueryRow("SELECT s.reshare, s.comments, m.img, m.cdn, m.title, m.views, m.id, m.width, m.height, m.unshare, s.sid, u.uid, u.headurl, u.nickname, TIMESTAMPDIFF(MINUTE, s.ctime, NOW()), m.origin, m.smile FROM shares s, media m, users u WHERE s.mid = m.id AND s.uid = u.uid AND s.id = ?", id).
 		Scan(&info.Reshare, &info.Comments, &info.Img, &info.Dst,
 			&info.Title, &info.Views, &mid, &info.Width, &info.Height,
 			&info.Unshare, &sid, &record.Uid, &record.Headurl,
-			&record.Nickname, &diff, &record.Origin)
+			&record.Nickname, &diff, &record.Origin, &info.Smile)
 	if err != nil {
 		return
 	}
