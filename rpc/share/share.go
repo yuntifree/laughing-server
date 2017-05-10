@@ -13,6 +13,7 @@ import (
 const (
 	recommendNum = 10
 	interval     = 600
+	cdnDomain    = "http://chatcat.ufile.ucloud.com.cn/"
 )
 
 func addMediaTags(db *sql.DB, mid int64, tags []int64) {
@@ -150,6 +151,7 @@ func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareI
 			continue
 		}
 		nextseq = info.Id
+		info.Img = cdnDomain + info.Img
 		infos = append(infos, &info)
 	}
 	return
@@ -179,6 +181,7 @@ func getShares(db *sql.DB, seq, num, id int64) (infos []*share.ShareInfo, nextse
 			continue
 		}
 		nextseq = info.Id
+		info.Img = cdnDomain + info.Img
 		infos = append(infos, &info)
 	}
 	return
@@ -326,6 +329,8 @@ func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err erro
 	if info.Unshare > 0 {
 		info.Dst = ""
 	}
+	info.Img = cdnDomain + info.Img
+	info.Dst = cdnDomain + info.Dst
 	info.Tags = getMediaTags(db, mid)
 	record.Desc = genShareDesc(diff)
 	if sid == 0 {
