@@ -182,7 +182,7 @@ func (s *server) FetchShares(ctx context.Context, in *common.CommRequest) (*shar
 func (s *server) GetShareIds(ctx context.Context, in *common.CommRequest) (*share.ShareIdReply, error) {
 	log.Printf("GetShareIds request:%v", in)
 	util.PubRPCRequest(w, "share", "GetShareIds")
-	ids, nextseq, nexttag := getShareIds(db, in.Seq, in.Num, in.Id)
+	ids, nextseq, nexttag := getShareIds(db, in.Seq, in.Num, in.Id, 0)
 	hasmore := getHasmore(len(ids), in.Num)
 	util.PubRPCSuccRsp(w, "share", "GetShareIds")
 	return &share.ShareIdReply{
@@ -218,10 +218,10 @@ func (s *server) GetShareDetail(ctx context.Context, in *common.CommRequest) (*s
 		Info: &info}, nil
 }
 
-func (s *server) GetRecommendShares(ctx context.Context, in *common.CommRequest) (*share.RecommendShareReply, error) {
+func (s *server) GetRecommendShares(ctx context.Context, in *share.RecommendShareRequest) (*share.RecommendShareReply, error) {
 	log.Printf("GetRecommendSharerequest:%v", in)
 	util.PubRPCRequest(w, "share", "GetRecommendShares")
-	infos, err := getRecommendShares(db, in.Head.Uid, in.Id)
+	infos, err := getRecommendShares(db, in.Head.Uid, in.Tagid, in.Sid)
 	if err != nil {
 		log.Printf("getRecommendSharefailed:%v", err)
 		return &share.RecommendShareReply{

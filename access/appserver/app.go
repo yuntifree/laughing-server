@@ -345,11 +345,12 @@ func getRecommendShares(w http.ResponseWriter, r *http.Request) (apperr *util.Ap
 	req.Init(r)
 
 	tag := req.GetParamInt("tag_id")
+	sid := req.GetParamInt("sid")
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "GetRecommendShares",
-		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
-			Id: tag})
+		&share.RecommendShareRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Tagid: tag, Sid: sid})
 
 	httpserver.CheckRPCErr(rpcerr, "GetRecommendShares")
 	res := resp.Interface().(*share.RecommendShareReply)

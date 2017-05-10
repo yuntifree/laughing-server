@@ -385,12 +385,15 @@ func unshare(db *sql.DB, uid, sid int64) error {
 	return nil
 }
 
-func getShareIds(db *sql.DB, seq, num, tag int64) (ids []int64, nextseq, nexttag int64) {
+func getShareIds(db *sql.DB, seq, num, tag, sid int64) (ids []int64, nextseq, nexttag int64) {
 	var query string
 	if tag == 0 {
 		query = "SELECT s.id FROM shares s, media m  WHERE s.mid = m.id "
 	} else {
 		query = fmt.Sprintf("SELECT s.id FROM shares s, media m, media_tags t WHERE s.mid = m.id AND m.id = t.mid AND t.tid = %d", tag)
+	}
+	if sid != 0 {
+		query += fmt.Sprintf(" AND s.id != %d", sid)
 	}
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
@@ -414,7 +417,7 @@ func getShareIds(db *sql.DB, seq, num, tag int64) (ids []int64, nextseq, nexttag
 		ids = append(ids, id)
 	}
 	if len(ids) < int(num) && tag != recommendTag {
-		rids, next := getRecommendIds(db, 0, num-int64(len(ids)))
+		rids, next := getRecommendIds(db, 0, num-int64(len(ids)), 0)
 		ids = append(ids, rids...)
 		nexttag = recommendTag
 		nextseq = next
@@ -424,8 +427,11 @@ func getShareIds(db *sql.DB, seq, num, tag int64) (ids []int64, nextseq, nexttag
 	return
 }
 
-func getRecommendIds(db *sql.DB, seq, num int64) (ids []int64, nextseq int64) {
+func getRecommendIds(db *sql.DB, seq, num, sid int64) (ids []int64, nextseq int64) {
 	query := fmt.Sprintf("SELECT s.id FROM shares s, media m, media_tags t WHERE s.mid = m.id AND m.id = t.mid AND t.tid = %d", recommendTag)
+	if sid != 0 {
+		query += fmt.Sprintf(" AND s.id != %d", sid)
+	}
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
 	}
@@ -449,12 +455,12 @@ func getRecommendIds(db *sql.DB, seq, num int64) (ids []int64, nextseq int64) {
 	return
 }
 
-func getRecommendShares(db *sql.DB, uid, tag int64) (infos []*share.ShareDetail, err error) {
+func getRecommendShares(db *sql.DB, uid, tag, sid int64) (infos []*share.ShareDetail, err error) {
 	var ids []int64
 	if tag != 0 {
-		ids, _, _ = getShareIds(db, 0, recommendNum, tag)
+		ids, _, _ = getShareIds(db, 0, recommendNum, tag, sid)
 	} else {
-		ids, _ = getRecommendIds(db, 0, recommendNum)
+		ids, _ = getRecommendIds(db, 0, recommendNum, sid)
 	}
 	for _, v := range ids {
 		info, err := getShareDetail(db, uid, v)
