@@ -509,8 +509,8 @@ func reviewShare(db *sql.DB, in *share.ReviewShareRequest) {
 		_, err := db.Exec("UPDATE shares SET review = 2, deleted = 1 WHERE id = ?", in.Id)
 		if err != nil {
 			log.Printf("reviewShare update shares failed:%v", err)
-			return
 		}
+		return
 	}
 
 	if in.Modify > 0 {

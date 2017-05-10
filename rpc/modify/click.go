@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"laughing-server/proto/modify"
+	"log"
 )
 
 const (
@@ -13,6 +14,7 @@ const (
 func reportClick(db *sql.DB, in *modify.ClickRequest) (err error) {
 	_, err = db.Exec("INSERT INTO click_record(type, uid, cid, imei, ctime) VALUES (?, ?, ?, ?, NOW())", in.Type, in.Head.Uid, in.Id, in.Imei)
 	if err != nil {
+		log.Printf("reportClick record failed:%d %d %v", in.Head.Uid, in.Id, err)
 		return
 	}
 	switch in.Type {
@@ -20,9 +22,14 @@ func reportClick(db *sql.DB, in *modify.ClickRequest) (err error) {
 		var mid int64
 		err = db.QueryRow("SELECT mid FROM shares WHERE id = ?", in.Id).Scan(&mid)
 		if err != nil {
+			log.Printf("reportClick get mid failed:%d %v", in.Id, err)
 			return
 		}
-		_, err = db.Exec("UPDATE media SET views = views + 1 WHERE id = ?", in.Id)
+		log.Printf("mid:%d", mid)
+		_, err = db.Exec("UPDATE media SET views = views + 1 WHERE id = ?", mid)
+		if err != nil {
+			log.Printf("reportClick update views failed:%d %v", in.Id, err)
+		}
 	default:
 		err = errors.New("illegal report type")
 	}
