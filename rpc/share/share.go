@@ -114,8 +114,8 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 	return
 }
 
-func genShareTagQuery(seq, num, id int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile FROM shares s, users u, media m, media_tags t WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND m.smile != 0 "
+func genShareTagQuery(uid, seq, num, id int64) string {
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile FROM shares s, users u, media m, media_tags t  WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND m.smile != 0 "
 	query += fmt.Sprintf(" AND t.tid = %d", id)
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
@@ -125,7 +125,16 @@ func genShareTagQuery(seq, num, id int64) string {
 }
 
 func genShareQuery(uid, tuid, seq, num int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile FROM shares s, users u, media m "
+	if uid != 0 && tuid == 0 {
+		query += " , fan f "
+	}
+	query += "WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
+	if uid != 0 && tuid == 0 {
+		query += fmt.Sprintf(" AND f.uid = %d AND f.tuid = s.uid", uid)
+	} else if tuid == 0 {
+		query += " AND u.recommend = 1 "
+	}
 	if uid != tuid {
 		query += fmt.Sprintf(" AND m.smile != 0 ")
 	}
@@ -164,14 +173,15 @@ func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareI
 	return
 }
 
-func getShares(db *sql.DB, seq, num, id int64) (infos []*share.ShareInfo, nextseq int64) {
+func getShares(db *sql.DB, uid, seq, num, id int64) (infos []*share.ShareInfo, nextseq int64) {
 	var query string
 	if id != 0 {
-		query = genShareTagQuery(seq, num, id)
+		query = genShareTagQuery(uid, seq, num, id)
 	} else {
-		query = genShareQuery(0, 0, seq, num)
+		query = genShareQuery(uid, 0, seq, num)
 	}
 	rows, err := db.Query(query)
+	log.Printf("query:%s", query)
 	if err != nil {
 		log.Printf("getShares query failed:%v", err)
 		return

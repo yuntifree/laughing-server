@@ -59,7 +59,7 @@ func getTotalTags(db *sql.DB) int64 {
 }
 
 func addTag(db *sql.DB, info *share.TagInfo) (id int64, err error) {
-	res, err := db.Exec("INSERT INTO tags(content, img, recommend, ctime) VALUES (?, ?, ?, ?, NOW())",
+	res, err := db.Exec("INSERT INTO tags(content, img, recommend, ctime) VALUES (?, ?, ?, NOW())",
 		info.Content, info.Img, info.Recommend)
 	if err != nil {
 		return 0, err

@@ -158,7 +158,7 @@ func (s *server) GetUserShares(ctx context.Context, in *common.CommRequest) (*sh
 func (s *server) GetShares(ctx context.Context, in *common.CommRequest) (*share.ShareReply, error) {
 	log.Printf("GetShares request:%v", in)
 	util.PubRPCRequest(w, "share", "GetShare")
-	infos, nextseq := getShares(db, in.Seq, in.Num, in.Id)
+	infos, nextseq := getShares(db, in.Head.Uid, in.Seq, in.Num, in.Id)
 	hasmore := getHasmore(len(infos), in.Num)
 	recommend := getRecommendTag(db)
 	util.PubRPCSuccRsp(w, "share", "GetShare")
