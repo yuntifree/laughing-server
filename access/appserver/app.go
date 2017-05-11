@@ -515,5 +515,6 @@ func NewAppServer() http.Handler {
 	mux.Handle("/report", httpserver.AppHandler(report))
 	mux.Handle("/check_update", httpserver.AppHandler(checkUpdate))
 	mux.Handle("/load_share", httpserver.AppHandler(loadShare))
+	mux.Handle("/", http.FileServer(http.Dir("/data/laughing/html")))
 	return mux
 }

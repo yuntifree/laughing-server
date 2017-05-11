@@ -58,11 +58,13 @@ func addTag(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	req.InitOss(r)
 	content := req.GetParamString("content")
 	img := req.GetParamString("img")
+	recommend := req.GetParamIntDef("recommend", 0)
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "AddTag",
 		&share.TagRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
-			Info: &share.TagInfo{Content: content, Img: img}})
+			Info: &share.TagInfo{Content: content, Img: img,
+				Recommend: recommend}})
 
 	httpserver.CheckRPCErr(rpcerr, "AddTags")
 	res := resp.Interface().(*common.CommReply)

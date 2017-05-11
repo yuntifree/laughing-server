@@ -30,7 +30,7 @@ func getTags(db *sql.DB) []*share.TagInfo {
 
 func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
 	var infos []*share.TagInfo
-	rows, err := db.Query("SELECT id, content, img FROM tags WHERE deleted = 0 ORDER BY id DESC LIMIT ?, ?", seq, num)
+	rows, err := db.Query("SELECT id, content, img, recommend FROM tags WHERE deleted = 0 ORDER BY id DESC LIMIT ?, ?", seq, num)
 	if err != nil {
 		log.Printf("fetchTags query failed:%v", err)
 		return infos
@@ -39,7 +39,7 @@ func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
 	defer rows.Close()
 	for rows.Next() {
 		var info share.TagInfo
-		err := rows.Scan(&info.Id, &info.Content, &info.Img)
+		err := rows.Scan(&info.Id, &info.Content, &info.Img, &info.Recommend)
 		if err != nil {
 			log.Printf("fetchTags scan failed:%v", err)
 			continue
@@ -59,8 +59,8 @@ func getTotalTags(db *sql.DB) int64 {
 }
 
 func addTag(db *sql.DB, info *share.TagInfo) (id int64, err error) {
-	res, err := db.Exec("INSERT INTO tags(content, img, ctime) VALUES (?, ?, NOW())",
-		info.Content, info.Img)
+	res, err := db.Exec("INSERT INTO tags(content, img, recommend, ctime) VALUES (?, ?, ?, ?, NOW())",
+		info.Content, info.Img, info.Recommend)
 	if err != nil {
 		return 0, err
 	}

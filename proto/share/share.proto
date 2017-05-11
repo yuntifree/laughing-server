@@ -28,6 +28,7 @@ message TagInfo {
     int64 id = 1;
     string content = 2;
     string img = 3;
+    int64 recommend = 4;
 }
 
 message TagRequest {
