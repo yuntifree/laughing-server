@@ -705,6 +705,20 @@ func GenResponseBody(res interface{}, flag bool) []byte {
 	return GenResponseBodyCallback(res, "", flag)
 }
 
+var nilStrings = []string{
+	"Infos",
+	"Recommendtag",
+}
+
+func isNilStrings(name string) bool {
+	for _, v := range nilStrings {
+		if v == name {
+			return true
+		}
+	}
+	return false
+}
+
 //GenResponseBodyCallback generate response body with callback
 func GenResponseBodyCallback(res interface{}, callback string, flag bool) []byte {
 	js, err := simplejson.NewJson([]byte(`{"errno":0}`))
@@ -724,7 +738,7 @@ func GenResponseBodyCallback(res interface{}, callback string, flag bool) []byte
 			} else {
 				continue
 			}
-		} else if typeField.Name == "Infos" {
+		} else if isNilStrings(typeField.Name) {
 			if valueField.IsNil() {
 				continue
 			} else {
