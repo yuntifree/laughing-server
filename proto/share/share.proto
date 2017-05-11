@@ -59,6 +59,8 @@ message ShareRequest {
     string thumbnail = 10;
     string src = 11;
     string cdn = 12;
+    int64 views = 13;
+    int64 smile = 14;
 }
 
 message CommentRequest {

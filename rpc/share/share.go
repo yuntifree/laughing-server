@@ -36,9 +36,10 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 	if in.Origin == 0 && in.Dst != "" {
 		in.Cdn = in.Dst
 	}
-	res, err := db.Exec("INSERT INTO media(uid, title, img, dst, abstract, origin, width, height, thumbnail, src, cdn, ctime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
+	res, err := db.Exec("INSERT INTO media(uid, title, img, dst, abstract, origin, width, height, thumbnail, src, cdn, views, smile, ctime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
 		in.Head.Uid, in.Title, in.Img, in.Dst, in.Desc, in.Origin,
-		in.Width, in.Height, in.Thumbnail, in.Src, in.Cdn)
+		in.Width, in.Height, in.Thumbnail, in.Src, in.Cdn, in.Views,
+		in.Smile)
 	if err != nil {
 		return
 	}
