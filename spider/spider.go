@@ -13,11 +13,11 @@ const (
 type VideoInfo struct {
 	bid,
 	caption,
-	thumbUrl,
-	videoUrl string
-	height,
-	width,
-	duration int
+	ThumbUrl,
+	VideoUrl string
+	Height,
+	Width,
+	Duration int
 }
 
 func checkerr(e error) {

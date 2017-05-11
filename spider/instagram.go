@@ -58,10 +58,10 @@ func GetInstagram(url string) *VideoInfo {
 		return vinfo
 	}
 
-	vinfo.thumbUrl, _ = media.Get("display_url").String()
-	vinfo.videoUrl, _ = media.Get("video_url").String()
-	vinfo.width, _ = media.Get("dimensions").Get("width").Int()
-	vinfo.height, _ = media.Get("dimensions").Get("height").Int()
+	vinfo.ThumbUrl, _ = media.Get("display_url").String()
+	vinfo.VideoUrl, _ = media.Get("video_url").String()
+	vinfo.Width, _ = media.Get("dimensions").Get("width").Int()
+	vinfo.Height, _ = media.Get("dimensions").Get("height").Int()
 	vinfo.bid, _ = media.Get("shortcode").String()
 
 	return vinfo

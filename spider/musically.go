@@ -38,11 +38,11 @@ func GetMusically(url string) *VideoInfo {
 	result := jsonObj.Get("result")
 	info.bid, _ = result.Get("bid").String()
 	info.caption, _ = result.Get("caption").String()
-	info.duration, _ = result.Get("duration").Int()
-	info.height, _ = result.Get("height").Int()
-	info.width, _ = result.Get("width").Int()
-	info.thumbUrl, _ = result.Get("thumbnailUri").String()
-	info.videoUrl, _ = result.Get("videoUri").String()
+	info.Duration, _ = result.Get("duration").Int()
+	info.Height, _ = result.Get("height").Int()
+	info.Width, _ = result.Get("width").Int()
+	info.ThumbUrl, _ = result.Get("thumbnailUri").String()
+	info.VideoUrl, _ = result.Get("videoUri").String()
 
 	return info
 }

@@ -19,7 +19,7 @@ type kvPair map[string]string
 //GetYoutube get info from youtube
 func GetYoutube(key string) *VideoInfo {
 	vinfo := &VideoInfo{}
-	vinfo.thumbUrl = fmt.Sprintf(imgBase, key)
+	vinfo.ThumbUrl = fmt.Sprintf(imgBase, key)
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", infoBase+key, nil)
@@ -72,7 +72,7 @@ func GetYoutube(key string) *VideoInfo {
 		// 18 for mp4, 17 for 3gp
 		if itag, ok := v["itag"]; ok && itag == "18" {
 			if videoUrl, ok := v["url"]; ok {
-				vinfo.videoUrl = videoUrl
+				vinfo.VideoUrl = videoUrl
 			}
 		}
 	}

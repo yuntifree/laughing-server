@@ -41,9 +41,9 @@ func GetFacebook(url string) *VideoInfo {
 	}
 
 	vinfo.bid, _ = jsonObj.Get("videoID").String()
-	vinfo.videoUrl, _ = jsonObj.Get("src").String()
-	vinfo.width, _ = jsonObj.Get("width").Int()
-	vinfo.height, _ = jsonObj.Get("height").Int()
+	vinfo.VideoUrl, _ = jsonObj.Get("src").String()
+	vinfo.Width, _ = jsonObj.Get("width").Int()
+	vinfo.Height, _ = jsonObj.Get("height").Int()
 
 	// find thumb
 	pos1 := strings.Index(style, "(")
@@ -52,7 +52,7 @@ func GetFacebook(url string) *VideoInfo {
 	} else {
 		pos2 := strings.Index(style, ")")
 
-		vinfo.thumbUrl = style[pos1+2 : pos2-1]
+		vinfo.ThumbUrl = style[pos1+2 : pos2-1]
 	}
 
 	return vinfo
