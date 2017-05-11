@@ -15,7 +15,7 @@ import (
 )
 
 var uids = []int64{
-	1,
+	1, 24,
 }
 
 func follow(uid, tuid int64) {

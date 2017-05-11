@@ -14,11 +14,12 @@ import (
 const (
 	//Bucket  = "laugh"
 	//host    = "laugh.us-ca.ufileos.com"
-	Bucket  = "chatcat"
-	host    = "http://chatcat.hk.ufileos.com"
-	cdn     = "http://chatcat.ufile.ucloud.com.cn"
-	pubkey  = "ZeZGjUnEz+A7gxeVGxTNUhwDLGJj21SPTqOmSvPN+0WtGwvhDMmseg=="
-	privkey = "cdb4fe689528a582425fa96e235e094e9da75f3f"
+	Bucket    = "chatcat"
+	host      = "http://chatcat.hk.ufileos.com"
+	cdn       = "http://chatcat.ufile.ucloud.com.cn"
+	pubkey    = "ZeZGjUnEz+A7gxeVGxTNUhwDLGJj21SPTqOmSvPN+0WtGwvhDMmseg=="
+	privkey   = "cdb4fe689528a582425fa96e235e094e9da75f3f"
+	thumbnail = "?iopcmd=thumbnail&type=4&width=400"
 )
 
 func genSign(content, key string) string {
@@ -30,6 +31,11 @@ func genSign(content, key string) string {
 //GetCdnURL get cdn down url
 func GetCdnURL(filename string) string {
 	return cdn + "/" + filename
+}
+
+//GetThumbnailURL get cdn thumbnail url
+func GetThumbnailURL(filename string) string {
+	return cdn + "/" + filename + thumbnail
 }
 
 //PutFile put file to bucket
