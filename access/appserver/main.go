@@ -16,6 +16,6 @@ func init() {
 
 func main() {
 	gracehttp.Serve(
-		&http.Server{Addr: ":80", Handler: NewAppServer(), IdleTimeout: 30 * time.Second},
+		&http.Server{Addr: ":8088", Handler: NewAppServer(), IdleTimeout: 30 * time.Second},
 	)
 }
