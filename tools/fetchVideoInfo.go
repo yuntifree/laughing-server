@@ -1,15 +1,13 @@
 package main
 
 import (
-	"Server/util"
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"laughing-server/spider"
 	"laughing-server/ucloud"
+	"laughing-server/util"
 	"log"
 	"net"
-	"net/http"
 	"time"
 
 	simplejson "github.com/bitly/go-simplejson"
@@ -54,22 +52,8 @@ func extractSid(msg *nsq.Message) int64 {
 	return sid
 }
 
-func downFile(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Printf("downFile get failed:%s %v", url, err)
-		return []byte(""), err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return []byte(""), err
-	}
-	return body, nil
-}
-
 func handleFile(url string) (string, error) {
-	buf, err := downFile(url)
+	buf, err := util.DownFile(url)
 	if err != nil {
 		return "", err
 	}

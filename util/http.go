@@ -2,6 +2,7 @@ package util
 
 import (
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -39,4 +40,19 @@ func HTTPRequestWithHeaders(url, reqbody string, headers map[string]string) (str
 	}
 
 	return string(rspbody), nil
+}
+
+//DownFile download file from url
+func DownFile(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Printf("downFile get failed:%s %v", url, err)
+		return []byte(""), err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return []byte(""), err
+	}
+	return body, nil
 }
