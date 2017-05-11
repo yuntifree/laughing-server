@@ -17,7 +17,7 @@ const (
 //NewNsqProducer return nsq producer
 func NewNsqProducer() *nsq.Producer {
 	config := nsq.NewConfig()
-	w, err := nsq.NewProducer("10.11.38.52:4150", config)
+	w, err := nsq.NewProducer("127.0.0.1:4150", config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,6 +98,23 @@ func packRPCData(service, method string, ptype, code int64) ([]byte, error) {
 	return data, nil
 }
 
+func genContent(data map[string]interface{}) ([]byte, error) {
+	js, err := simplejson.NewJson([]byte(`{}`))
+	if err != nil {
+		log.Printf("genContent  NewJson failed:%v", err)
+		return []byte(""), err
+	}
+	for k, v := range data {
+		js.Set(k, v)
+	}
+	content, err := js.Encode()
+	if err != nil {
+		log.Printf("genContent Encode failed:%v", err)
+		return []byte(""), err
+	}
+	return content, nil
+}
+
 //PubRPCRequest publish rpc request to nsq
 func PubRPCRequest(w *nsq.Producer, service, method string) error {
 	data, err := packRPCData(service, method, requestType, 0)
@@ -119,4 +136,14 @@ func PubRPCResponse(w *nsq.Producer, service, method string, code int64) error {
 //PubRPCSuccRsp pub rpc success response to nsq
 func PubRPCSuccRsp(w *nsq.Producer, service, method string) error {
 	return PubRPCResponse(w, service, method, 0)
+}
+
+//PubData pub data to topic
+func PubData(w *nsq.Producer, topic string, data map[string]interface{}) error {
+	content, err := genContent(data)
+	if err != nil {
+		log.Printf("PubData genContent failed:%v", err)
+		return err
+	}
+	return pubData(w, topic, content)
 }

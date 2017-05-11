@@ -74,6 +74,12 @@ func handleVideo(url string) (string, error) {
 }
 
 func doFetch(msg *nsq.Message) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("panic :%v", r)
+		}
+	}()
+	log.Printf("msg:%s", string(msg.Body))
 	sid := extractSid(msg)
 	if sid == 0 {
 		return
@@ -106,8 +112,8 @@ func doFetch(msg *nsq.Message) {
 		log.Printf("handleVideo failed:%v", err)
 		return
 	}
-	_, err = db.Exec("UPDATE media SET width = ?, height = ?, cdn = ?, img = ?, done = 1 WHERE id = ?",
-		info.Width, info.Height, video, img, mid)
+	_, err = db.Exec("UPDATE media SET width = ?, height = ?, cdn = ?, img = ?, src = ?, done = 1 WHERE id = ?",
+		info.Width, info.Height, video, img, dst, mid)
 	if err != nil {
 		log.Printf("update media info failed sid:%d video info:%v, img:%s video:%s",
 			sid, info, img, video)

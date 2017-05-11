@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Server/httpserver"
-	"Server/proto/common"
+	"laughing-server/httpserver"
+	"laughing-server/proto/common"
 	"laughing-server/proto/fan"
 	"laughing-server/util"
 	"log"
@@ -24,7 +24,7 @@ func follow(uid, tuid int64) {
 		&fan.FanRequest{Head: &common.Head{Sid: uuid, Uid: uid},
 			Type: 0, Tuid: tuid})
 	if rpcerr.Interface() != nil {
-		log.printf("follow rpc failed:%d %d %v", uid, tuid, err)
+		log.Printf("follow rpc failed:%d %d %v", uid, tuid, rpcerr.Interface())
 		return
 	}
 
@@ -36,6 +36,7 @@ func follow(uid, tuid int64) {
 }
 
 func doFollow(msg *nsq.Message) {
+	log.Printf("doFollow get msg:%s", string(msg.Body))
 	js, err := simplejson.NewJson(msg.Body)
 	if err != nil {
 		log.Printf("HandlerMessage parse body failed:%s %v",
@@ -52,7 +53,7 @@ func doFollow(msg *nsq.Message) {
 	}
 }
 
-func follow(logChan chan *nsq.Message) {
+func followUsers(logChan chan *nsq.Message) {
 	for {
 		select {
 		case msg := <-logChan:
@@ -65,7 +66,7 @@ func main() {
 	done := make(chan bool)
 	var err error
 	config := nsq.NewConfig()
-	laddr := "10.11.38.52"
+	laddr := "127.0.0.1"
 	config.LocalAddr, _ = net.ResolveTCPAddr("tcp", laddr+":0")
 	config.DefaultRequeueDelay = 0
 	config.MaxBackoffDuration = time.Millisecond * 50
@@ -80,11 +81,11 @@ func main() {
 		return nil
 	}))
 
-	err = q.ConnectToNSQLookupd("10.11.38.52:4161")
+	err = q.ConnectToNSQLookupd("127.0.0.1:4161")
 	if err != nil {
 		log.Printf("connect failed:%v", err)
 	}
-	go follow(logChan)
+	go followUsers(logChan)
 	<-done
 	return
 }

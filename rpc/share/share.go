@@ -62,6 +62,12 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 	}
 	_, err = db.Exec("UPDATE users SET videos = videos + 1 WHERE uid = ?",
 		in.Head.Uid)
+	if in.Origin != 0 && in.Img == "" {
+		err := util.PubData(w, "shares", map[string]interface{}{"sid": id})
+		if err != nil {
+			log.Printf("addShare PubData failed:%d %v", id, err)
+		}
+	}
 	return
 }
 
