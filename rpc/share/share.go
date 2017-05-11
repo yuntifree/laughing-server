@@ -490,7 +490,7 @@ func getRecommendShares(db *sql.DB, uid, tag, sid int64) (infos []*share.ShareDe
 }
 
 func fetchShares(db *sql.DB, seq, num, rtype int64) []*share.ShareInfo {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0"
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0"
 	query += fmt.Sprintf(" AND review = %d", rtype)
 	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d, %d", seq, num)
 	rows, err := db.Query(query)
@@ -502,15 +502,37 @@ func fetchShares(db *sql.DB, seq, num, rtype int64) []*share.ShareInfo {
 	defer rows.Close()
 	for rows.Next() {
 		var info share.ShareInfo
+		var mid int64
 		err = rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
-			&info.Img, &info.Views, &info.Title, &info.Desc)
+			&info.Img, &info.Views, &info.Title, &info.Desc, &mid)
 		if err != nil {
 			log.Printf("fetchShares scan failed:%v", err)
 			continue
 		}
+		info.Tags = getStrTags(db, mid)
 		infos = append(infos, &info)
 	}
 	return infos
+}
+
+func getStrTags(db *sql.DB, mid int64) string {
+	rows, err := db.Query("SELECT t.content FROM media_tags m, tags t WHERE m.tid = t.id AND m.mid = ? AND m.deleted = 0", mid)
+	if err != nil {
+		log.Printf("getStrTags query failed:%v", err)
+		return ""
+	}
+	var tags string
+	defer rows.Close()
+	for rows.Next() {
+		var content string
+		err := rows.Scan(&content)
+		if err != nil {
+			log.Printf("getStrTags scan failed:%v", err)
+			continue
+		}
+		tags += content + " "
+	}
+	return tags
 }
 
 func getTotalShares(db *sql.DB, rtype int64) int64 {
