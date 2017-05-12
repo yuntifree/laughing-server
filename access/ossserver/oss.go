@@ -192,6 +192,30 @@ func addUser(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func modUser(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	nickname := req.GetParamString("nickname")
+	headurl := req.GetParamString("headurl")
+	id := req.GetParamInt("id")
+	recommend := req.GetParamInt("recommend")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.UserServerType, req.Uid, "ModInfo",
+		&user.InfoRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Info: &user.Info{Id: id, Nickname: nickname, Headurl: headurl,
+				Recommend: recommend}})
+
+	httpserver.CheckRPCErr(rpcerr, "ModInfo")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "ModInfo")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 func getShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.InitOss(r)
@@ -325,6 +349,7 @@ func NewOssServer() http.Handler {
 	mux.Handle("/get_shares", httpserver.AppHandler(getShares))
 	mux.Handle("/get_users", httpserver.AppHandler(getUsers))
 	mux.Handle("/add_user", httpserver.AppHandler(addUser))
+	mux.Handle("/mod_user", httpserver.AppHandler(modUser))
 	mux.Handle("/review_share", httpserver.AppHandler(reviewShare))
 	mux.Handle("/add_share_tags", httpserver.AppHandler(addShareTags))
 	mux.Handle("/apply_img_upload", httpserver.AppHandler(applyImgUpload))
