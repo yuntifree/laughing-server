@@ -142,7 +142,7 @@ func genShareQuery(uid, tuid, seq, num int64) string {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
 	}
 	if tuid != 0 {
-		query += fmt.Sprintf(" AND s.uid = %d ", uid)
+		query += fmt.Sprintf(" AND s.uid = %d ", tuid)
 	}
 	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
 	return query
@@ -150,6 +150,7 @@ func genShareQuery(uid, tuid, seq, num int64) string {
 
 func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareInfo, nextseq int64) {
 	query := genShareQuery(uid, tuid, seq, num)
+	log.Printf("query:%s", query)
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Printf("getMyShares query failed:%v", err)
