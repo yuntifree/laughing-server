@@ -307,14 +307,22 @@ func applyImgUpload(w http.ResponseWriter, r *http.Request) (apperr *util.AppErr
 }
 
 func uploadImg(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
-	if !httpserver.CheckOssCookie(r) {
-		log.Printf("CheckOssCookie failed")
-		return &util.AppError{Code: httpserver.ErrToken, Msg: "check token failed"}
-	}
-	buf, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("read body failed")
-		return &util.AppError{Code: httpserver.ErrInner, Msg: "read body failed"}
+	r.ParseMultipartForm(10 * 1024 * 1024)
+	values := r.MultipartForm.Value["name"]
+	log.Printf("values:%v", values)
+	files := r.MultipartForm.File["file"]
+	var buf []byte
+	if len(files) > 0 {
+		f, err := files[0].Open()
+		if err != nil {
+			log.Printf("open file failed:%v", err)
+			return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+		}
+		buf, err = ioutil.ReadAll(f)
+		if err != nil {
+			log.Printf("read file failed:%v", err)
+			return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+		}
 	}
 	filename := util.GenUUID() + ".jpg"
 	flag := ucloud.PutFile(ucloud.Bucket, filename, buf)
