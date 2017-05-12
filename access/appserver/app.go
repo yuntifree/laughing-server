@@ -497,7 +497,7 @@ func checkUpdate(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 func shareHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	dst := fmt.Sprintf("/share/videoshare.html?id=%d", id)
+	dst := fmt.Sprintf("/share/videoshare.html?id=%s", id)
 	http.Redirect(w, r, dst, http.StatusMovedPermanently)
 }
 
