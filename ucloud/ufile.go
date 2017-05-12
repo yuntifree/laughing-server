@@ -12,10 +12,8 @@ import (
 )
 
 const (
-	//Bucket  = "laugh"
-	//host    = "laugh.us-ca.ufileos.com"
-	Bucket    = "chatcat"
-	host      = "http://chatcat.hk.ufileos.com"
+	Bucket    = "laugh"
+	host      = "laugh.us-ca.ufileos.com"
 	cdn       = "http://chatcat.ufile.ucloud.com.cn"
 	pubkey    = "ZeZGjUnEz+A7gxeVGxTNUhwDLGJj21SPTqOmSvPN+0WtGwvhDMmseg=="
 	privkey   = "cdb4fe689528a582425fa96e235e094e9da75f3f"
