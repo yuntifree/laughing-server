@@ -22,6 +22,7 @@ service Share{
     rpc FetchShares(common.CommRequest) returns (ShareReply) {}
     rpc ReviewShare(ReviewShareRequest) returns (common.CommReply) {}
     rpc AddShareTags(AddTagRequest) returns (common.CommReply) {}
+    rpc ModTag(TagRequest) returns (common.CommReply) {}
 }
 
 message TagInfo {

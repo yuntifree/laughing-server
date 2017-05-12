@@ -88,3 +88,9 @@ func delTags(db *sql.DB, ids []int64) error {
 	}
 	return err
 }
+
+func modTag(db *sql.DB, info *share.TagInfo) error {
+	_, err := db.Exec("UPDATE tags SET img = ?, content = ?, recommend = ? WHERE id = ?",
+		info.Img, info.Content, info.Recommend, info.Id)
+	return err
+}

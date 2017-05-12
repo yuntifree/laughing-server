@@ -81,6 +81,30 @@ func addTag(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func modTag(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	content := req.GetParamString("content")
+	img := req.GetParamString("img")
+	recommend := req.GetParamInt("recommend")
+	id := req.GetParamInt("id")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "ModTag",
+		&share.TagRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Info: &share.TagInfo{Content: content, Img: img,
+				Recommend: recommend, Id: id}})
+
+	httpserver.CheckRPCErr(rpcerr, "ModTag")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "ModTag")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 func delTags(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.InitOss(r)
@@ -351,6 +375,7 @@ func NewOssServer() http.Handler {
 	mux.Handle("/login", httpserver.AppHandler(login))
 	mux.Handle("/get_tags", httpserver.AppHandler(getTags))
 	mux.Handle("/add_tag", httpserver.AppHandler(addTag))
+	mux.Handle("/mod_tag", httpserver.AppHandler(modTag))
 	mux.Handle("/del_tags", httpserver.AppHandler(delTags))
 	mux.Handle("/add_version", httpserver.AppHandler(addVersion))
 	mux.Handle("/get_versions", httpserver.AppHandler(getVersions))
