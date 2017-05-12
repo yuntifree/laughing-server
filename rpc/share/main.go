@@ -267,8 +267,8 @@ func main() {
 	db.SetMaxIdleConns(util.MaxIdleConns)
 	kv = util.InitRedis()
 	go util.ReportHandler(kv, util.ShareServerName, util.ShareServerPort)
-	cli := util.InitEtcdCli()
-	go util.ReportEtcd(cli, util.ShareServerName, util.ShareServerPort)
+	//cli := util.InitEtcdCli()
+	//go util.ReportEtcd(cli, util.ShareServerName, util.ShareServerPort)
 
 	s := util.NewGrpcServer()
 	share.RegisterShareServer(s, &server{})

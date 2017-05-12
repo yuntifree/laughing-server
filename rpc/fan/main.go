@@ -63,8 +63,8 @@ func main() {
 	db.SetMaxIdleConns(util.MaxIdleConns)
 	kv = util.InitRedis()
 	go util.ReportHandler(kv, util.FanServerName, util.FanServerPort)
-	cli := util.InitEtcdCli()
-	go util.ReportEtcd(cli, util.FanServerName, util.FanServerPort)
+	//cli := util.InitEtcdCli()
+	//go util.ReportEtcd(cli, util.FanServerName, util.FanServerPort)
 
 	s := util.NewGrpcServer()
 	fan.RegisterFanServer(s, &server{})

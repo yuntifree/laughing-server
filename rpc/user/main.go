@@ -98,8 +98,8 @@ func main() {
 	db.SetMaxIdleConns(util.MaxIdleConns)
 	kv = util.InitRedis()
 	go util.ReportHandler(kv, util.UserServerName, util.UserServerPort)
-	cli := util.InitEtcdCli()
-	go util.ReportEtcd(cli, util.UserServerName, util.UserServerPort)
+	//cli := util.InitEtcdCli()
+	//go util.ReportEtcd(cli, util.UserServerName, util.UserServerPort)
 
 	s := util.NewGrpcServer()
 	user.RegisterUserServer(s, &server{})
