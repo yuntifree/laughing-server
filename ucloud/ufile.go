@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -38,6 +39,17 @@ func GetCdnURL(filename string) string {
 //GetThumbnailURL get cdn thumbnail url
 func GetThumbnailURL(filename string) string {
 	return cdn + "/" + filename + thumbnail
+}
+
+//GenHeadurl generate proper headurl
+func GenHeadurl(head string) string {
+	if head == "" {
+		return ""
+	}
+	if strings.Index(head, "/") != -1 {
+		return head
+	}
+	return GetCdnURL(head)
 }
 
 //PutFile put file to bucket

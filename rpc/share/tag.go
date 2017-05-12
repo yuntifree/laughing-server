@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"laughing-server/proto/share"
+	"laughing-server/ucloud"
 	"log"
 )
 
@@ -44,6 +45,7 @@ func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
 			log.Printf("fetchTags scan failed:%v", err)
 			continue
 		}
+		info.Img = ucloud.GetCdnURL(info.Img)
 		infos = append(infos, &info)
 	}
 	return infos
