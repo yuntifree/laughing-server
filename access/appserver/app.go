@@ -395,7 +395,8 @@ func modUserInfo(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.UserServerType, req.Uid, "ModInfo",
 		&user.ModInfoRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
-			Headurl: headurl, Nickname: nickname})
+			Info: &user.Info{Headurl: headurl, Nickname: nickname,
+				Id: req.Uid}})
 
 	httpserver.CheckRPCErr(rpcerr, "ModInfo")
 	res := resp.Interface().(*common.CommReply)
