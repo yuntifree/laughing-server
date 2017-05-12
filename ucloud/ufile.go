@@ -14,11 +14,13 @@ import (
 
 const (
 	//Bucket ucloud file bucket
-	Bucket    = "laugh"
-	host      = "laugh.us-ca.ufileos.com"
+	//Bucket = "laugh"
+	//host   = "http://laugh.us-ca.ufileos.com"
+	Bucket    = "chatcat"
+	host      = "http://chatcat.hk.ufileos.com"
 	cdn       = "http://laugh.us-ca.ufileos.com"
-	pubkey    = "ZeZGjUnEz+A7gxeVGxTNUhwDLGJj21SPTqOmSvPN+0WtGwvhDMmseg=="
-	privkey   = "cdb4fe689528a582425fa96e235e094e9da75f3f"
+	pubkey    = "qVEFK9wRsdWqMols6VCfijDQ/dYp+xK4BHUChSj4Aauwg2QcsI6tyQ=="
+	privkey   = "ef547cd0481874c18258e460f9d6a1582bd1d57e"
 	thumbnail = "?iopcmd=thumbnail&type=4&width=400"
 )
 
@@ -43,7 +45,7 @@ func PutFile(bucket, filename string, buf []byte) bool {
 	str := "PUT" + "\n\n\n\n/" + bucket + "/" + filename
 	sign := genSign(str, privkey)
 	method := "PUT"
-	client := &http.Client{Timeout: time.Second * 5}
+	client := &http.Client{Timeout: time.Second * 30}
 	url := host + "/" + filename
 	req, err := http.NewRequest(method, url, bytes.NewReader(buf))
 	length := len(buf)

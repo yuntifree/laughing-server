@@ -52,12 +52,17 @@ func extractSid(msg *nsq.Message) int64 {
 	return sid
 }
 
-func handleFile(url string) (string, error) {
+func handleFile(url string, video bool) (string, error) {
 	buf, err := util.DownFile(url)
 	if err != nil {
 		return "", err
 	}
-	filename := util.GenUUID() + ".jpg"
+	filename := util.GenUUID()
+	if video {
+		filename += ".mp4"
+	} else {
+		filename += ".jpg"
+	}
 	if !ucloud.PutFile(ucloud.Bucket, filename, buf) {
 		log.Printf("handleImg ucloud PutFile failed:%s", filename)
 		return "", fmt.Errorf("ucloud PutFile failed:%s", filename)
@@ -66,11 +71,11 @@ func handleFile(url string) (string, error) {
 }
 
 func handleImg(url string) (string, error) {
-	return handleFile(url)
+	return handleFile(url, false)
 }
 
 func handleVideo(url string) (string, error) {
-	return handleFile(url)
+	return handleFile(url, true)
 }
 
 func doFetch(msg *nsq.Message) {
@@ -118,6 +123,7 @@ func doFetch(msg *nsq.Message) {
 		log.Printf("update media info failed sid:%d video info:%v, img:%s video:%s",
 			sid, info, img, video)
 	}
+	log.Printf("fetch done sid:%d", sid)
 	return
 }
 
