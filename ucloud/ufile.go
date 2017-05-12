@@ -65,9 +65,8 @@ func PutFile(bucket, filename string, buf []byte) bool {
 }
 
 //GenUploadToken generate upload token
-func GenUploadToken(format string) (url string, auth string) {
-	filename := util.GenUUID() + format
-	url = host + "/" + filename
+func GenUploadToken(format string) (filename string, auth string) {
+	filename = util.GenUUID() + format
 	str := "PUT" + "\n\n\n\n/" + Bucket + "/" + filename
 	sign := genSign(str, privkey)
 	auth = "UCloud " + pubkey + ":" + sign

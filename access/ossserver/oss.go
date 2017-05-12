@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"laughing-server/httpserver"
 	"laughing-server/proto/common"
 	"laughing-server/proto/config"
@@ -264,13 +265,44 @@ func applyImgUpload(w http.ResponseWriter, r *http.Request) (apperr *util.AppErr
 	format := req.GetParamStringDef("format", ".jpg")
 	log.Printf("applyImgUpload format:%s %d", format, size)
 
-	path, auth := ucloud.GenUploadToken(format)
+	filename, auth := ucloud.GenUploadToken(format)
 	js, err := simplejson.NewJson([]byte(`{"errno":0}`))
 	if err != nil {
 		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
 	}
-	js.SetPath([]string{"data", "path"}, path)
+	js.SetPath([]string{"data", "filename"}, filename)
 	js.SetPath([]string{"data", "auth"}, auth)
+	body, err := js.Encode()
+	if err != nil {
+		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+	}
+
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func uploadImg(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	if !httpserver.CheckOssCookie(r) {
+		log.Printf("CheckOssCookie failed")
+		return &util.AppError{Code: httpserver.ErrToken, Msg: "check token failed"}
+	}
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("read body failed")
+		return &util.AppError{Code: httpserver.ErrInner, Msg: "read body failed"}
+	}
+	filename := util.GenUUID() + ".jpg"
+	flag := ucloud.PutFile(ucloud.Bucket, filename, buf)
+	if !flag {
+		log.Printf("ucloud PutFile failed:%s", filename)
+		return &util.AppError{Code: httpserver.ErrInner, Msg: "put file failed"}
+	}
+	js, err := simplejson.NewJson([]byte(`{"errno":0}`))
+	if err != nil {
+		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+	}
+	js.SetPath([]string{"data", "filename"}, filename)
 	body, err := js.Encode()
 	if err != nil {
 		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
@@ -296,6 +328,7 @@ func NewOssServer() http.Handler {
 	mux.Handle("/review_share", httpserver.AppHandler(reviewShare))
 	mux.Handle("/add_share_tags", httpserver.AppHandler(addShareTags))
 	mux.Handle("/apply_img_upload", httpserver.AppHandler(applyImgUpload))
+	mux.Handle("/upload_img", httpserver.AppHandler(uploadImg))
 	mux.Handle("/", http.FileServer(http.Dir("/data/server/laughing-oss")))
 	return mux
 }
