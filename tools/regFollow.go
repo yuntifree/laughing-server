@@ -14,10 +14,6 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 )
 
-var uids = []int64{
-	1, 24,
-}
-
 func follow(uid, tuid int64) {
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.FanServerType, uid, "Follow",
@@ -48,8 +44,8 @@ func doFollow(msg *nsq.Message) {
 		log.Printf("get uid failed:%s %v", string(msg.Body), err)
 		return
 	}
-	for i := 0; i < len(uids); i++ {
-		follow(uid, uids[i])
+	for i := 0; i < len(recommendUids); i++ {
+		follow(uid, recommendUids[i])
 	}
 }
 
@@ -61,6 +57,31 @@ func followUsers(logChan chan *nsq.Message) {
 		}
 	}
 }
+
+func getRecommendUids() ([]int64, error) {
+	var uids []int64
+	db, err := util.InitDB(false)
+	if err != nil {
+		return uids, err
+	}
+	defer db.Close()
+	rows, err := db.Query("SELECT uid FROM users WHERE recommend = 1")
+	if err != nil {
+		return uids, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var uid int64
+		err = rows.Scan(&uid)
+		if err != nil {
+			continue
+		}
+		uids = append(uids, uid)
+	}
+	return uids, nil
+}
+
+var recommendUids []int64
 
 func main() {
 	done := make(chan bool)
@@ -74,6 +95,11 @@ func main() {
 	q, err := nsq.NewConsumer("register", "ch", config)
 	if err != nil {
 		log.Fatal(err)
+	}
+	recommendUids, err = getRecommendUids()
+	if err != nil {
+		log.Printf("getRecommendUids failed:%v", err)
+		return
 	}
 	logChan := make(chan *nsq.Message, 100)
 	q.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
