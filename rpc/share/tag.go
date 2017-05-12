@@ -9,7 +9,7 @@ import (
 
 func getTags(db *sql.DB) []*share.TagInfo {
 	var infos []*share.TagInfo
-	rows, err := db.Query("SELECT id, content FROM tags WHERE deleted = 0")
+	rows, err := db.Query("SELECT id, content FROM tags WHERE deleted = 0 AND recommend = 1")
 	if err != nil {
 		log.Printf("getTags query failed:%v", err)
 		return infos
