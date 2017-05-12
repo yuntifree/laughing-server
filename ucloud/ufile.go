@@ -15,10 +15,8 @@ import (
 
 const (
 	//Bucket ucloud file bucket
-	//Bucket = "laugh"
-	//host   = "http://laugh.us-ca.ufileos.com"
-	Bucket    = "chatcat"
-	host      = "http://chatcat.hk.ufileos.com"
+	Bucket    = "laugh"
+	host      = "http://laugh.us-ca.ufileos.com"
 	cdn       = "http://laugh.us-ca.ufileos.com"
 	pubkey    = "qVEFK9wRsdWqMols6VCfijDQ/dYp+xK4BHUChSj4Aauwg2QcsI6tyQ=="
 	privkey   = "ef547cd0481874c18258e460f9d6a1582bd1d57e"
