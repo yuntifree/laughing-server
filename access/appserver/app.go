@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"laughing-server/httpserver"
 	"laughing-server/proto/common"
 	"laughing-server/proto/config"
@@ -12,6 +13,8 @@ import (
 	"laughing-server/util"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func followop(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
@@ -491,9 +494,16 @@ func checkUpdate(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 	return nil
 }
 
+func shareHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	dst := fmt.Sprintf("/share/videoshare.html?id=%d", id)
+	http.Redirect(w, r, dst, http.StatusMovedPermanently)
+}
+
 //NewAppServer return app http handler
 func NewAppServer() http.Handler {
-	mux := http.NewServeMux()
+	mux := mux.NewRouter()
 	mux.Handle("/followop", httpserver.AppHandler(followop))
 	mux.Handle("/fblogin", httpserver.AppHandler(fblogin))
 	mux.Handle("/logout", httpserver.AppHandler(logout))
@@ -515,6 +525,7 @@ func NewAppServer() http.Handler {
 	mux.Handle("/report", httpserver.AppHandler(report))
 	mux.Handle("/check_update", httpserver.AppHandler(checkUpdate))
 	mux.Handle("/load_share", httpserver.AppHandler(loadShare))
+	mux.HandleFunc("/p/{id:[0-9]+}", shareHandler)
 	mux.Handle("/", http.FileServer(http.Dir("/data/laughing/html")))
 	return mux
 }
