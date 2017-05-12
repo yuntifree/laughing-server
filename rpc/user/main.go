@@ -69,7 +69,7 @@ func (s *server) AddInfo(ctx context.Context, in *user.InfoRequest) (*common.Com
 func (s *server) ModInfo(ctx context.Context, in *user.ModInfoRequest) (*common.CommReply, error) {
 	log.Printf("ModInfo request:%v", in)
 	util.PubRPCRequest(w, "user", "ModInfo")
-	err := modInfo(db, in.Head.Uid, in.Headurl, in.Nickname)
+	err := modInfo(db, in.Info)
 	if err != nil {
 		log.Printf("modInfo failed:%v", err)
 		return &common.CommReply{

@@ -427,6 +427,25 @@ func (r *Request) InitNoCheck(req *http.Request) {
 	}
 }
 
+//CheckOssCookie check oss cookie
+func CheckOssCookie(req *http.Request) bool {
+	var uid int64
+	var token string
+	c1, err := req.Cookie("u")
+	if err == nil {
+		id, _ := strconv.Atoi(c1.Value)
+		uid = int64(id)
+	}
+	c2, err := req.Cookie("s")
+	if err == nil {
+		token = c2.Value
+	}
+	if !checkBackToken(uid, token) {
+		return false
+	}
+	return true
+}
+
 func (r *Request) InitOss(req *http.Request) {
 	r.InitNoCheck(req)
 	r.Uid = getJSONInt(r.Post, "uid")

@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"laughing-server/proto/share"
+	"laughing-server/ucloud"
 	"log"
 )
 
 func getTags(db *sql.DB) []*share.TagInfo {
 	var infos []*share.TagInfo
-	rows, err := db.Query("SELECT id, content FROM tags WHERE deleted = 0")
+	rows, err := db.Query("SELECT id, content FROM tags WHERE deleted = 0 AND recommend = 1")
 	if err != nil {
 		log.Printf("getTags query failed:%v", err)
 		return infos
@@ -44,6 +45,7 @@ func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
 			log.Printf("fetchTags scan failed:%v", err)
 			continue
 		}
+		info.Img = ucloud.GetCdnURL(info.Img)
 		infos = append(infos, &info)
 	}
 	return infos
@@ -84,5 +86,11 @@ func delTags(db *sql.DB, ids []int64) error {
 	if err != nil {
 		log.Printf("delTags failed:%s %v", query, err)
 	}
+	return err
+}
+
+func modTag(db *sql.DB, info *share.TagInfo) error {
+	_, err := db.Exec("UPDATE tags SET img = ?, content = ?, recommend = ? WHERE id = ?",
+		info.Img, info.Content, info.Recommend, info.Id)
 	return err
 }

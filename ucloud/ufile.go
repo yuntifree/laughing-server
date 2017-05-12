@@ -9,15 +9,14 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
 const (
 	//Bucket ucloud file bucket
-	//Bucket = "laugh"
-	//host   = "http://laugh.us-ca.ufileos.com"
-	Bucket    = "chatcat"
-	host      = "http://chatcat.hk.ufileos.com"
+	Bucket    = "laugh"
+	host      = "http://laugh.us-ca.ufileos.com"
 	cdn       = "http://laugh.us-ca.ufileos.com"
 	pubkey    = "qVEFK9wRsdWqMols6VCfijDQ/dYp+xK4BHUChSj4Aauwg2QcsI6tyQ=="
 	privkey   = "ef547cd0481874c18258e460f9d6a1582bd1d57e"
@@ -38,6 +37,17 @@ func GetCdnURL(filename string) string {
 //GetThumbnailURL get cdn thumbnail url
 func GetThumbnailURL(filename string) string {
 	return cdn + "/" + filename + thumbnail
+}
+
+//GenHeadurl generate proper headurl
+func GenHeadurl(head string) string {
+	if head == "" {
+		return ""
+	}
+	if strings.Index(head, "/") != -1 {
+		return head
+	}
+	return GetCdnURL(head)
 }
 
 //PutFile put file to bucket
@@ -65,9 +75,8 @@ func PutFile(bucket, filename string, buf []byte) bool {
 }
 
 //GenUploadToken generate upload token
-func GenUploadToken(format string) (url string, auth string) {
-	filename := util.GenUUID() + format
-	url = host + "/" + filename
+func GenUploadToken(format string) (filename string, auth string) {
+	filename = util.GenUUID() + format
 	str := "PUT" + "\n\n\n\n/" + Bucket + "/" + filename
 	sign := genSign(str, privkey)
 	auth = "UCloud " + pubkey + ":" + sign

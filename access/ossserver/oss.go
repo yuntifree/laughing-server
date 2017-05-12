@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"laughing-server/httpserver"
 	"laughing-server/proto/common"
 	"laughing-server/proto/config"
@@ -73,6 +74,30 @@ func addTag(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	httpserver.CheckRPCErr(rpcerr, "AddTags")
 	res := resp.Interface().(*common.CommReply)
 	httpserver.CheckRPCCode(res.Head.Retcode, "AddTag")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func modTag(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	content := req.GetParamString("content")
+	img := req.GetParamString("img")
+	recommend := req.GetParamInt("recommend")
+	id := req.GetParamInt("id")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "ModTag",
+		&share.TagRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Info: &share.TagInfo{Content: content, Img: img,
+				Recommend: recommend, Id: id}})
+
+	httpserver.CheckRPCErr(rpcerr, "ModTag")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "ModTag")
 
 	body := httpserver.GenResponseBody(res, false)
 	w.Write(body)
@@ -191,6 +216,30 @@ func addUser(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func modUser(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	nickname := req.GetParamString("nickname")
+	headurl := req.GetParamString("headurl")
+	id := req.GetParamInt("id")
+	recommend := req.GetParamInt("recommend")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.UserServerType, req.Uid, "ModInfo",
+		&user.ModInfoRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Info: &user.Info{Id: id, Nickname: nickname, Headurl: headurl,
+				Recommend: recommend}})
+
+	httpserver.CheckRPCErr(rpcerr, "ModInfo")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "ModInfo")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 func getShares(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.InitOss(r)
@@ -264,13 +313,52 @@ func applyImgUpload(w http.ResponseWriter, r *http.Request) (apperr *util.AppErr
 	format := req.GetParamStringDef("format", ".jpg")
 	log.Printf("applyImgUpload format:%s %d", format, size)
 
-	path, auth := ucloud.GenUploadToken(format)
+	filename, auth := ucloud.GenUploadToken(format)
 	js, err := simplejson.NewJson([]byte(`{"errno":0}`))
 	if err != nil {
 		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
 	}
-	js.SetPath([]string{"data", "path"}, path)
+	js.SetPath([]string{"data", "filename"}, filename)
 	js.SetPath([]string{"data", "auth"}, auth)
+	body, err := js.Encode()
+	if err != nil {
+		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+	}
+
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func uploadImg(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	r.ParseMultipartForm(10 * 1024 * 1024)
+	values := r.MultipartForm.Value["name"]
+	log.Printf("values:%v", values)
+	files := r.MultipartForm.File["file"]
+	var buf []byte
+	if len(files) > 0 {
+		f, err := files[0].Open()
+		if err != nil {
+			log.Printf("open file failed:%v", err)
+			return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+		}
+		buf, err = ioutil.ReadAll(f)
+		if err != nil {
+			log.Printf("read file failed:%v", err)
+			return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+		}
+	}
+	filename := util.GenUUID() + ".jpg"
+	flag := ucloud.PutFile(ucloud.Bucket, filename, buf)
+	if !flag {
+		log.Printf("ucloud PutFile failed:%s", filename)
+		return &util.AppError{Code: httpserver.ErrInner, Msg: "put file failed"}
+	}
+	js, err := simplejson.NewJson([]byte(`{"errno":0}`))
+	if err != nil {
+		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+	}
+	js.SetPath([]string{"data", "filename"}, filename)
 	body, err := js.Encode()
 	if err != nil {
 		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
@@ -287,15 +375,18 @@ func NewOssServer() http.Handler {
 	mux.Handle("/login", httpserver.AppHandler(login))
 	mux.Handle("/get_tags", httpserver.AppHandler(getTags))
 	mux.Handle("/add_tag", httpserver.AppHandler(addTag))
+	mux.Handle("/mod_tag", httpserver.AppHandler(modTag))
 	mux.Handle("/del_tags", httpserver.AppHandler(delTags))
 	mux.Handle("/add_version", httpserver.AppHandler(addVersion))
 	mux.Handle("/get_versions", httpserver.AppHandler(getVersions))
 	mux.Handle("/get_shares", httpserver.AppHandler(getShares))
 	mux.Handle("/get_users", httpserver.AppHandler(getUsers))
 	mux.Handle("/add_user", httpserver.AppHandler(addUser))
+	mux.Handle("/mod_user", httpserver.AppHandler(modUser))
 	mux.Handle("/review_share", httpserver.AppHandler(reviewShare))
 	mux.Handle("/add_share_tags", httpserver.AppHandler(addShareTags))
 	mux.Handle("/apply_img_upload", httpserver.AppHandler(applyImgUpload))
+	mux.Handle("/upload_img", httpserver.AppHandler(uploadImg))
 	mux.Handle("/", http.FileServer(http.Dir("/data/server/laughing-oss")))
 	return mux
 }

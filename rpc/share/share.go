@@ -167,6 +167,7 @@ func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareI
 			continue
 		}
 		nextseq = info.Id
+		info.Headurl = ucloud.GenHeadurl(info.Headurl)
 		info.Img = ucloud.GetThumbnailURL(info.Img)
 		infos = append(infos, &info)
 	}
@@ -268,6 +269,7 @@ func getShareComments(db *sql.DB, id, seq, num int64) (infos []*share.CommentInf
 			continue
 		}
 		nextseq = info.Id
+		info.Headurl = ucloud.GenHeadurl(info.Headurl)
 		infos = append(infos, &info)
 	}
 	return
@@ -350,6 +352,7 @@ func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err erro
 	info.Dst = ucloud.GetCdnURL(info.Dst)
 	info.Tags = getMediaTags(db, mid)
 	record.Desc = genShareDesc(diff)
+	record.Headurl = ucloud.GenHeadurl(record.Headurl)
 	if sid == 0 {
 		record.Oriuid = record.Uid
 		record.Orinick = record.Nickname
@@ -510,6 +513,7 @@ func fetchShares(db *sql.DB, seq, num, rtype int64) []*share.ShareInfo {
 			continue
 		}
 		info.Tags = getStrTags(db, mid)
+		info.Headurl = ucloud.GenHeadurl(info.Headurl)
 		infos = append(infos, &info)
 	}
 	return infos
