@@ -202,7 +202,7 @@ func modUser(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.UserServerType, req.Uid, "ModInfo",
-		&user.InfoRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+		&user.ModInfoRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Info: &user.Info{Id: id, Nickname: nickname, Headurl: headurl,
 				Recommend: recommend}})
 
