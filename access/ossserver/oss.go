@@ -7,8 +7,12 @@ import (
 	"laughing-server/proto/share"
 	"laughing-server/proto/user"
 	"laughing-server/proto/verify"
+	"laughing-server/ucloud"
 	"laughing-server/util"
+	"log"
 	"net/http"
+
+	simplejson "github.com/bitly/go-simplejson"
 )
 
 func login(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
@@ -253,6 +257,30 @@ func reviewShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 	return nil
 }
 
+func applyImgUpload(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	size := req.GetParamIntDef("size", 0)
+	format := req.GetParamStringDef("format", ".jpg")
+	log.Printf("applyImgUpload format:%s %d", format, size)
+
+	path, auth := ucloud.GenUploadToken(format)
+	js, err := simplejson.NewJson([]byte(`{"errno":0}`))
+	if err != nil {
+		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+	}
+	js.SetPath([]string{"data", "path"}, path)
+	js.SetPath([]string{"data", "auth"}, auth)
+	body, err := js.Encode()
+	if err != nil {
+		return &util.AppError{Code: httpserver.ErrInner, Msg: err.Error()}
+	}
+
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewOssServer return oss http handler
 func NewOssServer() http.Handler {
 	mux := http.NewServeMux()
@@ -267,6 +295,7 @@ func NewOssServer() http.Handler {
 	mux.Handle("/add_user", httpserver.AppHandler(addUser))
 	mux.Handle("/review_share", httpserver.AppHandler(reviewShare))
 	mux.Handle("/add_share_tags", httpserver.AppHandler(addShareTags))
+	mux.Handle("/apply_img_upload", httpserver.AppHandler(applyImgUpload))
 	mux.Handle("/", http.FileServer(http.Dir("/data/server/laughing-oss")))
 	return mux
 }

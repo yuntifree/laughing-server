@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
+	"laughing-server/util"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,9 +13,10 @@ import (
 )
 
 const (
+	//Bucket ucloud file bucket
 	Bucket    = "laugh"
 	host      = "laugh.us-ca.ufileos.com"
-	cdn       = "http://chatcat.ufile.ucloud.com.cn"
+	cdn       = "http://laugh.us-ca.ufileos.com"
 	pubkey    = "ZeZGjUnEz+A7gxeVGxTNUhwDLGJj21SPTqOmSvPN+0WtGwvhDMmseg=="
 	privkey   = "cdb4fe689528a582425fa96e235e094e9da75f3f"
 	thumbnail = "?iopcmd=thumbnail&type=4&width=400"
@@ -58,4 +60,14 @@ func PutFile(bucket, filename string, buf []byte) bool {
 		return false
 	}
 	return true
+}
+
+//GenUploadToken generate upload token
+func GenUploadToken(format string) (url string, auth string) {
+	filename := util.GenUUID() + format
+	url = host + "/" + filename
+	str := "PUT" + "\n\n\n\n/" + Bucket + "/" + filename
+	sign := genSign(str, privkey)
+	auth = "UCloud " + pubkey + ":" + sign
+	return
 }
