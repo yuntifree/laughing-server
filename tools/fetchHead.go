@@ -69,11 +69,10 @@ func doFetch(msg *nsq.Message) {
 		log.Printf("doFetch ucloud PutFile failed:%d %s", uid, headurl)
 		return
 	}
-	url := ucloud.GetCdnURL(filename)
-	_, err = db.Exec("UPDATE users SET headurl = ? WHERE uid = ?", url, uid)
+	_, err = db.Exec("UPDATE users SET headurl = ? WHERE uid = ?", filename, uid)
 	if err != nil {
 		log.Printf("doFetch update user headurl failed:%d %s %v",
-			uid, url, err)
+			uid, filename, err)
 	}
 }
 
