@@ -37,7 +37,7 @@ func reportClick(db *sql.DB, in *modify.ClickRequest) (err error) {
 }
 
 func addReport(db *sql.DB, uid, sid int64) error {
-	res, err := db.Exec("INSERT IGNORE INTO report(uid, sid, ctime) VALUES (?, ?, NOW())")
+	res, err := db.Exec("INSERT IGNORE INTO report(uid, sid, ctime) VALUES (?, ?, NOW())", uid, sid)
 	if err != nil {
 		return err
 	}
