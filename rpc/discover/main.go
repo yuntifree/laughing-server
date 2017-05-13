@@ -181,8 +181,8 @@ func main() {
 
 	kv = util.InitRedis()
 	go util.ReportHandler(kv, util.DiscoverServerName, util.DiscoverServerPort)
-	cli := util.InitEtcdCli()
-	go watcher(cli)
+	//cli := util.InitEtcdCli()
+	//go watcher(cli)
 
 	s := util.NewGrpcServer()
 	discover.RegisterDiscoverServer(s, &server{})
