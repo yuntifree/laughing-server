@@ -527,6 +527,10 @@ func NewAppServer() http.Handler {
 	mux.Handle("/check_update", httpserver.AppHandler(checkUpdate))
 	mux.Handle("/load_share", httpserver.AppHandler(loadShare))
 	mux.HandleFunc("/p/{id:[0-9]+}", shareHandler)
-	mux.Handle("/", http.FileServer(http.Dir("/data/laughing/html")))
+	mux.Handle("/", http.FileServer(http.Dir("/data/server/html")))
+	mux.PathPrefix("/css/").Handler(http.StripPrefix("/css/",
+		http.FileServer(http.Dir("/data/laughing/html/css/"))))
+	mux.PathPrefix("/images/").Handler(http.StripPrefix("/images/",
+		http.FileServer(http.Dir("/data/laughing/html/images/"))))
 	return mux
 }
