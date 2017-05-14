@@ -503,7 +503,7 @@ func shareHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 //NewAppServer return app http handler
-func NewAppServer() http.Handler {
+func NewAppServer() *mux.Router {
 	mux := mux.NewRouter()
 	mux.Handle("/followop", httpserver.AppHandler(followop))
 	mux.Handle("/fblogin", httpserver.AppHandler(fblogin))
@@ -527,10 +527,5 @@ func NewAppServer() http.Handler {
 	mux.Handle("/check_update", httpserver.AppHandler(checkUpdate))
 	mux.Handle("/load_share", httpserver.AppHandler(loadShare))
 	mux.HandleFunc("/p/{id:[0-9]+}", shareHandler)
-	mux.Handle("/", http.FileServer(http.Dir("/data/server/html")))
-	mux.PathPrefix("/css/").Handler(http.StripPrefix("/css/",
-		http.FileServer(http.Dir("/data/laughing/html/css/"))))
-	mux.PathPrefix("/images/").Handler(http.StripPrefix("/images/",
-		http.FileServer(http.Dir("/data/laughing/html/images/"))))
 	return mux
 }
