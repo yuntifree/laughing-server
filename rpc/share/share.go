@@ -446,7 +446,7 @@ func getShareIds(db *sql.DB, seq, num, tag, sid int64) (ids []int64, nextseq, ne
 }
 
 func getRecommendIds(db *sql.DB, seq, num, sid int64) (ids []int64, nextseq int64) {
-	query := fmt.Sprintf("SELECT s.id FROM shares s, media m, media_tags t, tags ts WHERE s.mid = m.id AND m.id = t.mid AND t.tid = ts.id AND ts.recommend = 1")
+	query := fmt.Sprintf("SELECT s.id FROM shares s, media m, media_tags t, tags ts WHERE s.mid = m.id AND m.id = t.mid AND t.tid = ts.id AND ts.hot = 1")
 	if sid != 0 {
 		query += fmt.Sprintf(" AND s.id != %d", sid)
 	}

@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS tags
     img      varchar(256) NOT NULL DEFAULT '',
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     recommend tinyint unsigned NOT NULL DEFAULT 0,
+    hot tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(id)
 ) ENGINE = InnoDB;
