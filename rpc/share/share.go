@@ -580,6 +580,19 @@ func reviewShare(db *sql.DB, in *share.ReviewShareRequest) {
 			return
 		}
 	}
+	if in.Smile > 0 {
+		var mid int64
+		err := db.QueryRow("SELECT mid FROM shares WHERE id = ?", in.Id).Scan(&mid)
+		if err != nil {
+			log.Printf("reviewShare get media id failed:%v", err)
+			return
+		}
+		_, err = db.Exec("UPDATE media SET smile = ? WHERE id = ?", in.Smile, mid)
+		if err != nil {
+			log.Printf("reviewShare set smile failed:%v", err)
+			return
+		}
+	}
 	return
 }
 

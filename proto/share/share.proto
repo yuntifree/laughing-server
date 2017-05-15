@@ -172,6 +172,7 @@ message ReviewShareRequest {
     int64 reject = 3;
     int64 modify = 4;
     string title = 5;
+    int64 smile = 6;
 }
 
 message AddTagRequest {
