@@ -1,6 +1,7 @@
 #!/bin/bash
 SRV_DST=/data/laughing/server
 RPC_DST=/data/laughing/rpc
+CRON_DST=/data/laughing/cron
 
 function install_server()
 {
@@ -24,6 +25,17 @@ function install_rpc()
     cd -
 }
 
+function install_cron()
+{
+    install $1 $CRON_DST
+    killall $1
+    ulimit -c unlimited
+
+    cd $CRON_DST
+    nohup $CRON_DST/$1 >> $CRON_DST/$1.log 2>&1 &
+    cd -
+}
+
 if [ $# -lt 2 ]; then
     echo "not enough param"
     exit
@@ -38,6 +50,8 @@ do
         install_server $arg
     elif [ $1 -eq 2 ]; then
         install_rpc $arg
+    elif [ $1 -eq 3 ]; then
+        install_cron $arg
     fi
     rm -f $arg
 done
