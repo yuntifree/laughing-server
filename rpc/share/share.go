@@ -511,6 +511,7 @@ func fetchShares(db *sql.DB, seq, num, rtype int64) []*share.ShareInfo {
 		}
 		info.Tags = getStrTags(db, mid)
 		info.Headurl = ucloud.GenHeadurl(info.Headurl)
+		info.Img = ucloud.GetCdnURL(info.Img)
 		infos = append(infos, &info)
 	}
 	return infos
