@@ -7,9 +7,9 @@ LOG=/var/log/srv.log
 ERR=/var/log/srv.err
 
 
-HTTP_DIR=/data/server
-RPC_DIR=/data/rpc
-CRON_DIR=/data/cron
+HTTP_DIR=/data/laughing/server
+RPC_DIR=/data/laughing/rpc
+CRON_DIR=/data/laughing/cron
 
 function log()
 {
