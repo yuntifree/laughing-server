@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"laughing-server/proto/common"
 	"laughing-server/proto/user"
 	"laughing-server/util"
@@ -88,18 +89,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	conf := flag.String("conf", util.RpcConfPath, "config file")
+	flag.Parse()
 
 	w = util.NewNsqProducer()
+	kv, db = util.InitConf(*conf)
 
-	db, err = util.InitDB(false)
-	if err != nil {
-		log.Fatalf("failed to init db connection: %v", err)
-	}
 	db.SetMaxIdleConns(util.MaxIdleConns)
-	kv = util.InitRedis()
 	go util.ReportHandler(kv, util.UserServerName, util.UserServerPort)
-	//cli := util.InitEtcdCli()
-	//go util.ReportEtcd(cli, util.UserServerName, util.UserServerPort)
 
 	s := util.NewGrpcServer()
 	user.RegisterUserServer(s, &server{})

@@ -19,6 +19,14 @@ func InitRedis() *redis.Client {
 	})
 }
 
+//InitRedisHost return initialed redis client with host
+func InitRedisHost(host string) *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr: host,
+		DB:   0,
+	})
+}
+
 //Report add address to server list
 func Report(client *redis.Client, name, port string) {
 	ip := GetInnerIP()

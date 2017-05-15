@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"laughing-server/proto/common"
 	"laughing-server/proto/verify"
 	"laughing-server/util"
@@ -89,18 +90,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	conf := flag.String("conf", util.RpcConfPath, "config file")
+	flag.Parse()
+	kv, db = util.InitConf(*conf)
 
 	w = util.NewNsqProducer()
 
-	db, err = util.InitDB(false)
-	if err != nil {
-		log.Fatalf("failed to init db connection: %v", err)
-	}
 	db.SetMaxIdleConns(util.MaxIdleConns)
-	kv = util.InitRedis()
 	go util.ReportHandler(kv, util.VerifyServerName, util.VerifyServerPort)
-	//cli := util.InitEtcdCli()
-	//go util.ReportEtcd(cli, util.VerifyServerName, util.VerifyServerPort)
 
 	s := util.NewGrpcServer()
 	verify.RegisterVerifyServer(s, &server{})

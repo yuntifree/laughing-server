@@ -28,6 +28,12 @@ func InitDB(readonly bool) (*sql.DB, error) {
 	return sql.Open("mysql", dsn)
 }
 
+//InitDBParam init mysql connection with params
+func InitDBParam(access, host string) (*sql.DB, error) {
+	dsn := access + "@tcp(" + host + ":3306)/laughing?charset=utf8"
+	return sql.Open("mysql", dsn)
+}
+
 //InitMonitorDB connect to rds
 func InitMonitorDB() (*sql.DB, error) {
 	dsn := genMonitorDsn()

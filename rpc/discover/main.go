@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"log"
 	"net"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"laughing-server/proto/discover"
 	"laughing-server/util"
 
+	_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/net/context"
 	redis "gopkg.in/redis.v5"
 )
@@ -177,12 +179,12 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	srvMap = make(map[string][]string)
+	conf := flag.String("conf", util.RpcConfPath, "config file")
+	flag.Parse()
+	kv, _ = util.InitConf(*conf)
 	w = util.NewNsqProducer()
 
-	kv = util.InitRedis()
 	go util.ReportHandler(kv, util.DiscoverServerName, util.DiscoverServerPort)
-	//cli := util.InitEtcdCli()
-	//go watcher(cli)
 
 	s := util.NewGrpcServer()
 	discover.RegisterDiscoverServer(s, &server{})
