@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"laughing-server/proto/common"
 	"laughing-server/proto/discover"
 	"laughing-server/proto/limit"
@@ -413,7 +414,13 @@ func checkBackToken(uid int64, token string) bool {
 func (r *Request) InitNoCheck(req *http.Request) {
 	ReportRequest(req.RequestURI)
 	var err error
-	r.Post, err = simplejson.NewFromReader(req.Body)
+	buf, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Printf("ReadAll failed:%v", err)
+		panic(util.AppError{ErrInvalidParam, "invalid param", r.Callback})
+	}
+	log.Printf("body buf:%s", string(buf))
+	r.Post, err = simplejson.NewJson(buf)
 	if err == io.EOF {
 		req.ParseForm()
 		r.Form = req.Form
