@@ -27,7 +27,7 @@ func handleFile(r *mux.Router, root string) *mux.Router {
 
 func main() {
 	addr := flag.String("addr", ":8088", "bind address")
-	root := flag.String("root", "/data/server", "root directory")
+	root := flag.String("root", "/data/server/html", "root directory")
 	flag.Parse()
 	r := NewAppServer()
 	r = handleFile(r, *root)
