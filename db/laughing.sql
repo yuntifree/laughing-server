@@ -4,12 +4,12 @@ use laughing;
 CREATE TABLE IF NOT EXISTS users 
 (
     uid     bigint unsigned NOT NULL AUTO_INCREMENT,
-    token   varchar(32) NOT NULL,
+    token   varchar(32) NOT NULL DEFAULT '',
     -- facebook id 和 token
-    fb_id   varchar(32) NOT NULL,
-    fb_token    varchar(128) NOT NULL,
-    nickname    varchar(256) NOT NULL,
-    headurl varchar(256) NOT NULL,
+    fb_id   varchar(32) NOT NULL DEFAULT '',
+    fb_token    varchar(256) NOT NULL DEFAULT '',
+    nickname    varchar(256) NOT NULL DEFAULT '',
+    headurl varchar(256) NOT NULL DEFAULT '',
     -- 粉丝数
     fan_cnt int unsigned NOT NULL DEFAULT 0,
     -- 关注数
@@ -20,10 +20,10 @@ CREATE TABLE IF NOT EXISTS users
     mtime   datetime NOT NULL DEFAULT '2017-01-01',
     etime   datetime NOT NULL DEFAULT '2017-01-01',
     deleted tinyint unsigned NOT NULL DEFAULT 0,
-    imei    varchar(36) NOT NULL,
-    model    varchar(36) NOT NULL,
-    language    varchar(36) NOT NULL,
-    os      varchar(36) NOT NULL,
+    imei    varchar(36) NOT NULL DEFAULT '',
+    model    varchar(36) NOT NULL DEFAULT '',
+    language    varchar(36) NOT NULL DEFAULT '',
+    os      varchar(36) NOT NULL DEFAULT '',
     version int unsigned NOT NULL DEFAULT 0,
     PRIMARY KEY(uid),
     KEY(fb_id)
@@ -34,8 +34,8 @@ ALTER TABLE users AUTO_INCREMENT = 100000;
 CREATE TABLE IF NOT EXISTS fan 
 (
     id     bigint unsigned NOT NULL AUTO_INCREMENT,
-    uid     int unsigned NOT NULL,
-    tuid    int unsigned NOT NULL,
+    uid     int unsigned NOT NULL DEFAULT 0,
+    tuid    int unsigned NOT NULL DEFAULT 0,
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     mtime   datetime NOT NULL DEFAULT '2017-01-01',
@@ -47,8 +47,8 @@ CREATE TABLE IF NOT EXISTS fan
 CREATE TABLE IF NOT EXISTS follower 
 (
     id     bigint unsigned NOT NULL AUTO_INCREMENT,
-    uid     int unsigned NOT NULL,
-    tuid    int unsigned NOT NULL,
+    uid     int unsigned NOT NULL DEFAULT 0,
+    tuid    int unsigned NOT NULL DEFAULT 0,
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     mtime   datetime NOT NULL DEFAULT '2017-01-01',
@@ -61,17 +61,17 @@ CREATE TABLE IF NOT EXISTS media
 (
     id     bigint unsigned NOT NULL AUTO_INCREMENT,
     uid     int unsigned NOT NULL,
-    img     varchar(128) NOT NULL,
+    img     varchar(128) NOT NULL DEFAULT '',
     dst     varchar(128) NOT NULL, 
-    title   varchar(256) NOT NULL,
-    abstract    varchar(256) NOT NULL,
+    title   varchar(256) NOT NULL DEFAULT '',
+    abstract    varchar(256) NOT NULL DEFAULT '',
     views   int unsigned NOT NULL DEFAULT 0,
     -- origin 来源 0:APP上传 1:Facebook 2:Instagram 3:Musically
     origin  tinyint unsigned NOT NULL DEFAULT 0,
     -- 第三方mp4地址
-    src    varchar(256) NOT NULL,
+    src    varchar(256) NOT NULL DEFAULT '',
     -- ucoud mp4地址
-    cdn    varchar(256) NOT NULL,
+    cdn    varchar(256) NOT NULL DEFAULT '',
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     unshare tinyint unsigned NOT NULL DEFAULT 0,
     width   int unsigned NOT NULL DEFAULT 0,
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS tags
 (
     id     bigint unsigned NOT NULL AUTO_INCREMENT,
     content varchar(64) NOT NULL,
-    img      varchar(256) NOT NULL,
+    img      varchar(256) NOT NULL DEFAULT '',
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     recommend tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
@@ -167,13 +167,13 @@ CREATE TABLE IF NOT EXISTS report
 CREATE TABLE IF NOT EXISTS app_version
 (
     id      bigint unsigned NOT NULL AUTO_INCREMENT,
-    term    tinyint unsigned NOT NULL,
+    term    tinyint unsigned NOT NULL DEFAULT 0,
     version int unsigned NOT NULL DEFAULT 0,
-    vname   varchar(32) NOT NULL,
-    title   varchar(256) NOT NULL,
-    subtitle varchar(256) NOT NULL,
-    downurl varchar(256) NOT NULL,
-    description varchar(1024) NOT NULL,
+    vname   varchar(32) NOT NULL DEFAULT '',
+    title   varchar(256) NOT NULL DEFAULT '',
+    subtitle varchar(256) NOT NULL DEFAULT '',
+    downurl varchar(256) NOT NULL DEFAULT '',
+    description varchar(1024) NOT NULL DEFAULT '',
     deleted tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(id),
