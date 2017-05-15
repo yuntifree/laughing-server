@@ -22,6 +22,8 @@ func handleFile(r *mux.Router, root string) *mux.Router {
 		http.FileServer(http.Dir(root+"/css/"))))
 	r.PathPrefix("/images/").Handler(http.StripPrefix("/images/",
 		http.FileServer(http.Dir(root+"/images/"))))
+	r.PathPrefix("/share/").Handler(http.StripPrefix("/share/",
+		http.FileServer(http.Dir(root+"/share/"))))
 	return r
 }
 
