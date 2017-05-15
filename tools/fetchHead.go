@@ -6,7 +6,6 @@ import (
 	"laughing-server/util"
 	"log"
 	"net"
-	"strings"
 	"time"
 
 	simplejson "github.com/bitly/go-simplejson"
@@ -41,10 +40,6 @@ func getUserHead(db *sql.DB, uid int64) string {
 
 func getSuffix(headurl string) string {
 	suffix := ".jpg"
-	pos := strings.LastIndex(headurl, ".")
-	if pos != -1 {
-		suffix = headurl[pos:]
-	}
 	return suffix
 }
 
@@ -65,6 +60,7 @@ func doFetch(msg *nsq.Message) {
 	}
 	suffix := getSuffix(headurl)
 	filename := util.GenUUID() + suffix
+	log.Printf("filename:%s", filename)
 	if !ucloud.PutFile(ucloud.Bucket, filename, buf) {
 		log.Printf("doFetch ucloud PutFile failed:%d %s", uid, headurl)
 		return
