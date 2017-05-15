@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	w := util.NewRotateWriter("/data/server/app.log", 1024*1024*1024)
+	w := util.NewRotateWriter("/data/laughing/server/app.log", 1024*1024*1024)
 	log.SetOutput(w)
 }
 
@@ -29,7 +29,7 @@ func handleFile(r *mux.Router, root string) *mux.Router {
 
 func main() {
 	addr := flag.String("addr", ":8088", "bind address")
-	root := flag.String("root", "/data/server/html", "root directory")
+	root := flag.String("root", "/data/laughing/html", "root directory")
 	flag.Parse()
 	r := NewAppServer()
 	r = handleFile(r, *root)

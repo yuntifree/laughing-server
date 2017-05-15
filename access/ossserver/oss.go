@@ -387,6 +387,6 @@ func NewOssServer() http.Handler {
 	mux.Handle("/add_share_tags", httpserver.AppHandler(addShareTags))
 	mux.Handle("/apply_img_upload", httpserver.AppHandler(applyImgUpload))
 	mux.Handle("/upload_img", httpserver.AppHandler(uploadImg))
-	mux.Handle("/", http.FileServer(http.Dir("/data/server/laughing-oss")))
+	mux.Handle("/", http.FileServer(http.Dir("/data/laughing/oss")))
 	return mux
 }

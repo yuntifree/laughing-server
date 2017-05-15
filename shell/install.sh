@@ -1,6 +1,6 @@
 #!/bin/bash
-SRV_DST=/data/server
-RPC_DST=/data/rpc
+SRV_DST=/data/laughing/server
+RPC_DST=/data/laughing/rpc
 
 function install_server()
 {

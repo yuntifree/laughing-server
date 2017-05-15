@@ -1,5 +1,5 @@
 RPCLIST="discover modify verify user fan limit share config"
-HTTPLIST="appserver"
+HTTPLIST="appserver ossserver"
 for srv in $HTTPLIST; do
     go build ../access/$srv
     ./install.sh 1 $srv

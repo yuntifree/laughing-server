@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	w := util.NewRotateWriter("/data/server/laughoss.log", 1024*1024*1024)
+	w := util.NewRotateWriter("/data/laughing/server/laughoss.log", 1024*1024*1024)
 	log.SetOutput(w)
 }
 
