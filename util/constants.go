@@ -18,7 +18,7 @@ const (
 	ConfigServerName   = "service:laughconfig"
 	ConfigServerPort   = ":60067"
 	MaxIdleConns       = 3
-	DebugHost          = "10.26.210.175"
+	DebugHost          = "10.8.10.57"
 	APIHosts           = "10.11.38.52"
 	TimeFormat         = "2006-01-02 15:04:05"
 	DiscoverServerType = 1
