@@ -64,6 +64,7 @@ func addTag(db *sql.DB, info *share.TagInfo) (id int64, err error) {
 	res, err := db.Exec("INSERT INTO tags(content, img, recommend, ctime) VALUES (?, ?, ?, NOW())",
 		info.Content, info.Img, info.Recommend)
 	if err != nil {
+		log.Printf("addTag err:%s %v", info.Content, err)
 		return 0, err
 	}
 

@@ -409,6 +409,7 @@ func getShareIds(db *sql.DB, seq, num, tag, sid int64) (ids []int64, nextseq, ne
 	} else {
 		query = fmt.Sprintf("SELECT s.id FROM shares s, media m, media_tags t WHERE s.mid = m.id AND m.id = t.mid AND t.tid = %d", tag)
 	}
+	query += " AND s.deleted = 0 AND m.smile > 0 "
 	if sid != 0 {
 		query += fmt.Sprintf(" AND s.id != %d", sid)
 	}
@@ -452,6 +453,7 @@ func getRecommendIds(db *sql.DB, seq, num, sid int64) (ids []int64, nextseq int6
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
 	}
+	query += " AND s.deleted = 0 AND m.smile > 0 "
 	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
 	rows, err := db.Query(query)
 	if err != nil {

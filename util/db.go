@@ -30,7 +30,7 @@ func InitDB(readonly bool) (*sql.DB, error) {
 
 //InitDBParam init mysql connection with params
 func InitDBParam(access, host string) (*sql.DB, error) {
-	dsn := access + "@tcp(" + host + ":3306)/laughing?charset=utf8"
+	dsn := access + "@tcp(" + host + ":3306)/laughing?charset=utf8mb4"
 	return sql.Open("mysql", dsn)
 }
 
