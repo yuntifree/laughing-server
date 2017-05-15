@@ -8,7 +8,6 @@ import (
 	"laughing-server/ucloud"
 	"laughing-server/util"
 	"log"
-	"time"
 )
 
 const (
@@ -202,42 +201,14 @@ func getShares(db *sql.DB, uid, seq, num, id int64) (infos []*share.ShareInfo, n
 	return
 }
 
-type tagCache struct {
-	expired int64
-	infos   []*share.TagInfo
-}
-
-var tc tagCache
-
 func getRecommendTag(db *sql.DB) *share.TagInfo {
-	cnt := len(tc.infos)
-	if cnt > 0 && tc.expired > time.Now().Unix() {
-		idx := int(util.Rand()) % cnt
-		return tc.infos[idx]
-	}
-	rows, err := db.Query("SELECT id, content, img FROM tags WHERE recommend = 1 AND deleted = 0")
+	var info share.TagInfo
+	err := db.QueryRow("SELECT id, content, img FROM tags WHERE recommend = 1 AND deleted = 0 LIMIT 1").Scan(&info.Id, &info.Content, &info.Img)
 	if err != nil {
 		log.Printf("getRecommendTag failed:%v", err)
+		return nil
 	}
-	var tags []*share.TagInfo
-	defer rows.Close()
-	for rows.Next() {
-		var info share.TagInfo
-		err = rows.Scan(&info.Id, &info.Content, &info.Img)
-		if err != nil {
-			continue
-		}
-		tags = append(tags, &info)
-	}
-	tc.infos = tags
-	tc.expired = time.Now().Unix() + interval
-
-	cnt = len(tc.infos)
-	if cnt > 0 {
-		idx := int(util.Rand()) % cnt
-		return tc.infos[idx]
-	}
-	return nil
+	return &info
 }
 
 func genCommentQuery(id, seq, num int64) string {
