@@ -31,7 +31,7 @@ func getTags(db *sql.DB) []*share.TagInfo {
 
 func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
 	var infos []*share.TagInfo
-	rows, err := db.Query("SELECT id, content, img, recommend FROM tags WHERE deleted = 0 ORDER BY id DESC LIMIT ?, ?", seq, num)
+	rows, err := db.Query("SELECT id, content, img, recommend, hot FROM tags WHERE deleted = 0 ORDER BY id DESC LIMIT ?, ?", seq, num)
 	if err != nil {
 		log.Printf("fetchTags query failed:%v", err)
 		return infos
@@ -40,7 +40,8 @@ func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
 	defer rows.Close()
 	for rows.Next() {
 		var info share.TagInfo
-		err := rows.Scan(&info.Id, &info.Content, &info.Img, &info.Recommend)
+		err := rows.Scan(&info.Id, &info.Content, &info.Img, &info.Recommend,
+			&info.Hot)
 		if err != nil {
 			log.Printf("fetchTags scan failed:%v", err)
 			continue
@@ -61,14 +62,21 @@ func getTotalTags(db *sql.DB) int64 {
 }
 
 func addTag(db *sql.DB, info *share.TagInfo) (id int64, err error) {
-	res, err := db.Exec("INSERT INTO tags(content, img, recommend, ctime) VALUES (?, ?, ?, NOW())",
-		info.Content, info.Img, info.Recommend)
+	res, err := db.Exec("INSERT INTO tags(content, img, recommend, hot, ctime) VALUES (?, ?, ?, ?, NOW())",
+		info.Content, info.Img, info.Recommend, info.Hot)
 	if err != nil {
 		log.Printf("addTag err:%s %v", info.Content, err)
 		return 0, err
 	}
 
 	id, err = res.LastInsertId()
+	if info.Recommend == 1 {
+		_, err = db.Exec("UPDATE tags SET recommend = 0 WHERE id != ?", id)
+		if err != nil {
+			log.Printf("addTag update failed:%v", err)
+		}
+
+	}
 	return
 }
 
@@ -91,7 +99,18 @@ func delTags(db *sql.DB, ids []int64) error {
 }
 
 func modTag(db *sql.DB, info *share.TagInfo) error {
-	_, err := db.Exec("UPDATE tags SET img = ?, content = ?, recommend = ? WHERE id = ?",
-		info.Img, info.Content, info.Recommend, info.Id)
+	_, err := db.Exec("UPDATE tags SET img = ?, content = ?, recommend = ?, hot = ? WHERE id = ?",
+		info.Img, info.Content, info.Recommend, info.Hot, info.Id)
+	if err != nil {
+		log.Printf("modTag query failed:%v", err)
+		return err
+	}
+	if info.Recommend == 1 {
+		_, err := db.Exec("UPDATE tags SET recommend = 0 WHERE id != ?", info.Id)
+		if err != nil {
+			log.Printf("modTag update recommend failed:%v", err)
+			return err
+		}
+	}
 	return err
 }

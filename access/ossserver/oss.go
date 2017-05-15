@@ -64,12 +64,13 @@ func addTag(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	content := req.GetParamString("content")
 	img := req.GetParamString("img")
 	recommend := req.GetParamIntDef("recommend", 0)
+	hot := req.GetParamIntDef("hot", 0)
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "AddTag",
 		&share.TagRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Info: &share.TagInfo{Content: content, Img: img,
-				Recommend: recommend}})
+				Recommend: recommend, Hot: hot}})
 
 	httpserver.CheckRPCErr(rpcerr, "AddTags")
 	res := resp.Interface().(*common.CommReply)
@@ -87,13 +88,14 @@ func modTag(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	content := req.GetParamString("content")
 	img := req.GetParamString("img")
 	recommend := req.GetParamInt("recommend")
+	hot := req.GetParamInt("hot")
 	id := req.GetParamInt("id")
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "ModTag",
 		&share.TagRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Info: &share.TagInfo{Content: content, Img: img,
-				Recommend: recommend, Id: id}})
+				Recommend: recommend, Id: id, Hot: hot}})
 
 	httpserver.CheckRPCErr(rpcerr, "ModTag")
 	res := resp.Interface().(*common.CommReply)

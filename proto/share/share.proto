@@ -30,6 +30,7 @@ message TagInfo {
     string content = 2;
     string img = 3;
     int64 recommend = 4;
+    int64 hot = 5;
 }
 
 message TagRequest {
