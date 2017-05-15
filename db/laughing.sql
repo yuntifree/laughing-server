@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS users
     language    varchar(36) NOT NULL DEFAULT '',
     os      varchar(36) NOT NULL DEFAULT '',
     version int unsigned NOT NULL DEFAULT 0,
+    admin   tinyint unsigned NOT NULL DEFAULT 0,
     PRIMARY KEY(uid),
     KEY(fb_id)
 ) ENGINE = InnoDB;

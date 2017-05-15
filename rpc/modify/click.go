@@ -51,5 +51,29 @@ func addReport(db *sql.DB, uid, sid int64) error {
 			return err
 		}
 	}
+	var admin int64
+	err = db.QueryRow("SELECT admin FROM user WHERE uid = ?", uid).Scan(&admin)
+	if err != nil {
+		log.Printf("addReport query admin failed:%v", err)
+		return nil
+	}
+	if admin > 0 {
+		_, err := db.Exec("UPDATE shares SET deleted = 1 WHERE id = ?", sid)
+		if err != nil {
+			log.Printf("addReport delete share failed:%d %v", sid, err)
+			return nil
+		}
+		var euid int64
+		err = db.QueryRow("SELECT uid FROM shares WHERE id = ?", sid).Scan(&euid)
+		if err != nil {
+			log.Printf("addReport get share owner failed:%d %v", sid, err)
+			return nil
+		}
+		_, err = db.Exec("UPDATE users SET videos = IF(videos > 1, videos-1, 0) WHERE uid = ?", euid)
+		if err != nil {
+			log.Printf("addReport update user videos failed:%d %v", euid, err)
+			return nil
+		}
+	}
 	return nil
 }
