@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"laughing-server/proto/share"
 	"laughing-server/ucloud"
+	"laughing-server/util"
 	"log"
 )
 
@@ -99,8 +100,9 @@ func delTags(db *sql.DB, ids []int64) error {
 }
 
 func modTag(db *sql.DB, info *share.TagInfo) error {
+	img := util.ExtractFilename(info.Img)
 	_, err := db.Exec("UPDATE tags SET img = ?, content = ?, recommend = ?, hot = ? WHERE id = ?",
-		info.Img, info.Content, info.Recommend, info.Hot, info.Id)
+		img, info.Content, info.Recommend, info.Hot, info.Id)
 	if err != nil {
 		log.Printf("modTag query failed:%v", err)
 		return err

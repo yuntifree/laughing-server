@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"laughing-server/proto/user"
 	"laughing-server/ucloud"
+	"laughing-server/util"
 	"log"
+	"strings"
 )
 
 func getInfo(db *sql.DB, uid, tuid int64) (info user.Info, err error) {
@@ -20,9 +22,21 @@ func getInfo(db *sql.DB, uid, tuid int64) (info user.Info, err error) {
 	return
 }
 
+func isFacebookHead(url string) bool {
+	pos := strings.Index(url, "facebook")
+	if pos != -1 {
+		return true
+	}
+	return false
+}
+
 func modInfo(db *sql.DB, info *user.Info) error {
+	head := info.Headurl
+	if !isFacebookHead(info.Headurl) {
+		head = util.ExtractFilename(info.Headurl)
+	}
 	_, err := db.Exec("UPDATE users SET headurl = ?, nickname = ?, recommend = ? WHERE uid = ?",
-		info.Headurl, info.Nickname, info.Recommend, info.Id)
+		head, info.Nickname, info.Recommend, info.Id)
 	return err
 }
 

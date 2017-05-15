@@ -96,3 +96,13 @@ func NewGrpcServer() *grpc.Server {
 	s := grpc.NewServer(uIntOpt, sIntOpt)
 	return s
 }
+
+//ExtractFilename extract filename from url
+func ExtractFilename(url string) string {
+	filename := url
+	pos := strings.LastIndex(url, "/")
+	if pos != -1 {
+		filename = url[pos+1:]
+	}
+	return filename
+}
