@@ -1,4 +1,4 @@
-RPCLIST="discover modify verify user fan limit share"
+RPCLIST="discover modify verify user fan limit share config"
 HTTPLIST="appserver"
 for srv in $HTTPLIST; do
     go build ../access/$srv
