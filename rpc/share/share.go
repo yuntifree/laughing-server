@@ -114,7 +114,7 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 }
 
 func genShareTagQuery(uid, seq, num, id int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile FROM shares s, users u, media m, media_tags t  WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND m.smile != 0 "
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile, s.review FROM shares s, users u, media m, media_tags t  WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND m.smile != 0 AND s.sid = 0 "
 	query += fmt.Sprintf(" AND t.tid = %d", id)
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
@@ -124,7 +124,7 @@ func genShareTagQuery(uid, seq, num, id int64) string {
 }
 
 func genShareQuery(uid, tuid, seq, num int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile, s.review FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
 	if uid != 0 && tuid == 0 {
 		query += fmt.Sprintf(" AND (s.uid IN (SELECT tuid FROM follower WHERE uid = %d ) OR s.uid = %d) ", uid, uid)
 	} else if tuid == 0 {
@@ -157,7 +157,7 @@ func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareI
 		var mid int64
 		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
 			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
-			&info.Height, &mid, &info.Smile)
+			&info.Height, &mid, &info.Smile, &info.Review)
 		if err != nil {
 			log.Printf("getMyShare scan failed:%v", err)
 			continue
@@ -189,7 +189,7 @@ func getShares(db *sql.DB, uid, seq, num, id int64) (infos []*share.ShareInfo, n
 		var mid int64
 		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
 			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
-			&info.Height, &mid, &info.Smile)
+			&info.Height, &mid, &info.Smile, &info.Review)
 		if err != nil {
 			log.Printf("getShare scan failed:%v", err)
 			continue
@@ -209,6 +209,7 @@ func getRecommendTag(db *sql.DB) *share.TagInfo {
 		log.Printf("getRecommendTag failed:%v", err)
 		return nil
 	}
+	info.Img = ucloud.GenImgThumb(info.Img)
 	return &info
 }
 
@@ -381,7 +382,7 @@ func getShareIds(db *sql.DB, seq, num, tag, sid int64) (ids []int64, nextseq, ne
 	} else {
 		query = fmt.Sprintf("SELECT s.id FROM shares s, media m, media_tags t WHERE s.mid = m.id AND m.id = t.mid AND t.tid = %d", tag)
 	}
-	query += " AND s.deleted = 0 AND m.smile > 0 "
+	query += " AND s.sid = 0 AND s.deleted = 0 AND m.smile > 0 "
 	if sid != 0 {
 		query += fmt.Sprintf(" AND s.id != %d", sid)
 	}
@@ -425,7 +426,7 @@ func getRecommendIds(db *sql.DB, seq, num, sid int64) (ids []int64, nextseq int6
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
 	}
-	query += " AND s.deleted = 0 AND m.smile > 0 "
+	query += " AND s.sid = 0 AND s.deleted = 0 AND m.smile > 0 "
 	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
 	rows, err := db.Query(query)
 	if err != nil {
@@ -464,7 +465,7 @@ func getRecommendShares(db *sql.DB, uid, tag, sid int64) (infos []*share.ShareDe
 }
 
 func fetchShares(db *sql.DB, seq, num, rtype int64) []*share.ShareInfo {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0"
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND s.sid = 0 "
 	query += fmt.Sprintf(" AND review = %d", rtype)
 	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d, %d", seq, num)
 	rows, err := db.Query(query)
