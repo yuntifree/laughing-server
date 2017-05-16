@@ -36,7 +36,10 @@ go get github.com/coreos/etcd/clientv3
 go get gopkg.in/redis.v5
 go get github.com/go-sql-driver/mysql
 go get github.com/mercari/go-grpc-interceptor/panichandler
-github.com/satori/go.uuid
+go get github.com/satori/go.uuid
+go get github.com/PuerkitoBio/goquery
+go get github.com/gorilla/mux
+
 
 #etcd
 cd /data/etcd
