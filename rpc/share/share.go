@@ -209,6 +209,7 @@ func getRecommendTag(db *sql.DB) *share.TagInfo {
 		log.Printf("getRecommendTag failed:%v", err)
 		return nil
 	}
+	info.Img = ucloud.GenImgThumb(info.Img)
 	return &info
 }
 
