@@ -85,6 +85,7 @@ message ShareInfo {
     int64 height = 10;
     string tags = 11;
     int64 smile = 12;
+    int64 review = 13;
 }
 
 message ShareReply {
