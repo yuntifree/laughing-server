@@ -114,7 +114,7 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 }
 
 func genShareTagQuery(uid, seq, num, id int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile, s.review FROM shares s, users u, media m, media_tags t  WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND m.smile != 0 "
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile, s.review FROM shares s, users u, media m, media_tags t  WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND m.smile != 0 AND s.sid = 0 "
 	query += fmt.Sprintf(" AND t.tid = %d", id)
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
@@ -382,7 +382,7 @@ func getShareIds(db *sql.DB, seq, num, tag, sid int64) (ids []int64, nextseq, ne
 	} else {
 		query = fmt.Sprintf("SELECT s.id FROM shares s, media m, media_tags t WHERE s.mid = m.id AND m.id = t.mid AND t.tid = %d", tag)
 	}
-	query += " AND s.deleted = 0 AND m.smile > 0 "
+	query += " AND s.sid = 0 AND s.deleted = 0 AND m.smile > 0 "
 	if sid != 0 {
 		query += fmt.Sprintf(" AND s.id != %d", sid)
 	}
@@ -426,7 +426,7 @@ func getRecommendIds(db *sql.DB, seq, num, sid int64) (ids []int64, nextseq int6
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
 	}
-	query += " AND s.deleted = 0 AND m.smile > 0 "
+	query += " AND s.sid = 0 AND s.deleted = 0 AND m.smile > 0 "
 	query += fmt.Sprintf(" ORDER BY s.id DESC LIMIT %d", num)
 	rows, err := db.Query(query)
 	if err != nil {
