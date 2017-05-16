@@ -15,12 +15,13 @@ import (
 
 const (
 	//Bucket ucloud file bucket
-	Bucket    = "laugh"
-	host      = "http://laugh.us-ca.ufileos.com"
-	cdn       = "http://laugh.us-ca.ufileos.com"
-	pubkey    = "qVEFK9wRsdWqMols6VCfijDQ/dYp+xK4BHUChSj4Aauwg2QcsI6tyQ=="
-	privkey   = "ef547cd0481874c18258e460f9d6a1582bd1d57e"
-	thumbnail = "?iopcmd=thumbnail&type=4&width=400"
+	Bucket        = "laugh"
+	host          = "http://laugh.us-ca.ufileos.com"
+	cdn           = "http://laugh.us-ca.ufileos.com"
+	pubkey        = "qVEFK9wRsdWqMols6VCfijDQ/dYp+xK4BHUChSj4Aauwg2QcsI6tyQ=="
+	privkey       = "ef547cd0481874c18258e460f9d6a1582bd1d57e"
+	thumbnail     = "?iopcmd=thumbnail&type=4&width=400"
+	headThumbnail = "?iopcmd=thumbnail&type=4&width=200"
 )
 
 func genSign(content, key string) string {
@@ -39,6 +40,11 @@ func GetThumbnailURL(filename string) string {
 	return cdn + "/" + filename + thumbnail
 }
 
+//GetHeadThumbnailURL get headurl cdn thumbnail url
+func GetHeadThumbnailURL(filename string) string {
+	return cdn + "/" + filename + headThumbnail
+}
+
 //GenHeadurl generate proper headurl
 func GenHeadurl(head string) string {
 	if head == "" {
@@ -48,6 +54,28 @@ func GenHeadurl(head string) string {
 		return head
 	}
 	return GetCdnURL(head)
+}
+
+//GenHeadThumb generate proper headurl thumbnail
+func GenHeadThumb(head string) string {
+	if head == "" {
+		return ""
+	}
+	if strings.Index(head, "/") != -1 {
+		return head
+	}
+	return GetHeadThumbnailURL(head)
+}
+
+//GenImgThumb generate image thumbnail
+func GenImgThumb(head string) string {
+	if head == "" {
+		return ""
+	}
+	if strings.Index(head, "/") != -1 {
+		return head
+	}
+	return GetThumbnailURL(head)
 }
 
 //PutFile put file to bucket

@@ -163,8 +163,8 @@ func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareI
 			continue
 		}
 		nextseq = info.Id
-		info.Headurl = ucloud.GenHeadurl(info.Headurl)
-		info.Img = ucloud.GetThumbnailURL(info.Img)
+		info.Headurl = ucloud.GenHeadThumb(info.Headurl)
+		info.Img = ucloud.GenImgThumb(info.Img)
 		infos = append(infos, &info)
 	}
 	return
@@ -195,7 +195,8 @@ func getShares(db *sql.DB, uid, seq, num, id int64) (infos []*share.ShareInfo, n
 			continue
 		}
 		nextseq = info.Id
-		info.Img = ucloud.GetThumbnailURL(info.Img)
+		info.Img = ucloud.GenImgThumb(info.Img)
+		info.Headurl = ucloud.GenHeadThumb(info.Headurl)
 		infos = append(infos, &info)
 	}
 	return
