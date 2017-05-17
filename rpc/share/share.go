@@ -130,7 +130,7 @@ func genShareQuery(uid, tuid, seq, num int64) string {
 	} else if tuid == 0 {
 		query += " AND u.recommend = 1 "
 	}
-	if uid != tuid {
+	if uid != tuid || (uid == 0 && tuid == 0) {
 		query += fmt.Sprintf(" AND m.smile != 0 ")
 	}
 	if seq != 0 {
