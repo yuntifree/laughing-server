@@ -193,6 +193,16 @@ func (s *server) FetchShares(ctx context.Context, in *common.CommRequest) (*shar
 		Infos: infos, Total: total}, nil
 }
 
+func (s *server) SearchShare(ctx context.Context, in *common.CommRequest) (*share.ShareReply, error) {
+	log.Printf("SearchShares request:%v", in)
+	util.PubRPCRequest(w, "share", "SearchShare")
+	infos := searchShares(db, in.Id)
+	util.PubRPCSuccRsp(w, "share", "SearchShare")
+	return &share.ShareReply{
+		Head:  &common.Head{Retcode: 0, Uid: in.Head.Uid},
+		Infos: infos}, nil
+}
+
 func (s *server) GetShareIds(ctx context.Context, in *common.CommRequest) (*share.ShareIdReply, error) {
 	log.Printf("GetShareIds request:%v", in)
 	util.PubRPCRequest(w, "share", "GetShareIds")

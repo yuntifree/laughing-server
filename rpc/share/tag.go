@@ -11,7 +11,7 @@ import (
 
 func getTags(db *sql.DB) []*share.TagInfo {
 	var infos []*share.TagInfo
-	rows, err := db.Query("SELECT id, content FROM tags WHERE deleted = 0 AND hot = 1")
+	rows, err := db.Query("SELECT id, content FROM tags WHERE deleted = 0 AND hot = 1 ORDER BY priority DESC")
 	if err != nil {
 		log.Printf("getTags query failed:%v", err)
 		return infos
@@ -32,7 +32,7 @@ func getTags(db *sql.DB) []*share.TagInfo {
 
 func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
 	var infos []*share.TagInfo
-	rows, err := db.Query("SELECT id, content, img, recommend, hot FROM tags WHERE deleted = 0 ORDER BY id DESC LIMIT ?, ?", seq, num)
+	rows, err := db.Query("SELECT id, content, img, recommend, hot, priority FROM tags WHERE deleted = 0 ORDER BY id DESC LIMIT ?, ?", seq, num)
 	if err != nil {
 		log.Printf("fetchTags query failed:%v", err)
 		return infos
@@ -42,7 +42,7 @@ func fetchTags(db *sql.DB, seq, num int64) []*share.TagInfo {
 	for rows.Next() {
 		var info share.TagInfo
 		err := rows.Scan(&info.Id, &info.Content, &info.Img, &info.Recommend,
-			&info.Hot)
+			&info.Hot, &info.Priority)
 		if err != nil {
 			log.Printf("fetchTags scan failed:%v", err)
 			continue

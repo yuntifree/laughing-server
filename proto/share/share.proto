@@ -23,6 +23,7 @@ service Share{
     rpc ReviewShare(ReviewShareRequest) returns (common.CommReply) {}
     rpc AddShareTags(AddTagRequest) returns (common.CommReply) {}
     rpc ModTag(TagRequest) returns (common.CommReply) {}
+    rpc SearchShare(common.CommRequest) returns (ShareReply) {}
 }
 
 message TagInfo {
@@ -31,6 +32,7 @@ message TagInfo {
     string img = 3;
     int64 recommend = 4;
     int64 hot = 5;
+    int64 priority = 6;
 }
 
 message TagRequest {
@@ -86,6 +88,7 @@ message ShareInfo {
     string tags = 11;
     int64 smile = 12;
     int64 review = 13;
+    repeated TagInfo taginfo = 14;
 }
 
 message ShareReply {

@@ -484,9 +484,36 @@ func fetchShares(db *sql.DB, seq, num, rtype int64) []*share.ShareInfo {
 			log.Printf("fetchShares scan failed:%v", err)
 			continue
 		}
-		info.Tags = getStrTags(db, mid)
 		info.Headurl = ucloud.GenHeadurl(info.Headurl)
 		info.Img = ucloud.GetCdnURL(info.Img)
+		info.Taginfo = getMediaTags(db, mid)
+		infos = append(infos, &info)
+	}
+	return infos
+}
+
+func searchShares(db *sql.DB, sid int64) []*share.ShareInfo {
+	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.id FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
+	query += fmt.Sprintf(" AND s.id = %d ORDER BY s.id DESC", sid)
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Printf("searchShares query failed:%v", err)
+		return nil
+	}
+	var infos []*share.ShareInfo
+	defer rows.Close()
+	for rows.Next() {
+		var info share.ShareInfo
+		var mid int64
+		err = rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
+			&info.Img, &info.Views, &info.Title, &info.Desc, &mid)
+		if err != nil {
+			log.Printf("searchShares scan failed:%v", err)
+			continue
+		}
+		info.Headurl = ucloud.GenHeadurl(info.Headurl)
+		info.Img = ucloud.GetCdnURL(info.Img)
+		info.Taginfo = getMediaTags(db, mid)
 		infos = append(infos, &info)
 	}
 	return infos
