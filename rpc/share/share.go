@@ -16,18 +16,12 @@ const (
 )
 
 func addMediaTags(db *sql.DB, mid int64, tags []int64) {
-	query := "INSERT INTO media_tags(mid, tid) VALUES "
 	for i := 0; i < len(tags); i++ {
-		if i == len(tags)-1 {
-			query += fmt.Sprintf(" (%d, %d)", mid, tags[i])
-		} else {
-			query += fmt.Sprintf(" (%d, %d),", mid, tags[i])
+		_, err := db.Exec("INSERT INTO media_tags(mid, tid, ctime) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE deleted = 0", mid, tags[i])
+		if err != nil {
+			log.Printf("addMediaTags failed:%v", err)
+			continue
 		}
-	}
-	_, err := db.Exec(query)
-	log.Printf("addMediaTags query:%s", query)
-	if err != nil {
-		log.Printf("addMediaTags query failed:%v", err)
 	}
 }
 
@@ -602,6 +596,10 @@ func reviewShare(db *sql.DB, in *share.ReviewShareRequest) {
 
 func addShareTag(db *sql.DB, id int64, tags []int64) {
 	mid := getShareMid(db, id)
+	_, err := db.Exec("UPDATE media_tags SET deleted = 1 WHERE mid = ?", mid)
+	if err != nil {
+		log.Printf("addShareTag delete old tag failed:%v", err)
+	}
 	if mid > 0 {
 		addMediaTags(db, mid, tags)
 	}
