@@ -240,7 +240,7 @@ func getShareComments(db *sql.DB, id, seq, num int64) (infos []*share.CommentInf
 }
 
 func getMediaTags(db *sql.DB, id int64) []*share.TagInfo {
-	rows, err := db.Query("SELECT t.id, t.content FROM media_tags m, tags t WHERE m.tid = t.id AND m.mid = ?", id)
+	rows, err := db.Query("SELECT t.id, t.content FROM media_tags m, tags t WHERE m.tid = t.id AND m.deleted = 0 AND m.mid = ?", id)
 	if err != nil {
 		log.Printf("getMediaTags query failed:%v", err)
 		return nil
