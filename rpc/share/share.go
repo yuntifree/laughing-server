@@ -556,7 +556,7 @@ func reviewShare(db *sql.DB, in *share.ReviewShareRequest) {
 			return
 		}
 	}
-	if in.Smile > 0 {
+	if in.Smile >= 0 {
 		var mid int64
 		err := db.QueryRow("SELECT mid FROM shares WHERE id = ?", in.Id).Scan(&mid)
 		if err != nil {
