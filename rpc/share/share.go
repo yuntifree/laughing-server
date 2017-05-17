@@ -459,6 +459,7 @@ func getRecommendShares(db *sql.DB, uid, tag, sid int64) (infos []*share.ShareDe
 		if err != nil {
 			continue
 		}
+		info.Img = info.Img + ucloud.Thumbnail
 		infos = append(infos, &info)
 	}
 	return infos, nil
