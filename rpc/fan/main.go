@@ -25,6 +25,11 @@ var w *nsq.Producer
 func (s *server) Follow(ctx context.Context, in *fan.FanRequest) (*common.CommReply, error) {
 	log.Printf("Follow request:%v", in)
 	util.PubRPCRequest(w, "fan", "Follow")
+	if in.Head.Uid == in.Tuid {
+		log.Printf("Follow illegal same uid:%d", in.Head.Uid)
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_FOLLOW, Uid: in.Head.Uid}}, nil
+	}
 	flag := follow(db, in.Type, in.Head.Uid, in.Tuid)
 	if !flag {
 		return &common.CommReply{
