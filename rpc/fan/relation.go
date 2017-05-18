@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"laughing-server/proto/fan"
+	"laughing-server/ucloud"
 	"log"
 )
 
@@ -69,6 +70,7 @@ func getRelations(db *sql.DB, uid, tuid, rtype, seq, num int64) ([]*fan.UserInfo
 		} else {
 			info.Hasfollow = 0
 		}
+		info.Headurl = ucloud.GenHeadThumb(info.Headurl)
 		infos = append(infos, &info)
 	}
 	return infos, nextseq
