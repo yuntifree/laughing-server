@@ -76,7 +76,7 @@ func reshare(db *sql.DB, uid, sid int64) (id int64, err error) {
 		return
 	}
 
-	res, err := db.Exec("INSERT INTO shares (uid, mid, sid, ctime) VALUES (?, ?, ?,  NOW())",
+	res, err := db.Exec("INSERT INTO shares (uid, mid, sid, review, ctime) VALUES (?, ?, ?, 1, NOW())",
 		uid, mid, sid)
 	if err != nil {
 		return
