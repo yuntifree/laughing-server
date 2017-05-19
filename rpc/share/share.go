@@ -566,7 +566,7 @@ func reviewShare(db *sql.DB, in *share.ReviewShareRequest) {
 	}
 
 	if in.Modify > 0 {
-		_, err := db.Exec("UPDATE shares SET review = 1, title = ? WHERE id = ?", in.Title, in.Id)
+		_, err := db.Exec("UPDATE shares SET review = 1 WHERE id = ?", in.Id)
 		if err != nil {
 			log.Printf("reviewShare update shares failed:%v", err)
 			return
@@ -578,18 +578,22 @@ func reviewShare(db *sql.DB, in *share.ReviewShareRequest) {
 			return
 		}
 	}
-	if in.Smile >= 0 {
-		var mid int64
-		err := db.QueryRow("SELECT mid FROM shares WHERE id = ?", in.Id).Scan(&mid)
-		if err != nil {
-			log.Printf("reviewShare get media id failed:%v", err)
-			return
-		}
-		_, err = db.Exec("UPDATE media SET smile = ? WHERE id = ?", in.Smile, mid)
-		if err != nil {
-			log.Printf("reviewShare set smile failed:%v", err)
-			return
-		}
+	var mid int64
+	err := db.QueryRow("SELECT mid FROM shares WHERE id = ?", in.Id).Scan(&mid)
+	if err != nil {
+		log.Printf("reviewShare get media id failed:%v", err)
+		return
+	}
+	if in.Modify > 0 {
+		_, err = db.Exec("UPDATE media SET smile = ?, title = ? WHERE id = ?",
+			in.Smile, in.Title, mid)
+	} else {
+		_, err = db.Exec("UPDATE media SET smile = ? WHERE id = ?",
+			in.Smile, mid)
+	}
+	if err != nil {
+		log.Printf("reviewShare set smile failed:%v", err)
+		return
 	}
 	return
 }
