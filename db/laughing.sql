@@ -121,8 +121,7 @@ CREATE TABLE IF NOT EXISTS shares
     review  tinyint unsigned NOT NULL DEFAULT 0,
     ctime   datetime NOT NULL DEFAULT '2017-01-01',
     PRIMARY KEY(id),
-    KEY(uid),
-    KEY(mid)
+    UNIQUE KEY(uid, mid)
 ) ENGINE = InnoDB;
 
 -- 评论

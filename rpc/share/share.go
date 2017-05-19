@@ -76,13 +76,27 @@ func reshare(db *sql.DB, uid, sid int64) (id int64, err error) {
 		return
 	}
 
-	res, err := db.Exec("INSERT INTO shares (uid, mid, sid, review, ctime) VALUES (?, ?, ?, 1, NOW())",
+	res, err := db.Exec("INSERT INTO shares (uid, mid, sid, review, ctime) VALUES (?, ?, ?, 1, NOW()) ON DUPLICATE KEY UPDATE deleted = 0",
 		uid, mid, sid)
 	if err != nil {
 		return
 	}
+	cnt, err := res.RowsAffected()
+	if err != nil {
+		log.Printf("reshare get rows affected failed:%d %d %v",
+			uid, sid, err)
+		return
+	}
+	if cnt == 0 {
+		return
+	}
 	id, err = res.LastInsertId()
 	if err != nil {
+		log.Printf("reshare get last insert id failed:%d %d %v",
+			uid, sid, err)
+		return
+	}
+	if id == 0 {
 		return
 	}
 	_, err = db.Exec("UPDATE shares SET reshare = reshare + 1 WHERE id = ?", sid)
@@ -331,40 +345,88 @@ func getShareDetail(db *sql.DB, uid, id int64) (info share.ShareDetail, err erro
 	return
 }
 
-func unshare(db *sql.DB, uid, sid int64) error {
-	res, err := db.Exec("UPDATE shares SET deleted = 1 WHERE uid = ? AND id = ?",
-		uid, sid)
+func deleteShareRecord(db *sql.DB, uid, mid int64) bool {
+	res, err := db.Exec("UPDATE shares SET deleted = 1 WHERE uid = ? AND mid = ?",
+		uid, mid)
 	if err != nil {
-		return err
+		log.Printf("deleteShareRecord update failed:%d %d %v",
+			uid, mid, err)
+		return false
 	}
 	cnt, err := res.RowsAffected()
 	if err != nil {
-		return err
+		log.Printf("deleteShareRecord get affect rows failed:%d %d %v",
+			uid, mid, err)
+		return false
 	}
 	if cnt > 0 {
-		_, err = db.Exec("UPDATE users SET videos = IF(videos > 0, videos-1, 0) WHERE uid = ?", uid)
-		if err != nil {
-			return err
-		}
+		return true
 	}
-	var euid, mid, orisid int64
-	err = db.QueryRow("SELECT m.id, m.uid, s.sid FROM media m, shares s WHERE s.mid = m.id AND s.id = ?", sid).Scan(&mid, &euid, &orisid)
+	return false
+}
+
+func decrUserVideo(db *sql.DB, uid int64) bool {
+	_, err := db.Exec("UPDATE users SET videos = IF(videos > 0, videos-1, 0) WHERE uid = ?", uid)
 	if err != nil {
-		log.Printf("unshare query euid failed:%v", err)
-		return err
+		log.Printf("decrUserVideo failed:%v", err)
+		return false
+	}
+	return true
+}
+
+func unshareMedia(db *sql.DB, mid int64) bool {
+	_, err := db.Exec("UPDATE media SET unshare = 1 WHERE id = ?", mid)
+	if err != nil {
+		log.Printf("unshare update media failed:%v", err)
+		return false
+	}
+	return true
+}
+
+func unshareOwner(db *sql.DB, uid, mid int64) {
+	if !deleteShareRecord(db, uid, mid) {
+		return
+	}
+	decrUserVideo(db, uid)
+	unshareMedia(db, mid)
+	return
+}
+
+func unshareOthers(db *sql.DB, uid, mid int64) {
+	if !deleteShareRecord(db, uid, mid) {
+		return
+	}
+	decrUserVideo(db, uid)
+	var orisid int64
+	err := db.QueryRow("SELECT sid FROM shares WHERE uid = ? AND mid = ?",
+		uid, mid).Scan(&orisid)
+	if err != nil {
+		log.Printf("unshareOther query origin sid failed:%d %d %v",
+			uid, mid, err)
+		return
 	}
 	if orisid != 0 {
 		_, err = db.Exec("UPDATE shares SET reshare = IF(reshare > 0, reshare-1, 0) WHERE id = ?", orisid)
 		if err != nil {
 			log.Printf("unshare minus origin sid reshare failed:%v", err)
-			return err
+			return
 		}
 	}
-	if euid == uid {
-		_, err = db.Exec("UPDATE media SET unshare = 1 WHERE id = ?", mid)
-		if err != nil {
-			log.Printf("unshare update media failed:%v", err)
-		}
+	return
+}
+
+func unshare(db *sql.DB, uid, sid int64) error {
+	var euid, mid int64
+	err := db.QueryRow("SELECT m.id, m.uid FROM media m, shares s WHERE s.mid = m.id AND s.id = ?", sid).Scan(&mid, &euid)
+	if err != nil {
+		log.Printf("unshare query euid failed:%v", err)
+		return err
+	}
+
+	if uid == euid {
+		unshareOwner(db, uid, mid)
+	} else {
+		unshareOthers(db, uid, mid)
 	}
 	return nil
 }
