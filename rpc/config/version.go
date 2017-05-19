@@ -7,7 +7,7 @@ import (
 )
 
 func checkUpdate(db *sql.DB, term, version int64) (vname, desc, title, subtitle, downurl string) {
-	err := db.QueryRow("SELECT vname, description, title, subtitle, downurl FROM app_version WHERE term = ? AND version > ? ORDER BY  version DESC LIMIT 1",
+	err := db.QueryRow("SELECT vname, description, title, subtitle, downurl FROM app_version WHERE term = ? AND version > ? AND online = 1 ORDER BY  version DESC LIMIT 1",
 		term, version).Scan(&vname, &desc, &title, &subtitle, &downurl)
 	if err != nil {
 		log.Printf("checkUpdate query failed:%v", err)
@@ -16,7 +16,7 @@ func checkUpdate(db *sql.DB, term, version int64) (vname, desc, title, subtitle,
 }
 
 func fetchVersions(db *sql.DB, seq, num int64) []*config.VersionInfo {
-	rows, err := db.Query("SELECT id, term, version, vname, title, subtitle, description, downurl FROM app_version WHERE deleted = 0 ORDER BY ID DESC LIMIT ?, ?",
+	rows, err := db.Query("SELECT id, term, version, vname, title, subtitle, description, downurl, online FROM app_version WHERE deleted = 0 ORDER BY ID DESC LIMIT ?, ?",
 		seq, num)
 	if err != nil {
 		log.Printf("fetchVersions query failed:%v", err)
@@ -28,7 +28,8 @@ func fetchVersions(db *sql.DB, seq, num int64) []*config.VersionInfo {
 	for rows.Next() {
 		var info config.VersionInfo
 		err := rows.Scan(&info.Id, &info.Term, &info.Version, &info.Vname,
-			&info.Title, &info.Subtitle, &info.Desc, &info.Downurl)
+			&info.Title, &info.Subtitle, &info.Desc, &info.Downurl,
+			&info.Online)
 		if err != nil {
 			log.Printf("fetchVersions scan failed:%v", err)
 			continue
@@ -60,4 +61,11 @@ func addVersion(db *sql.DB, info *config.VersionInfo) (id int64, err error) {
 		log.Printf("addVersion get insert id failed:%v", err)
 	}
 	return
+}
+
+func modVersion(db *sql.DB, info *config.VersionInfo) error {
+	_, err := db.Exec("UPDATE app_version SET term = ?, version = ?, vname = ?, title = ?, subtitle = ?, downurl = ?, description = ?, online = ? WHERE id = ?",
+		info.Term, info.Version, info.Vname, info.Title, info.Subtitle,
+		info.Downurl, info.Desc, info.Online, info.Id)
+	return err
 }

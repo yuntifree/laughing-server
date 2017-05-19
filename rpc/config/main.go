@@ -64,6 +64,20 @@ func (s *server) AddVersion(ctx context.Context, in *config.VersionRequest) (*co
 		Id:   id}, nil
 }
 
+func (s *server) ModVersion(ctx context.Context, in *config.VersionRequest) (*common.CommReply, error) {
+	log.Printf("ModVersion request:%v", in)
+	util.PubRPCRequest(w, "config", "ModVersion")
+	err := modVersion(db, in.Info)
+	if err != nil {
+		return &common.CommReply{
+			Head: &common.Head{Retcode: common.ErrCode_MOD_VERSION, Uid: in.Head.Uid},
+		}, nil
+	}
+	util.PubRPCSuccRsp(w, "config", "ModVersion")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ConfigServerPort)
 	if err != nil {
