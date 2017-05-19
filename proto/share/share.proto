@@ -66,6 +66,7 @@ message ShareRequest {
     string cdn = 12;
     int64 views = 13;
     int64 smile = 14;
+    int64 review = 15;
 }
 
 message CommentRequest {

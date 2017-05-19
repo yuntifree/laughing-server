@@ -176,7 +176,8 @@ func loadShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 		&share.ShareRequest{Head: &common.Head{Sid: uuid, Uid: uid},
 			Title: title, Img: img, Thumbnail: thumbnail,
 			Dst: dst, Tags: tags, Origin: origin, Src: src, Cdn: cdn,
-			Width: width, Height: height, Views: views, Smile: smile})
+			Width: width, Height: height, Views: views, Smile: smile,
+			Review: 1})
 
 	httpserver.CheckRPCErr(rpcerr, "AddShare")
 	res := resp.Interface().(*common.CommReply)

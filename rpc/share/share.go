@@ -44,8 +44,8 @@ func addShare(db *sql.DB, in *share.ShareRequest) (id int64, err error) {
 		addMediaTags(db, mid, in.Tags)
 	}
 
-	res, err = db.Exec("INSERT INTO shares(uid, mid, ctime) VALUES (?, ?, NOW())",
-		in.Head.Uid, mid)
+	res, err = db.Exec("INSERT INTO shares(uid, mid, review, ctime) VALUES (?, ?, ?, NOW())",
+		in.Head.Uid, mid, in.Review)
 	if err != nil {
 		return
 	}
