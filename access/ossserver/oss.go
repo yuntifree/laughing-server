@@ -89,13 +89,14 @@ func modTag(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	img := req.GetParamString("img")
 	recommend := req.GetParamInt("recommend")
 	hot := req.GetParamInt("hot")
+	priority := req.GetParamInt("priority")
 	id := req.GetParamInt("id")
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "ModTag",
 		&share.TagRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Info: &share.TagInfo{Content: content, Img: img,
-				Recommend: recommend, Id: id, Hot: hot}})
+				Recommend: recommend, Id: id, Hot: hot, Priority: priority}})
 
 	httpserver.CheckRPCErr(rpcerr, "ModTag")
 	res := resp.Interface().(*common.CommReply)

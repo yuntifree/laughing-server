@@ -101,8 +101,8 @@ func delTags(db *sql.DB, ids []int64) error {
 
 func modTag(db *sql.DB, info *share.TagInfo) error {
 	img := util.ExtractFilename(info.Img)
-	_, err := db.Exec("UPDATE tags SET img = ?, content = ?, recommend = ?, hot = ? WHERE id = ?",
-		img, info.Content, info.Recommend, info.Hot, info.Id)
+	_, err := db.Exec("UPDATE tags SET img = ?, content = ?, recommend = ?, hot = ?, priority = ? WHERE id = ?",
+		img, info.Content, info.Recommend, info.Hot, info.Priority, info.Id)
 	if err != nil {
 		log.Printf("modTag query failed:%v", err)
 		return err
