@@ -191,15 +191,15 @@ func modVersion(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) 
 	deleted := req.GetParamInt("deleted")
 
 	uuid := util.GenUUID()
-	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "AddVersion",
+	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "ModVersion",
 		&config.VersionRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
 			Info: &config.VersionInfo{Term: term, Version: version,
 				Vname: vname, Title: title, Subtitle: subtitle, Downurl: downurl,
 				Desc: desc, Id: id, Online: online, Deleted: deleted}})
 
-	httpserver.CheckRPCErr(rpcerr, "AddVersion")
+	httpserver.CheckRPCErr(rpcerr, "ModVersion")
 	res := resp.Interface().(*common.CommReply)
-	httpserver.CheckRPCCode(res.Head.Retcode, "AddVersion")
+	httpserver.CheckRPCCode(res.Head.Retcode, "ModVersion")
 
 	body := httpserver.GenResponseBody(res, false)
 	w.Write(body)
