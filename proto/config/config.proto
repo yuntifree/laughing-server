@@ -21,6 +21,7 @@ message VersionInfo {
     string desc = 7;
     string downurl = 8;
     int64 online = 9;
+    int64 deleted = 10;
 }
 
 message VersionReply {

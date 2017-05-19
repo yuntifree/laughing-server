@@ -7,7 +7,7 @@ import (
 )
 
 func checkUpdate(db *sql.DB, term, version int64) (vname, desc, title, subtitle, downurl string) {
-	err := db.QueryRow("SELECT vname, description, title, subtitle, downurl FROM app_version WHERE term = ? AND version > ? AND online = 1 ORDER BY  version DESC LIMIT 1",
+	err := db.QueryRow("SELECT vname, description, title, subtitle, downurl FROM app_version WHERE term = ? AND version > ? AND online = 1 AND deleted = 0 ORDER BY  version DESC LIMIT 1",
 		term, version).Scan(&vname, &desc, &title, &subtitle, &downurl)
 	if err != nil {
 		log.Printf("checkUpdate query failed:%v", err)
@@ -64,8 +64,8 @@ func addVersion(db *sql.DB, info *config.VersionInfo) (id int64, err error) {
 }
 
 func modVersion(db *sql.DB, info *config.VersionInfo) error {
-	_, err := db.Exec("UPDATE app_version SET term = ?, version = ?, vname = ?, title = ?, subtitle = ?, downurl = ?, description = ?, online = ? WHERE id = ?",
+	_, err := db.Exec("UPDATE app_version SET term = ?, version = ?, vname = ?, title = ?, subtitle = ?, downurl = ?, description = ?, online = ?, deleted = ? WHERE id = ?",
 		info.Term, info.Version, info.Vname, info.Title, info.Subtitle,
-		info.Downurl, info.Desc, info.Online, info.Id)
+		info.Downurl, info.Desc, info.Online, info.Deleted, info.Id)
 	return err
 }

@@ -176,6 +176,37 @@ func addVersion(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) 
 	return nil
 }
 
+func modVersion(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	id := req.GetParamInt("id")
+	term := req.GetParamInt("term")
+	version := req.GetParamInt("version")
+	vname := req.GetParamString("vname")
+	title := req.GetParamString("title")
+	subtitle := req.GetParamString("subtitle")
+	downurl := req.GetParamString("downurl")
+	desc := req.GetParamString("desc")
+	online := req.GetParamInt("online")
+	deleted := req.GetParamInt("deleted")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "AddVersion",
+		&config.VersionRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Info: &config.VersionInfo{Term: term, Version: version,
+				Vname: vname, Title: title, Subtitle: subtitle, Downurl: downurl,
+				Desc: desc, Id: id, Online: online, Deleted: deleted}})
+
+	httpserver.CheckRPCErr(rpcerr, "AddVersion")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "AddVersion")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 func getUsers(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.InitOss(r)
@@ -402,6 +433,7 @@ func NewOssServer() http.Handler {
 	mux.Handle("/mod_tag", httpserver.AppHandler(modTag))
 	mux.Handle("/del_tags", httpserver.AppHandler(delTags))
 	mux.Handle("/add_version", httpserver.AppHandler(addVersion))
+	mux.Handle("/mod_version", httpserver.AppHandler(modVersion))
 	mux.Handle("/get_versions", httpserver.AppHandler(getVersions))
 	mux.Handle("/get_shares", httpserver.AppHandler(getShares))
 	mux.Handle("/get_users", httpserver.AppHandler(getUsers))
