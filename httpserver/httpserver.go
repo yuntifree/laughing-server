@@ -28,14 +28,21 @@ import (
 )
 
 const (
+	//ErrOk success code
 	ErrOk = iota
+	//ErrMissParam miss parameter
 	ErrMissParam
+	//ErrInvalidParam invalid parameters
 	ErrInvalidParam
+	//ErrDatabase database operation failed
 	ErrDatabase
+	//ErrInner some unexpected inner failure
 	ErrInner
+	//ErrPanic some unexpected panic
 	ErrPanic
 )
 const (
+	//ErrToken illegal token
 	ErrToken = iota + 101
 )
 
@@ -64,7 +71,7 @@ func ReportRequest(uri string) {
 	method := extractAPIName(uri)
 	err := util.PubRequest(w, method)
 	if err != nil {
-		log.Printf("report request api:%s failed:%v", err)
+		log.Printf("report request api:%s failed:%v", method, err)
 	}
 	return
 }
@@ -74,7 +81,7 @@ func ReportSuccResp(uri string) {
 	method := extractAPIName(uri)
 	err := util.PubResponse(w, method, 0)
 	if err != nil {
-		log.Printf("report response api:%s failed:%v", err)
+		log.Printf("report response api:%s failed:%v", method, err)
 	}
 	return
 }
@@ -453,6 +460,7 @@ func CheckOssCookie(req *http.Request) bool {
 	return true
 }
 
+//InitOss init oss request
 func (r *Request) InitOss(req *http.Request) {
 	r.InitNoCheck(req)
 	r.Uid = getJSONInt(r.Post, "uid")
@@ -484,6 +492,7 @@ func (r *Request) Init(req *http.Request) {
 	}
 }
 
+//InitCheck init request and check token
 func (r *Request) InitCheck(req *http.Request) {
 	r.Init(req)
 	if r.Uid == 0 {
