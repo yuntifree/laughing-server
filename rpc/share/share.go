@@ -134,7 +134,7 @@ func genShareTagQuery(uid, seq, num, id int64) string {
 func genShareQuery(uid, tuid, seq, num int64) string {
 	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile, s.review FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
 	if uid != 0 && tuid == 0 {
-		query += fmt.Sprintf(" AND (s.uid IN (SELECT tuid FROM follower WHERE uid = %d ) OR s.uid = %d) ", uid, uid)
+		query += fmt.Sprintf(" AND (s.uid IN (SELECT tuid FROM follower WHERE uid = %d AND deleted = 0) OR s.uid = %d) ", uid, uid)
 	} else if tuid == 0 {
 		query += " AND u.recommend = 1 "
 	}
