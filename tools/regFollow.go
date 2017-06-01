@@ -44,6 +44,14 @@ func doFollow(msg *nsq.Message) {
 		log.Printf("get uid failed:%s %v", string(msg.Body), err)
 		return
 	}
+	if time.Now().After(loadTime.Add(1 * time.Hour)) {
+		recommendUids, err = getRecommendUids()
+		if err != nil {
+			log.Printf("getRecommendUids failed:%v", err)
+		} else {
+			loadTime = time.Now()
+		}
+	}
 	for i := 0; i < len(recommendUids); i++ {
 		follow(uid, recommendUids[i])
 	}
@@ -82,6 +90,7 @@ func getRecommendUids() ([]int64, error) {
 }
 
 var recommendUids []int64
+var loadTime time.Time
 
 func main() {
 	done := make(chan bool)
@@ -97,6 +106,7 @@ func main() {
 		log.Fatal(err)
 	}
 	recommendUids, err = getRecommendUids()
+	loadTime = time.Now()
 	if err != nil {
 		log.Printf("getRecommendUids failed:%v", err)
 		return
