@@ -325,7 +325,7 @@ func reviewShare(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 	modify := req.GetParamIntDef("modify", 0)
 	title := req.GetParamStringDef("title", "")
 	smile := req.GetParamIntDef("smile", 0)
-	views := req.GetParamIntDef("reviews", 0)
+	views := req.GetParamIntDef("views", 0)
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ShareServerType, req.Uid, "ReviewShare",

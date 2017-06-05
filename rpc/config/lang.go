@@ -95,7 +95,7 @@ func delLangFollow(db *sql.DB, ids []int64) error {
 	for i := 0; i < len(ids); i++ {
 		query += fmt.Sprintf("%d,", ids[i])
 	}
-	query += ",0)"
+	query += "0)"
 	_, err := db.Exec(query)
 	return err
 }
