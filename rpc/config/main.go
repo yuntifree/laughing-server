@@ -16,6 +16,10 @@ import (
 	redis "gopkg.in/redis.v5"
 )
 
+const (
+	emptyRespCode = 999
+)
+
 type server struct{}
 
 var db *sql.DB
@@ -82,6 +86,10 @@ func (s *server) FetchUserLang(ctx context.Context, in *common.CommRequest) (*co
 	log.Printf("FetchUserLang request:%v", in)
 	util.PubRPCRequest(w, "config", "FetchUserLang")
 	infos := fetchUserLang(db)
+	if len(infos) == 0 {
+		return &config.LangReply{
+			Head: &common.Head{Retcode: emptyRespCode, Uid: in.Head.Uid}}, nil
+	}
 	util.PubRPCSuccRsp(w, "config", "FetchUserLang")
 	return &config.LangReply{
 		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}, Infos: infos}, nil
@@ -119,6 +127,10 @@ func (s *server) FetchLangFollow(ctx context.Context, in *common.CommRequest) (*
 	log.Printf("FetchLangFollow request:%v", in)
 	util.PubRPCRequest(w, "config", "FetchLangFollow")
 	infos := fetchLangFollow(db)
+	if len(infos) == 0 {
+		return &config.LangFollowReply{
+			Head: &common.Head{Retcode: emptyRespCode, Uid: in.Head.Uid}}, nil
+	}
 	util.PubRPCSuccRsp(w, "config", "FetchLangFollow")
 	return &config.LangFollowReply{
 		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}, Infos: infos}, nil
