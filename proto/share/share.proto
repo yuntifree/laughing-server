@@ -179,6 +179,7 @@ message ReviewShareRequest {
     int64 modify = 4;
     string title = 5;
     int64 smile = 6;
+    int64 views = 7;
 }
 
 message AddTagRequest {

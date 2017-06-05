@@ -647,11 +647,11 @@ func reviewShare(db *sql.DB, in *share.ReviewShareRequest) {
 		return
 	}
 	if in.Modify > 0 {
-		_, err = db.Exec("UPDATE media SET smile = ?, title = ? WHERE id = ?",
-			in.Smile, in.Title, mid)
+		_, err = db.Exec("UPDATE media SET smile = ?, title = ?, views = IF(? > 0, ?, views) WHERE id = ?",
+			in.Smile, in.Title, in.Views, in.Views, mid)
 	} else {
-		_, err = db.Exec("UPDATE media SET smile = ? WHERE id = ?",
-			in.Smile, mid)
+		_, err = db.Exec("UPDATE media SET smile = ?, views = IF(? > 0, ?, views) WHERE id = ?",
+			in.Smile, in.Views, in.Views, mid)
 	}
 	if err != nil {
 		log.Printf("reviewShare set smile failed:%v", err)
