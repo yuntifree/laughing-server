@@ -507,7 +507,7 @@ func addLangFollow(w http.ResponseWriter, r *http.Request) (apperr *util.AppErro
 	var req httpserver.Request
 	req.InitOss(r)
 	lid := req.GetParamInt("lid")
-	uids := req.GetParamIntArray("uids")
+	uids := req.GetParamWrapIntArray("uids")
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "AddLangFollow",
@@ -527,7 +527,7 @@ func addLangFollow(w http.ResponseWriter, r *http.Request) (apperr *util.AppErro
 func delLangFollow(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	var req httpserver.Request
 	req.InitOss(r)
-	ids := req.GetParamIntArray("ids")
+	ids := req.GetParamWrapIntArray("ids")
 
 	uuid := util.GenUUID()
 	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "DelLangFollow",
