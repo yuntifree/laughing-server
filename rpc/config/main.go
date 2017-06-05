@@ -78,6 +78,43 @@ func (s *server) ModVersion(ctx context.Context, in *config.VersionRequest) (*co
 		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
 }
 
+func (s *server) FetchUserLang(ctx context.Context, in *common.CommRequest) (*config.LangReply, error) {
+	log.Printf("FetchUserLang request:%v", in)
+	util.PubRPCRequest(w, "config", "FetchUserLang")
+	infos := fetchUserLang(db)
+	util.PubRPCSuccRsp(w, "config", "FetchUserLang")
+	return &config.LangReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}, Infos: infos}, nil
+}
+
+func (s *server) AddUserLang(ctx context.Context, in *config.LangRequest) (*common.CommReply, error) {
+	log.Printf("AddUserLang request:%v", in)
+	util.PubRPCRequest(w, "config", "AddUserLang")
+	id, err := addUserLang(db, in.Info)
+	if err != nil {
+		log.Printf("AddUserLang failed:%v", err)
+		return &common.CommReply{
+			Head: &common.Head{Retcode: 1, Uid: in.Head.Uid}}, nil
+	}
+	util.PubRPCSuccRsp(w, "config", "AddUserLang")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}, Id: id}, nil
+}
+
+func (s *server) DelUserLang(ctx context.Context, in *common.CommRequest) (*common.CommReply, error) {
+	log.Printf("DelUserLang request:%v", in)
+	util.PubRPCRequest(w, "config", "DelUserLang")
+	err := delUserLang(db, in.Id)
+	if err != nil {
+		log.Printf("DelUserLang failed:%v", err)
+		return &common.CommReply{
+			Head: &common.Head{Retcode: 1, Uid: in.Head.Uid}}, nil
+	}
+	util.PubRPCSuccRsp(w, "config", "DelUserLang")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ConfigServerPort)
 	if err != nil {

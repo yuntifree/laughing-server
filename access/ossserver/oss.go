@@ -425,6 +425,65 @@ func uploadImg(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
 	return nil
 }
 
+func getUserLang(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "FetchUserLang",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid}})
+
+	httpserver.CheckRPCErr(rpcerr, "FetchUserLang")
+	res := resp.Interface().(*config.LangReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "FetchUserLang")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func addUserLang(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	lang := req.GetParamString("lang")
+	content := req.GetParamString("content")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "AddUserLang",
+		&config.LangRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Info: &config.LangInfo{Lang: lang, Content: content}})
+
+	httpserver.CheckRPCErr(rpcerr, "AddUserLang")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "AddUserLang")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func delUserLang(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	id := req.GetParamInt("id")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "DelUserLang",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Id: id})
+
+	httpserver.CheckRPCErr(rpcerr, "DelUserLang")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "DelUserLang")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewOssServer return oss http handler
 func NewOssServer() http.Handler {
 	mux := http.NewServeMux()
@@ -445,6 +504,9 @@ func NewOssServer() http.Handler {
 	mux.Handle("/add_share_tags", httpserver.AppHandler(addShareTags))
 	mux.Handle("/apply_img_upload", httpserver.AppHandler(applyImgUpload))
 	mux.Handle("/upload_img", httpserver.AppHandler(uploadImg))
+	mux.Handle("/get_user_lang", httpserver.AppHandler(getUserLang))
+	mux.Handle("/add_user_lang", httpserver.AppHandler(addUserLang))
+	mux.Handle("/del_user_lang", httpserver.AppHandler(delUserLang))
 	mux.Handle("/", http.FileServer(http.Dir("/data/laughing/oss")))
 	return mux
 }

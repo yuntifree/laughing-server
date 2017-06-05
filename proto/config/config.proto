@@ -9,6 +9,9 @@ service Config {
     rpc FetchVersions(common.CommRequest) returns (FetchVersionReply) {}
     rpc AddVersion(VersionRequest) returns (common.CommReply) {}
     rpc ModVersion(VersionRequest) returns (common.CommReply) {}
+    rpc FetchUserLang(common.CommRequest) returns (LangReply) {}
+    rpc AddUserLang(LangRequest) returns (common.CommReply) {}
+    rpc DelUserLang(common.CommRequest) returns (common.CommReply) {}
 }
 
 message VersionInfo {
@@ -42,4 +45,20 @@ message FetchVersionReply {
 message VersionRequest {
     common.Head head = 1;
     VersionInfo info = 2;
+}
+
+message LangInfo {
+    int64 id = 1;
+    string lang = 2;
+    string content = 3;
+}
+
+message LangReply {
+    common.Head head = 1;
+    repeated LangInfo infos = 2;
+}
+
+message LangRequest {
+    common.Head head = 1;
+    LangInfo info = 2;
 }
