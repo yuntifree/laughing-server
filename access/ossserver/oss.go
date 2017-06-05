@@ -484,6 +484,65 @@ func delUserLang(w http.ResponseWriter, r *http.Request) (apperr *util.AppError)
 	return nil
 }
 
+func getLangFollow(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "FetchLangFollow",
+		&common.CommRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid}})
+
+	httpserver.CheckRPCErr(rpcerr, "FetchLangFollow")
+	res := resp.Interface().(*config.LangFollowReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "FetchLangFollow")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func addLangFollow(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	lid := req.GetParamInt("lid")
+	uids := req.GetParamIntArray("uids")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "AddLangFollow",
+		&config.LangFollowRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Lid: lid, Uids: uids})
+
+	httpserver.CheckRPCErr(rpcerr, "AddLangFollow")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "AddLangFollow")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
+func delLangFollow(w http.ResponseWriter, r *http.Request) (apperr *util.AppError) {
+	var req httpserver.Request
+	req.InitOss(r)
+	ids := req.GetParamIntArray("ids")
+
+	uuid := util.GenUUID()
+	resp, rpcerr := httpserver.CallRPC(util.ConfigServerType, req.Uid, "DelLangFollow",
+		&config.DelLangFollowRequest{Head: &common.Head{Sid: uuid, Uid: req.Uid},
+			Ids: ids})
+
+	httpserver.CheckRPCErr(rpcerr, "DelLangFollow")
+	res := resp.Interface().(*common.CommReply)
+	httpserver.CheckRPCCode(res.Head.Retcode, "DelLangFollow")
+
+	body := httpserver.GenResponseBody(res, false)
+	w.Write(body)
+	httpserver.ReportSuccResp(r.RequestURI)
+	return nil
+}
+
 //NewOssServer return oss http handler
 func NewOssServer() http.Handler {
 	mux := http.NewServeMux()
@@ -507,6 +566,9 @@ func NewOssServer() http.Handler {
 	mux.Handle("/get_user_lang", httpserver.AppHandler(getUserLang))
 	mux.Handle("/add_user_lang", httpserver.AppHandler(addUserLang))
 	mux.Handle("/del_user_lang", httpserver.AppHandler(delUserLang))
+	mux.Handle("/get_user_lang_follow", httpserver.AppHandler(getLangFollow))
+	mux.Handle("/add_user_lang_follow", httpserver.AppHandler(addLangFollow))
+	mux.Handle("/del_user_lang_follow", httpserver.AppHandler(delLangFollow))
 	mux.Handle("/", http.FileServer(http.Dir("/data/laughing/oss")))
 	return mux
 }

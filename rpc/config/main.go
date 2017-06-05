@@ -115,6 +115,38 @@ func (s *server) DelUserLang(ctx context.Context, in *common.CommRequest) (*comm
 		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
 }
 
+func (s *server) FetchLangFollow(ctx context.Context, in *common.CommRequest) (*config.LangFollowReply, error) {
+	log.Printf("FetchLangFollow request:%v", in)
+	util.PubRPCRequest(w, "config", "FetchLangFollow")
+	infos := fetchLangFollow(db)
+	util.PubRPCSuccRsp(w, "config", "FetchLangFollow")
+	return &config.LangFollowReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}, Infos: infos}, nil
+}
+
+func (s *server) AddLangFollow(ctx context.Context, in *config.LangFollowRequest) (*common.CommReply, error) {
+	log.Printf("AddLangFollow request:%v", in)
+	util.PubRPCRequest(w, "config", "AddLangFollow")
+	addLangFollow(db, in.Lid, in.Uids)
+	util.PubRPCSuccRsp(w, "config", "AddLangFollow")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
+}
+
+func (s *server) DelLangFollow(ctx context.Context, in *config.DelLangFollowRequest) (*common.CommReply, error) {
+	log.Printf("DelLangFollow request:%v", in)
+	util.PubRPCRequest(w, "config", "DelLangFollow")
+	err := delLangFollow(db, in.Ids)
+	if err != nil {
+		log.Printf("DelLangFollow failed:%v", err)
+		return &common.CommReply{
+			Head: &common.Head{Retcode: 1, Uid: in.Head.Uid}}, nil
+	}
+	util.PubRPCSuccRsp(w, "config", "DelLangFollow")
+	return &common.CommReply{
+		Head: &common.Head{Retcode: 0, Uid: in.Head.Uid}}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", util.ConfigServerPort)
 	if err != nil {

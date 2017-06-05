@@ -12,6 +12,9 @@ service Config {
     rpc FetchUserLang(common.CommRequest) returns (LangReply) {}
     rpc AddUserLang(LangRequest) returns (common.CommReply) {}
     rpc DelUserLang(common.CommRequest) returns (common.CommReply) {}
+    rpc FetchLangFollow(common.CommRequest) returns (LangFollowReply) {}
+    rpc AddLangFollow(LangFollowRequest) returns (common.CommReply) {}
+    rpc DelLangFollow(DelLangFollowRequest) returns (common.CommReply) {}
 }
 
 message VersionInfo {
@@ -61,4 +64,30 @@ message LangReply {
 message LangRequest {
     common.Head head = 1;
     LangInfo info = 2;
+}
+
+message LangFollowRequest {
+    common.Head head = 1;
+    int64 lid = 2;
+    repeated int64 uids = 3;
+}
+
+message LangFollowInfo {
+    int64 id = 1;
+    int64 lid = 2;
+    string lang = 3;
+    string content = 4;
+    int64 uid = 5;
+    string headurl = 6;
+    string nickname = 7;
+}
+
+message LangFollowReply {
+    common.Head head = 1;
+    repeated LangFollowInfo infos = 2;
+}
+
+message DelLangFollowRequest {
+    common.Head head = 1;
+    repeated int64 ids = 2;
 }
