@@ -40,7 +40,8 @@ func fblogin(db *sql.DB, in *verify.FbLoginRequest) (uid int64, token, headurl s
 		log.Printf("fblogin get last insert id failed:%v", err)
 		return
 	}
-	util.PubData(w, "register", map[string]interface{}{"uid": uid})
+	util.PubData(w, "register", map[string]interface{}{"uid": uid,
+		"lang": in.Language})
 	util.PubData(w, "register_head", map[string]interface{}{"uid": uid})
 	return
 }
