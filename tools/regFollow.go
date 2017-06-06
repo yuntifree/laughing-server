@@ -34,7 +34,9 @@ func follow(uid, tuid int64) {
 
 func getLangUids(lang string) []int64 {
 	if v, ok := langUids[lang]; ok {
-		return v
+		if len(v) > 0 {
+			return v
+		}
 	}
 	return recommendUids
 }
@@ -58,7 +60,7 @@ func doFollow(msg *nsq.Message) {
 		loadTime = time.Now()
 	}
 	uids := getLangUids(lang)
-	log.Printf("lang:%s uids:%+v", lang, uids)
+	log.Printf("lang:%s uids:%v", lang, uids)
 	for i := 0; i < len(uids); i++ {
 		log.Printf("follow uid:%d tuid:%d", uid, uids[i])
 		follow(uid, uids[i])
@@ -99,7 +101,7 @@ func loadLangUids() {
 		return
 	}
 	defer db.Close()
-	recommendUids, err := getRecommendUids(db)
+	recommendUids, err = getRecommendUids(db)
 	if err != nil {
 		log.Printf("loadLangUids getRecommendUids failed:%v", err)
 	}
