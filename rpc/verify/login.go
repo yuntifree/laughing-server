@@ -5,6 +5,7 @@ import (
 	"errors"
 	fb "laughing-server/facebook"
 	"laughing-server/proto/verify"
+	"laughing-server/ucloud"
 	"laughing-server/util"
 	"log"
 )
@@ -24,6 +25,7 @@ func fblogin(db *sql.DB, in *verify.FbLoginRequest) (uid int64, token, headurl s
 			log.Printf("fblogin update user token  failed:%v", err)
 			return
 		}
+		headurl = ucloud.GenHeadThumb(headurl)
 		return
 	}
 	headurl = fb.GenHeadurl(in.Fbid)
