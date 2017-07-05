@@ -90,6 +90,9 @@ message ShareInfo {
     int64 smile = 12;
     int64 review = 13;
     repeated TagInfo taginfo = 14;
+    int64 reshare = 15;
+    int64 comments = 16;
+    int64 hasshare = 17;
 }
 
 message ShareReply {

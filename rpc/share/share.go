@@ -122,7 +122,7 @@ func addComment(db *sql.DB, uid, sid int64, content string) (id int64, err error
 }
 
 func genShareTagQuery(uid, seq, num, id int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile, s.review FROM shares s, users u, media m, media_tags t  WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND m.smile != 0 AND s.sid = 0 AND t.deleted = 0 "
+	query := "SELECT s.id, s.uid, s.reshare, s.comments, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile, s.review FROM shares s, users u, media m, media_tags t  WHERE  s.mid = t.mid AND s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 AND m.smile != 0 AND s.sid = 0 AND t.deleted = 0 "
 	query += fmt.Sprintf(" AND t.tid = %d", id)
 	if seq != 0 {
 		query += fmt.Sprintf(" AND s.id < %d ", seq)
@@ -132,7 +132,7 @@ func genShareTagQuery(uid, seq, num, id int64) string {
 }
 
 func genShareQuery(uid, tuid, seq, num int64) string {
-	query := "SELECT s.id, s.uid, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile, s.review FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
+	query := "SELECT s.id, s.uid, s.reshare, s.comments, u.headurl, u.nickname, m.img, m.views, m.title, m.abstract, m.width, m.height, m.id, m.smile, s.review FROM shares s, users u, media m WHERE s.uid = u.uid AND s.mid = m.id AND s.deleted = 0 "
 	if uid != 0 && tuid == 0 {
 		query += fmt.Sprintf(" AND (s.uid IN (SELECT tuid FROM follower WHERE uid = %d AND deleted = 0) OR s.uid = %d) ", uid, uid)
 	} else if tuid == 0 {
@@ -163,7 +163,8 @@ func getUserShares(db *sql.DB, uid, tuid, seq, num int64) (infos []*share.ShareI
 	for rows.Next() {
 		var info share.ShareInfo
 		var mid int64
-		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
+		err := rows.Scan(&info.Id, &info.Uid, &info.Reshare, &info.Comments,
+			&info.Headurl, &info.Nickname,
 			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
 			&info.Height, &mid, &info.Smile, &info.Review)
 		if err != nil {
@@ -195,7 +196,8 @@ func getShares(db *sql.DB, uid, seq, num, id int64) (infos []*share.ShareInfo, n
 	for rows.Next() {
 		var info share.ShareInfo
 		var mid int64
-		err := rows.Scan(&info.Id, &info.Uid, &info.Headurl, &info.Nickname,
+		err := rows.Scan(&info.Id, &info.Uid, &info.Reshare, &info.Comments,
+			&info.Headurl, &info.Nickname,
 			&info.Img, &info.Views, &info.Title, &info.Desc, &info.Width,
 			&info.Height, &mid, &info.Smile, &info.Review)
 		if err != nil {
@@ -205,6 +207,8 @@ func getShares(db *sql.DB, uid, seq, num, id int64) (infos []*share.ShareInfo, n
 		nextseq = info.Id
 		info.Img = ucloud.GenImgThumb(info.Img)
 		info.Headurl = ucloud.GenHeadThumb(info.Headurl)
+		info.Taginfo = getMediaTags(db, mid)
+		info.Hasshare = hasShare(db, uid, mid)
 		infos = append(infos, &info)
 	}
 	return
